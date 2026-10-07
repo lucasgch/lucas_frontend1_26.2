@@ -1,0 +1,20 @@
+*, *::before, *::after { box-sizing: border-box; }  /* sane sizing */
+
+* { margin: 0; }               /* opt INTO spacing deliberately */
+
+body {
+  min-height: 100dvh;
+  line-height: 1.6;             /* readable default */
+  -webkit-font-smoothing: antialiased;
+}
+
+img, picture, video, canvas, svg {
+  display: block;               /* kills mystery gap under images */
+  max-width: 100%;              /* never overflow their container */
+}
+
+input, button, textarea, select { font: inherit; }  /* forms don't inherit fonts! */
+
+p, h1, h2, h3 { overflow-wrap: break-word; }  /* long URLs can't break layout */
+
+h1, h2, h3, h4 { text-wrap: balance; }        /* nicer heading line breaks */
