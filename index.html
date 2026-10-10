@@ -9,197 +9,149 @@
 </head>
 <body>
     
-    <header class="container site-header">
-        <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
-          <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
-          <span class="title-site"> Livros</span>
-        </a>
-        <!-- Menu hambúrguer -->
-        <input type="checkbox" id="menu-toggle" class="menu-toggle">
-        <label for="menu-toggle" class="botao-menu">
-            <span class="visualmente-oculto">Abrir ou fechar o menu</span>
-            <span aria-hidden="true">&#9776;</span>
-        </label>
+  <header class="container site-header">
+    <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
+      <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
+      <span class="title-site"> Livros</span>
+    </a>
+    <!-- Menu hambúrguer -->
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle" class="botao-menu">
+      <span class="visualmente-oculto">Abrir ou fechar o menu</span>
+      <span aria-hidden="true">&#9776;</span>
+    </label>
 
-        <nav id="menu-principal" aria-label="Principal">
-            <ul>
-                <li><a href="index.html" aria-current="page">Início</a></li>
-                <li><a href="loja.html">Loja</a></li>
-                <li><a href="cadastro.html">Cadastro</a></li>
-                <li><a href="login.html">Login</a></li>
-                <li><a href="perfil.html">Perfil</a></li>
-                <li><a href="relatorios.html">Relatórios</a></li>
-            </ul>
-        </nav>
-    </header>
-    <main class="container">
-        <section id="hero" aria-labelledby="hero-title">
-            <img src="./img/hero.jpg" alt="Livros" class="hero-media">
-            <div class="hero-content">
-                <h1 id="titulo-destaque">Livros</h1>
-                <p>Ler abre as janelas do mundo.</p>
-                <p>Compartilhar é uma forma afetiva de trocar histórias e valorizar nossas comunidades.</p> 
-                <p>Veja aqui uma lista cuidadosamente selecionada de obras que eu gostaria de partilhar e participe dessa rede.</p>
-                <a class="botao botao-primario" href="#produtos">Ver livros</a>
-            </div>
-        </section>
-        <section id="sobre">
+    <nav id="menu-principal" aria-label="Principal">
+      <ul>
+        <li><a href="index.html" aria-current="page">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <main class="container">
+    <section id="hero" aria-labelledby="hero-title">
+      <img src="./img/hero.jpg" alt="Livros" class="hero-media">
+      <div class="hero-content">
+        <h1 id="titulo-destaque">Livros</h1>
+        <p>Ler abre as janelas do mundo.</p>
+        <p>Compartilhar é uma forma afetiva de trocar histórias e valorizar nossas comunidades.</p> 
+        <p>Veja aqui uma lista cuidadosamente selecionada de obras que eu gostaria de partilhar e participe dessa rede.</p>
+        <a class="botao botao-primario" href="#produtos">Ver livros</a>
+      </div>
+    </section>
+        
+    <section id="produtos" aria-labelledby="titulo-produtos">
+      <h2 id="titulo-produtos">Nossos Produtos</h2>
 
-        </section>
-        <section id="produtos" aria-labelledby="titulo-produtos">
-  <h2 id="titulo-produtos">Nossos Produtos</h2>
+      <ul class="grade-produtos">
+        <!-- Produto 1 -->
+        <li class="item-produto">
+            <article class="card-produto">
+            <img src="./img/produtos/produto-01.jpg" alt="Descrição detalhada do Produto 1" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Androides sonham com ovelhas elétricas?</h3>
+              <p class="autor-livro">Philip K. Dick</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 99,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-  <ul class="grade-produtos">
-    <!-- Produto 1 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-01.jpg" alt="Descrição detalhada do Produto 1" loading="lazy">
-        <h3>Produto 01</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 99,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 2 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-02.jpg" alt="Descrição detalhada do Produto 2" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">A Guerra dos Tronos : As Crônicas de Gelo e Fogo</h3>
+              <p class="autor-livro">George R. R. Martin</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 149,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 2 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-02.jpg" alt="Descrição detalhada do Produto 2" loading="lazy">
-        <h3>Produto 02</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 149,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 3 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-03.jpg" alt="Descrição detalhada do Produto 3" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Drácula</h3>
+              <p class="autor-livro">Bram Stoker</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 79,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 3 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-03.jpg" alt="Descrição detalhada do Produto 3" loading="lazy">
-        <h3>Produto 03</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 79,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 4 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-04.jpg" alt="Descrição detalhada do Produto 4" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">O desvio</h3>
+              <p class="autor-livro">Gerbrand Bakker</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 199,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 4 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-04.jpg" alt="Descrição detalhada do Produto 4" loading="lazy">
-        <h3>Produto 04</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 199,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 5 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-05.jpg" alt="Descrição detalhada do Produto 5" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Mate-Me Por Favor - Vol. 1 e 2</h3>
+              <p class="autor-livro">Gillian Mccain, Legs Mcneil</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 59,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 5 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-05.jpg" alt="Descrição detalhada do Produto 5" loading="lazy">
-        <h3>Produto 05</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 59,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 6 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-06.jpg" alt="Descrição detalhada do Produto 6" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Powerskills</h3>
+              <p class="autor-livro">Dafna Blaschkauer</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 120,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 6 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-06.jpg" alt="Descrição detalhada do Produto 6" loading="lazy">
-        <h3>Produto 06</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 120,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 7 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-07.jpg" alt="Descrição detalhada do Produto 7" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Arrume a sua cama</h3>
+              <p class="autor-livro">William H. McRaven</p>
+            </header>
+            <p class="descricao">Breve descrição sobre as características do item.</p>
+            <p class="preco">R$ 85,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 7 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-07.jpg" alt="Descrição detalhada do Produto 7" loading="lazy">
-        <h3>Produto 07</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 85,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 8 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-08.jpg" alt="Descrição detalhada do Produto 8" loading="lazy">
-        <h3>Produto 08</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 210,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 9 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-09.jpg" alt="Descrição detalhada do Produto 9" loading="lazy">
-        <h3>Produto 09</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 45,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 10 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-10.jpg" alt="Descrição detalhada do Produto 10" loading="lazy">
-        <h3>Produto 10</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 130,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 11 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-11.jpg" alt="Descrição detalhada do Produto 11" loading="lazy">
-        <h3>Produto 11</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 175,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 12 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-12.jpg" alt="Descrição detalhada do Produto 12" loading="lazy">
-        <h3>Produto 12</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 95,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-
-    <!-- Produto 13 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-13.jpg" alt="Descrição detalhada do Produto 13" loading="lazy">
-        <h3>Produto 13</h3>
-        <p class="descricao">Breve descrição sobre as características do item.</p>
-        <p class="preco">R$ 250,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-  </ul>
-  <a href="loja.html" class="botao botao-primario">Ver catálogo completo na Loja &rarr;</a>.
-</section>
-        <section id="contato">
-
-        </section>
-    </main>
-    <footer class="container">
+      </ul>
+      <a href="loja.html" class="botao botao-primario">Ver catálogo completo na Loja &rarr;</a>
+    </section>
+  </main>
+  <footer class="container">
       <div class="site-logo footer-logo" aria-label="&lt;//&gt; Livros - Contato">
         <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
         <span class="title-site">Livros - Contato</span>
@@ -224,6 +176,6 @@
         <p>&copy; 2026 - São José/SC</p>
       </div>      
 
-    </footer>    
+  </footer>
 </body>
 </html>

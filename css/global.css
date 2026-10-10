@@ -18,6 +18,10 @@
   --text-accent: #0284c7;         /* Destaque e links */
   --text-accent-hover: #0369a1;   /* Variação */
 
+  /* Superfícies e Fundos */
+  --surface-subtle: rgba(0, 0, 0, 0.05);   /* Fundo cinza sutil para cards, caixas ou hover */
+  --surface-subtle-hover: rgba(0, 0, 0, 0.1); /* Escurece sutilmente sem perder a neutralidade */
+
   /* Tamanho das fontes */
   --text-xs: 0.75rem;    /* 12px */
   --text-sm: 0.85rem;    /* 13.6px */
