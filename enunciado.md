@@ -55,7 +55,7 @@ total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, clien
 
 - (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
 - (b) Rodapé presente em todas as páginas.
-- (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html). 
+- (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
 - (d) Responsividade com media queries para:
     - desktop (> 1024px);
     - tablet (≥ 768px e ≤ 1024px);
