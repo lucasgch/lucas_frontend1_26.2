@@ -36,4 +36,5 @@ p{
 
 .container {
   max-width: var(--content-width);
+  margin-inline: auto; /* Centraliza o container */
 }
