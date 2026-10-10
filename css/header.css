@@ -4,3 +4,73 @@
     width: 100%;
     padding-block: 1rem;   
 }
+
+#hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 21 / 9; /* Ultrawide */
+    max-height: 60vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    z-index: 1;
+}
+
+/* Overlay escurecido para dar contraste cinematográfico ao texto */
+#hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+}
+
+/* Overlay escurecido para dar contraste cinematográfico ao texto */
+#hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom, 
+        rgba(0, 0, 0, 0.2) 50%, 
+        rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 2;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.hero-content h1,
+.hero-content p {
+    color: var(--text-inverse);
+}
+
+.hero-content a {
+    display: inline-block;
+    color: var(--text-primary);
+    background-color: var(--text-inverse);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius);
+    margin-top: 1rem;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.hero-content a:hover {
+    background-color: var(--text-inverse-muted);
+}

@@ -11,6 +11,10 @@
   --text-muted: #57534E;          /* Metadados como autor e etc */
   --text-tertiary: #A8A29E;       /* Textos secundários como datas */
 
+    /* Tipografia para superfícies escuras (Hero / Banners / Badges) */
+  --text-inverse: #FAFAF9;        /* Stone 50: Branco quente suave, não cansa a vista */
+  --text-inverse-muted: #D6D3D1;  /* Stone 300: Dá hierarquia ao subtítulo */
+
   /* Tamanho das fontes */
   --text-xs: 0.75rem;    /* 12px */
   --text-sm: 0.85rem;    /* 13.6px */
