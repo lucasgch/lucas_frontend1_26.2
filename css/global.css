@@ -33,3 +33,7 @@ body {
 p{
   color: var(--text-primary);
 }
+
+.container {
+  max-width: var(--content-width);
+}
