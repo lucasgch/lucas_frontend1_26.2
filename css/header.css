@@ -1,9 +1,66 @@
 .site-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--cor-superficie);
+    border-bottom: 1px solid var(--borda);
     top: 0;
     z-index: 50;
     width: 100%;
     padding-block: 1rem;   
 }
+
+/* === Logo do site === */
+
+.site-logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: var(--text-base);
+    color: var(--text-primary);
+    transition: opacity 0.2s ease;
+}
+
+.logo-icon {
+    color: var(--text-primary);
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+}
+
+/* === MENU === */
+
+.menu-toggle {
+    display: none;
+}
+
+.botao-menu {
+    display: none;
+}
+
+#menu-principal ul {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+#menu-principal a {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.5rem 0.85rem;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+#menu-principal a:hover {                    
+        color: #0284c7; /* ou outra cor de destaque */
+        background-color: rgba(0, 0, 0, 0.05); /* cinza sutil perceptível em fundo claro */
+    }
+
+/* === Serção hero de destaque === */
 
 #hero {
     position: relative;
@@ -26,22 +83,20 @@
     z-index: 1;
 }
 
-/* Overlay escurecido para dar contraste cinematográfico ao texto */
+/* Overlay escurecido para dar mais contraste ao texto */
 #hero::after {
     content: '';
     position: absolute;
     inset: 0;
     z-index: 2;
 }
-
-/* Overlay escurecido para dar contraste cinematográfico ao texto */
 #hero::after {
     content: '';
     position: absolute;
     inset: 0;
     background: linear-gradient(
         to bottom, 
-        rgba(0, 0, 0, 0.2) 50%, 
+        rgba(0, 0, 0, 0.2) 0%, 
         rgba(0, 0, 0, 0.6) 100%
     );
     z-index: 2;
@@ -52,10 +107,34 @@
     z-index: 3;
     text-align: center;
     padding: 1.5rem;
+    max-width: 32rem;
 }
 
 .hero-content h1,
 .hero-content p {
+    color: var(--text-inverse);
+}
+
+/* 1º Parágrafo — Menor destaque */
+.hero-content p:nth-of-type(1) {
+    font-size: var(--text-sm);
+    color: var(--text-inverse);
+    opacity: 0.85;
+    font-style: italic;
+    margin-bottom: 0.5rem;
+}
+/* 2º Parágrafo — Destaque intermediário */
+.hero-content p:nth-of-type(2) {
+    font-size: var(--text-base);
+    color: var(--text-inverse);
+    font-style: italic;
+    margin-bottom: 0.75rem;
+}
+/* 3º Parágrafo — Maior destaque */
+.hero-content p:nth-of-type(3) {
+    font-size: var(--text-base);
+    font-weight: 500;
+    font-style: italic;
     color: var(--text-inverse);
 }
 
