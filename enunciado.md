@@ -23,7 +23,7 @@ Avaliação feita do ponto de vista do usuário, considerando interface, organiz
 ## 2.1 Página inicial e produtos
 
 - (a) Produtos disponíveis: apresentar no mínimo 10 produtos diferentes. Cada produto deve conter nome, imagem, descrição e preço, além de um botão “Adicionar ao carrinho” (apenas visual nesta etapa).
-- (b) Descrição da loja: apresentar a história/descrição da empresa e dos produtos comercializados, com pelo menos duas imagens fora da galeria de produtos. 
+- (b) Descrição da loja: apresentar a história/descrição da empresa e dos produtos comercializados, com pelo menos duas imagens fora da galeria de produtos.
 - (c) Destaque: incluir uma área de destaque (banner ou chamada principal) com nome e logo da loja.
 - (d) Contato: exibir informações da empresa (endereço, telefone, e-mail, horário) e um formulário de contato com nome, e-mail e mensagem.
 
@@ -32,8 +32,7 @@ Avaliação feita do ponto de vista do usuário, considerando interface, organiz
 - (a) Cadastro (cadastro.html): formulário com nome, e-mail, senha e CPF (no mínimo quatro informações), mais confirmação de senha. Utilizar os recursos nativos do HTML: labels associados aos campos, tipos de input adequados, required, minlength, pattern (CPF), placeholder e autocomplete.
 - (b) Login (login.html): formulário de autenticação com e-mail e senha, com link para a página de cadastro.
 - (c) Perfil (perfil.html): formulário de edição dos dados do cliente com todos os campos do cadastro. O ID do cliente (ex.: C001) deve aparecer em um campo que não pode ser editado (readonly ou disabled). A página deve conter também uma tabela de exemplo “Meus pedidos”.
-- (d) Consistência: as três telas devem seguir o mesmo padrão visual de formulário 
-(espaçamentos, botões, estados de foco e de erro visual).
+- (d) Consistência: as três telas devem seguir o mesmo padrão visual de formulário (espaçamentos, botões, estados de foco e de erro visual).
 
 ## 2.3 Loja e carrinho
 
@@ -57,9 +56,9 @@ total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, clien
 - (b) Rodapé presente em todas as páginas.
 - (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
 - (d) Responsividade com media queries para:
-    - desktop (> 1024px);
-    - tablet (≥ 768px e ≤ 1024px);
-    - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
+  - desktop (> 1024px);
+  - tablet (≥ 768px e ≤ 1024px);
+  - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
 - (e) Identidade visual: paleta de cores e tipografia coerentes com a loja, uso de variáveis CSS  (custom properties), Flexbox e/ou Grid para o layout, estados :hover, :focus-visible e :active, e  pelo menos uma transição ou animação sutil.
 - (f) Acessibilidade básica: texto alternativo em todas as imagens, contraste adequado, foco visível e hierarquia de títulos correta (h1 a h3).
 

@@ -24,7 +24,7 @@
 
 .logo-icon {
     color: var(--text-primary);
-    padding: 0.5rem 0.85rem;
+    padding: 0.5rem 0.5rem 0.5rem 0.85rem;
     border-radius: 6px;
 }
 
@@ -56,7 +56,7 @@
 }
 
 #menu-principal a:hover {                    
-        color: #0284c7; /* ou outra cor de destaque */
+        color: var(--text-accent); /* ou outra cor de destaque */
         background-color: rgba(0, 0, 0, 0.05); /* cinza sutil perceptível em fundo claro */
     }
 

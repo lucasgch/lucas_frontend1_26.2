@@ -4,8 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loja</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
-    
+    <header class="container site-header">
+        <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
+          <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
+          <span class="title-site"> Livros</span>
+        </a>
+        <!-- Menu hambúrguer -->
+        <input type="checkbox" id="menu-toggle" class="menu-toggle">
+        <label for="menu-toggle" class="botao-menu">
+            <span class="visualmente-oculto">Abrir ou fechar o menu</span>
+            <span aria-hidden="true">&#9776;</span>
+        </label>
+
+        <nav id="menu-principal" aria-label="Principal">
+            <ul>
+                <li><a href="index.html" aria-current="page">Início</a></li>
+                <li><a href="loja.html">Loja</a></li>
+                <li><a href="cadastro.html">Cadastro</a></li>
+                <li><a href="login.html">Login</a></li>
+                <li><a href="perfil.html">Perfil</a></li>
+                <li><a href="relatorios.html">Relatórios</a></li>
+            </ul>
+        </nav>
+    </header>
+    <footer class="container">
+
+        <p>&copy; 2026 - São José/SC</p>
+        <a href="https://lucasgodoy.dev/" class="site-logo" aria-label="LucasGodoy.dev"<span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;/&gt;</span>Aú Desviante</a>
+    </footer>
 </body>
 </html>
