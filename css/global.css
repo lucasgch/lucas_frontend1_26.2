@@ -37,4 +37,7 @@ p{
 .container {
   max-width: var(--content-width);
   margin-inline: auto; /* Centraliza o container */
+  
+  /* Espaçamento interno dos containers - Evita que fique colado na lateral em telas menores*/
+  padding-inline: 1.25rem;
 }
