@@ -20,6 +20,6 @@ Nesta primeira etapa não é permitido utilizar JavaScript. Todas as telas devem
 
 O enunciado completo com todos os requisitos desse desafio pode ser encontrado neste link:
 
-- [Enunciado completo do laboratório](./enunciado.md)
+- [Enunciado completo do laboratório](./docs/enunciado.md)
 
 ## TODO
