@@ -3,9 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Perfil</title>
+    <title>Livros - Perfil</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
     
+  <header class="container site-header">
+    <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site"> Livros</span>
+    </a>
+    <!-- Menu hambúrguer -->
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle" class="botao-menu">
+      <span class="visualmente-oculto">Abrir ou fechar o menu</span>
+      <span aria-hidden="true">&#9776;</span>
+    </label>
+
+    <nav id="menu-principal" aria-label="Principal">
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html">Login</a></li>
+        <li><a href="perfil.html" aria-current="page">Perfil</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1 id="perfil-titulo">Meu perfil</h1>
+    <section class="form form-perfil" aria-labelledby="dados-titulo">
+      <h2 id="dados-titulo">Dados pessoais</h2>
+      <form id="form-perfil" action="/perfil" method="POST" class="formulario-perfil">
+        <fieldset>
+          <legend>Identificação</legend>
+           <div class="campo-form">
+            <label for="perfil-id">ID do cliente:</label>
+             <input type="text" id="perfil-id" name="id" value="C001" readonly>
+           </div>
+        </fieldset>
+        <fieldset>
+          <legend>Dados pessoais</legend>
+
+          <!-- Nome Completo -->
+          <div class="campo-form">
+            <label for="perfil-nome">Nome completo:</label>
+            <input 
+              type="text" 
+              id="perfil-nome" 
+              name="nome" 
+              value="Maria da Silva"
+              required 
+              minlength="3" 
+              placeholder="Ex: Maria da Silva" 
+              autocomplete="name">
+          </div>
+
+          <!-- CPF -->
+          <div class="campo-form">
+            <label for="perfil-cpf">CPF:</label>
+            <input 
+              type="text" 
+              id="perfil-cpf" 
+              name="cpf" 
+              value="123.456.789-00"
+              required 
+              placeholder="000.000.000-00 ou 11 dígitos" 
+              pattern="(\d{3}\.?\d{3}\.?\d{3}-?\d{2})" 
+              title="Digite um CPF válido no formato 000.000.000-00 ou apenas os 11 números."
+              autocomplete="off"
+              inputmode="numeric">
+          </div>
+
+          <!-- E-mail -->
+          <div class="campo-form">
+            <label for="perfil-email">E-mail:</label>
+            <input 
+              type="email" 
+              id="perfil-email" 
+              name="email" 
+              value="maria.silva@exemplo.com"
+              required 
+              placeholder="seuemail@exemplo.com" 
+              autocomplete="email">
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Alterar senha</legend>
+
+          <!-- Nova Senha -->
+          <div class="campo-form">
+            <label for="perfil-senha">Nova senha:</label>
+            <input 
+              type="password" 
+              id="perfil-senha" 
+              name="senha" 
+              minlength="8" 
+              placeholder="Mínimo de 8 caracteres" 
+              autocomplete="new-password">
+          </div>
+
+          <!-- Confirmar Nova Senha -->
+          <div class="campo-form">
+            <label for="perfil-confirma-senha">Confirmar nova senha:</label>
+            <input 
+              type="password" 
+              id="perfil-confirma-senha" 
+              name="confirma_senha" 
+              minlength="8" 
+              placeholder="Repita a nova senha" 
+              autocomplete="new-password">
+          </div>
+        </fieldset>
+        <div class="acoes-form">
+          <button type="submit" class="botao botao-primario">Salvar alterações</button>
+          <button type="reset" class="botao">Desfazer</button>
+        </div>
+      </form>
+    </section>
+  <section class="secao-pedidos" aria-labelledby="pedidos-titulo">
+    <h2 id="pedidos-titulo">Meus pedidos</h2>
+    <div class="tabela-container"> <!-- rolagem horizontal só na tabela, no celular -->
+      <table id="tabela-pedidos" class="tabela-pedidos">
+        <caption>Histórico de pedidos do cliente C001</caption>
+        <thead>
+          <tr>
+            <th scope="col">Pedido</th>
+            <th scope="col">Data</th>
+            <th scope="col">Itens</th>
+            <th scope="col">Status</th>
+            <th scope="col">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <th scope="row">CP001</th>
+            <td><time datetime="2026-09-02">02/09/2026</time></td>
+            <td>2</td>
+            <td>Entregue</td>
+            <td>R$ 89,90</td>
+          </tr>
+          <tr>
+            <th scope="row">CP002</th>
+            <td><time datetime="2026-09-02">02/09/2026</time></td>
+            <td>1</td>
+            <td>Entregue</td>
+            <td>R$ 57,90</td>
+          </tr>
+          <tr>
+            <th scope="row">CP002</th>
+            <td><time datetime="2026-09-02">02/09/2026</time></td>
+            <td>10</td>
+            <td>Entregue</td>
+            <td>R$ 1001,90</td>
+          </tr>
+          <!-- + 2 a 4 pedidos de exemplo -->
+        </tbody>
+          <tfoot>
+            <tr>
+              <th scope="row" colspan="4">Total gasto</th>
+              <td>R$ 1149,70</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container footer-container">
+    <div class="site-logo footer-logo">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site">Livros</span>
+    </div>
+
+    <section class="form" aria-labelledby="titulo-contato">
+      <h2 id="titulo-contato" aria-label="Formulário de Contato">
+          Formulário de Contato
+      </h2>
+      <form id="form-contato" action="https://localhost" method="POST"> 
+        <!-- Campos ocultos de configuração -->
+        <input type="hidden" name="recipient" value="testeiseuemail@gmail.com">
+        <input type="hidden" name="redirect" value="http://seudominio">
+        <input type="hidden" name="subject" value="teste de assunto">
+        <input type="hidden" name="email" value="email@doseudominio"> 
+        <div class="campo-form">
+          <label for="campo-nome">Nome:</label>
+          <input type="text" id="campo-nome" name="nome" autocomplete="name" required placeholder="Seu nome completo">    
+        </div>  
+        <div class="campo-form">
+          <label for="campo-email">E-mail:</label>
+          <input type="email" id="campo-email" name="replyto" autocomplete="email" required placeholder="seuemail@exemplo.com">
+        </div>
+        <div class="campo-form">
+          <label for="campo-comentarios">Comentários:</label>
+          <textarea id="campo-comentarios" name="Comentarios" rows="4" required placeholder="Digite sua mensagem aqui..."></textarea>
+        </div>
+        <div class="acoes-form">
+          <button type="submit" class="botao botao-primario">Enviar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="footer-address-section">
+      <h3 id="titulo-address">Endereço</h3>
+      <address class="footer-address">
+        <p>Online - São José/SC</p>
+        <p>
+          <strong>Telefone:</strong> 
+          <a href="tel:+554800000000">+55 (48) 0000-0000</a>
+        </p>
+        <p>
+          <strong>Email:</strong> 
+          <a href="mailto:livros@lucasgodoy.dev">livros@lucasgodoy.dev</a>
+        </p>
+        <p class="footer-schedule">
+          <strong>Horário de atendimento:</strong>
+          <span>De seg. a sex. das 9h às 22h</span>
+        </p>
+      </address>
+    </section>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 - São José/SC</p>
+      </div>      
+
+  </footer>
+  
 </body>
 </html>

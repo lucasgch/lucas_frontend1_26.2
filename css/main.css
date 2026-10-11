@@ -105,3 +105,64 @@ p.link a {
 p.link a:hover { 
     color: var(--text-accent); 
 }
+
+/* Página main de perfil */
+.perfil-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  margin-block: 2rem;
+}
+
+.secao-pedidos {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centraliza itens filhos horizontalmente */
+  width: 100%;
+  margin-bottom: 1.5rem;
+}
+.tabela-container {
+  width: 100%;
+  max-width: 48rem;   /* Evita que a tabela estique demais em telas muito largas */
+  margin-inline: auto; /* Garante a centralização horizontal */
+  overflow-x: auto;
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  background-color: var(--cor-superficie);
+}
+.tabela-pedidos {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center; /* Centraliza o texto de todas as colunas por padrão */
+  font-size: var(--text-sm);
+}
+.tabela-pedidos caption {
+  text-align: center; /* Centraliza a legenda/caption */
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+}
+/* Dica: A primeira coluna (ex: identificador/código) pode ficar à esquerda ou no centro */
+.tabela-pedidos th,
+.tabela-pedidos td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--borda);
+  text-align: center;
+}
+.tabela-pedidos thead th {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.tabela-pedidos tbody tr:hover {
+  background-color: var(--surface-subtle);
+  transition: background-color 0.2s ease;
+}
+.tabela-pedidos tfoot {
+  font-weight: 600;
+  background-color: var(--surface-subtle);
+}
+.tabela-pedidos tfoot th {
+  text-align: right;
+  padding-right: 1.5rem;
+}

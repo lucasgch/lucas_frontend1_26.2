@@ -18,6 +18,14 @@ footer.container,
   padding-inline: 0.5rem; /* Ajuste devido ao peso diferente das fontes */
 }
 
+/* Ajuste no tamanho do h2 do footer */
+.footer-container h2 {
+  font-size: var(--text-h3);
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 1.2rem;
+}
+
 .footer-address-section {
   position: relative;
   padding-top: 1rem;
