@@ -46,19 +46,54 @@
 }
 
 #menu-principal a {
+    position: relative; /* referência para posicionar o ::after */
     text-decoration: none;
     color: var(--text-primary);
     font-size: 0.95rem;
     font-weight: 500;
     padding: 0.5rem 0.85rem;
     border-radius: 6px;
-    transition: color 0.2s ease, background-color 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
-#menu-principal a:hover {                    
-        color: var(--text-accent); /* ou outra cor de destaque */
-        background-color: rgba(0, 0, 0, 0.05); /* cinza sutil perceptível em fundo claro */
+#menu-principal a:hover {
+    background-color: rgba(0, 0, 0, 0.05); /* cinza sutil perceptível em fundo claro */
+}
+
+/* Linha animada: começa com largura zero */
+#menu-principal a::after {
+    content: "";
+    position: absolute;
+    left: 0.85rem;   /* mesmo padding lateral do link */
+    right: 0.85rem;
+    bottom: 0.25rem;
+    height: 1px;
+    background-color: currentColor; /* mesma cor do texto, mais discreto */
+    transform: scaleX(0);
+    transform-origin: center; /* cresce do meio; use "left" para crescer da esquerda */
+    transition: transform 0.25s ease;
+}
+
+/* Hover/foco: a linha cresce até a largura total */
+#menu-principal a:hover::after,
+#menu-principal a:focus-visible::after {
+    transform: scaleX(1);
+}
+
+/* Página atual: linha sempre visível */
+#menu-principal a[aria-current="page"] {
+    font-weight: 600;
+}
+
+#menu-principal a[aria-current="page"]::after {
+    transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    #menu-principal a::after {
+        transition: none;
     }
+}
 
 /* === Serção hero de destaque === */
 

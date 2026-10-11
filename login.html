@@ -4,8 +4,134 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <link rel="stylesheet" href="./css/index.css">
 </head>
 <body>
+
+    <header class="container site-header">
+    <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site"> Livros</span>
+    </a>
+    <!-- Menu hambúrguer -->
+    <input type="checkbox" id="menu-toggle" class="menu-toggle">
+    <label for="menu-toggle" class="botao-menu">
+      <span class="visualmente-oculto">Abrir ou fechar o menu</span>
+      <span aria-hidden="true">&#9776;</span>
+    </label>
+
+    <nav id="menu-principal" aria-label="Principal">
+      <ul>
+        <li><a href="index.html">Início</a></li>
+        <li><a href="loja.html">Loja</a></li>
+        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="login.html"  aria-current="page">Login</a></li>
+        <li><a href="perfil.html">Perfil</a></li>
+        <li><a href="relatorios.html">Relatórios</a></li>
+      </ul>
+    </nav>
+  </header>
+
+    <main class="container">
+    <section class="form" aria-labelledby="form-login-title">
+      <div class="form-login-content">
+        <h1 id="form-login-title">Formulário de login</h1>
+        <form id="form-login" action="/login" method="POST" class="formulario-login">
+
+          <!-- E-mail -->
+          <div class="campo-form">
+            <label for="login-email">E-mail:</label>
+            <input 
+              type="email" 
+              id="login-email" 
+              name="email" 
+              required 
+              placeholder="seuemail@exemplo.com" 
+              autocomplete="email">
+          </div>
+
+          <!-- Senha -->
+          <div class="campo-form">
+            <label for="login-password">Senha:</label>
+            <input 
+              type="password" 
+              id="login-password" 
+              name="password" 
+              required 
+              minlength="8" 
+              placeholder="Mínimo de 8 caracteres" 
+              autocomplete="current-password">
+          </div>
+
+          <!-- Ações -->
+          <div class="acoes-form">
+            <button type="submit" class="botao botao-primario">Efetuar login</button>
+          </div>
+
+          <p class="link link-cadastro">Não tem conta? <a href="cadastro.html">Cadastre-se</a></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+    <footer class="container footer-container">
+    <div class="site-logo footer-logo">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site">Livros</span>
+    </div>
+
+    <section class="form" aria-labelledby="titulo-contato">
+      <h2 id="titulo-contato">
+          Formulário de Contato
+      </h2>
+      <form id="form-contato" action="https://localhost" method="POST"> 
+        <!-- Campos ocultos de configuração -->
+        <input type="hidden" name="recipient" value="testeiseuemail@gmail.com">
+        <input type="hidden" name="redirect" value="http://seudominio">
+        <input type="hidden" name="subject" value="teste de assunto">
+        <input type="hidden" name="email" value="email@doseudominio"> 
+        <div class="campo-form">
+          <label for="campo-nome">Nome:</label>
+          <input type="text" id="campo-nome" name="nome" autocomplete="name" required placeholder="Seu nome completo">    
+        </div>  
+        <div class="campo-form">
+          <label for="campo-email">E-mail:</label>
+          <input type="email" id="campo-email" name="replyto" autocomplete="email" required placeholder="seuemail@exemplo.com">
+        </div>
+        <div class="campo-form">
+          <label for="campo-comentarios">Comentários:</label>
+          <textarea id="campo-comentarios" name="Comentarios" rows="4" required placeholder="Digite sua mensagem aqui..."></textarea>
+        </div>
+        <div class="acoes-form">
+          <button type="submit" class="botao botao-primario">Enviar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="footer-address-section">
+      <h3 id="titulo-address">Endereço</h3>
+      <address class="footer-address">
+        <p>Online - São José/SC</p>
+        <p>
+          <strong>Telefone:</strong> 
+          <a href="tel:+554800000000">+55 (48) 0000-0000</a>
+        </p>
+        <p>
+          <strong>Email:</strong> 
+          <a href="mailto:livros@lucasgodoy.dev">livros@lucasgodoy.dev</a>
+        </p>
+        <p class="footer-schedule">
+          <strong>Horário de atendimento:</strong>
+          <span>De seg. a sex. das 9h às 22h</span>
+        </p>
+      </address>
+    </section>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 - São José/SC</p>
+      </div>      
+
+  </footer>
     
 </body>
 </html>

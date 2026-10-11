@@ -15,8 +15,8 @@
   --text-inverse: #FAFAF9;        /* Stone 50: Branco quente suave, não cansa a vista */
   --text-inverse-muted: #D6D3D1;  /* Stone 300: Dá hierarquia ao subtítulo */
 
-  --text-accent: #0284c7;         /* Destaque e links */
-  --text-accent-hover: #0369a1;   /* Variação */
+  --text-accent: #0284c7;       /* Destaque e links */
+  --text-accent-var: #0369a1;   /* Variação */
 
   /* Superfícies e Fundos */
   --surface-subtle: rgba(0, 0, 0, 0.05);   /* Fundo cinza sutil para cards, caixas ou hover */

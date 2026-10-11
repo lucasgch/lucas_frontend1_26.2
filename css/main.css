@@ -93,3 +93,15 @@ section.geral {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
 }
+
+p.link { 
+    margin-top: 1.5rem; 
+}
+
+p.link a { 
+    color: var(--text-accent-var); 
+}
+
+p.link a:hover { 
+    color: var(--text-accent); 
+}

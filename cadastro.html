@@ -10,7 +10,7 @@
     
   <header class="container site-header">
     <a href="https://lucasgodoy.dev/livros" class="site-logo" aria-label="&lt;//&gt; Livros">
-      <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
       <span class="title-site"> Livros</span>
     </a>
     <!-- Menu hambúrguer -->
@@ -22,9 +22,9 @@
 
     <nav id="menu-principal" aria-label="Principal">
       <ul>
-        <li><a href="index.html" aria-current="page">Início</a></li>
+        <li><a href="index.html">Início</a></li>
         <li><a href="loja.html">Loja</a></li>
-        <li><a href="cadastro.html">Cadastro</a></li>
+        <li><a href="cadastro.html" aria-current="page">Cadastro</a></li>
         <li><a href="login.html">Login</a></li>
         <li><a href="perfil.html">Perfil</a></li>
         <li><a href="relatorios.html">Relatórios</a></li>
@@ -33,10 +33,10 @@
   </header>
 
   <main class="container">
-    <section id="form-cadastro" class="form" aria-labelledby="form-cadastro-title">
+    <section class="form" aria-labelledby="form-cadastro-title">
       <div class="form-cadastro-content">
         <h1 id="form-cadastro-title">Formulário de cadastro</h1>
-        <form action="/cadastro" method="POST" class="formulario-cadastro" novalidate>
+        <form id="form-cadastro" action="/cadastro" method="POST" class="formulario-cadastro">
           
           <!-- Nome Completo -->
           <div class="campo-form">
@@ -108,6 +108,7 @@
           <div class="acoes-form">
             <button type="submit" class="botao botao-primario">Criar conta</button>
           </div>
+          <p class="link link-login">Já tem cadastro? <a href="login.html">Efetue o login</a></p>
         </form>
       </div>
     </section>
@@ -120,10 +121,10 @@
     </div>
 
     <section class="form" aria-labelledby="titulo-contato">
-      <h3 id="titulo-contato" aria-label="Formulário de Contato">
+      <h2 id="titulo-contato" aria-label="Formulário de Contato">
           Formulário de Contato
-      </h3>
-      <form action="https://localhost" method="POST"> 
+      </h2>
+      <form id="form-contato" action="https://localhost" method="POST"> 
         <!-- Campos ocultos de configuração -->
         <input type="hidden" name="recipient" value="testeiseuemail@gmail.com">
         <input type="hidden" name="redirect" value="http://seudominio">

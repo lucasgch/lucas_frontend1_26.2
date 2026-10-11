@@ -22,8 +22,8 @@
 
         <nav id="menu-principal" aria-label="Principal">
             <ul>
-                <li><a href="index.html" aria-current="page">Início</a></li>
-                <li><a href="loja.html">Loja</a></li>
+                <li><a href="index.html">Início</a></li>
+                <li><a href="loja.html" aria-current="page">Loja</a></li>
                 <li><a href="cadastro.html">Cadastro</a></li>
                 <li><a href="login.html">Login</a></li>
                 <li><a href="perfil.html">Perfil</a></li>
@@ -236,12 +236,43 @@
 </section>
 
     <footer class="container footer-container">
-      <div class="site-logo footer-logo" aria-label="&lt;//&gt; Livros - Contato">
-        <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
-        <span class="title-site">Livros - Contato</span>
-      </div>
-      <address class="footer-address footer-contact">
-        <p><strong>Endereço:</strong> Online - São José/SC</p>
+    <div class="site-logo footer-logo">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site">Livros</span>
+    </div>
+
+    <section class="form" aria-labelledby="titulo-contato">
+      <h2 id="titulo-contato">
+          Formulário de Contato
+      </h2>
+      <form id="form-contato" action="https://localhost" method="POST"> 
+        <!-- Campos ocultos de configuração -->
+        <input type="hidden" name="recipient" value="testeiseuemail@gmail.com">
+        <input type="hidden" name="redirect" value="http://seudominio">
+        <input type="hidden" name="subject" value="teste de assunto">
+        <input type="hidden" name="email" value="email@doseudominio"> 
+        <div class="campo-form">
+          <label for="campo-nome">Nome:</label>
+          <input type="text" id="campo-nome" name="nome" autocomplete="name" required placeholder="Seu nome completo">    
+        </div>  
+        <div class="campo-form">
+          <label for="campo-email">E-mail:</label>
+          <input type="email" id="campo-email" name="replyto" autocomplete="email" required placeholder="seuemail@exemplo.com">
+        </div>
+        <div class="campo-form">
+          <label for="campo-comentarios">Comentários:</label>
+          <textarea id="campo-comentarios" name="Comentarios" rows="4" required placeholder="Digite sua mensagem aqui..."></textarea>
+        </div>
+        <div class="acoes-form">
+          <button type="submit" class="botao botao-primario">Enviar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="footer-address-section">
+      <h3 id="titulo-address">Endereço</h3>
+      <address class="footer-address">
+        <p>Online - São José/SC</p>
         <p>
           <strong>Telefone:</strong> 
           <a href="tel:+554800000000">+55 (48) 0000-0000</a>
@@ -255,11 +286,13 @@
           <span>De seg. a sex. das 9h às 22h</span>
         </p>
       </address>
+    </section>
       
       <div class="footer-bottom">
         <p>&copy; 2026 - São José/SC</p>
       </div>      
 
-    </footer>
+  </footer>
+    
 </body>
 </html>
