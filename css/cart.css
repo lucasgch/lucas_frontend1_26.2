@@ -1,7 +1,122 @@
 .secao-carrinho {
   margin-block: 4rem 3rem;
 }
+
 .carrinho-cabecalho {
   text-align: center;
   margin-bottom: 1.5rem;
+}
+
+.tabela-carrinho {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.tabela-carrinho caption {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding: 0.75rem;
+}
+
+.tabela-carrinho th {
+  padding: 1rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  vertical-align: middle;
+}
+
+.tabela-carrinho td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  vertical-align: middle;
+}
+
+.tabela-carrinho thead th {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* 3. Coluna do Produto */
+.coluna-produto {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: left;
+}
+
+.miniatura-carrinho {
+  width: 2.75rem;
+  height: 3.75rem;
+  object-fit: cover;
+  border-radius: var(--radius);
+  flex-shrink: 0;
+}
+
+.nome-produto-carrinho {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.input-quantidade {
+  width: 3.5rem;
+  padding: 0.35rem 0.25rem;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--text-sm);
+}
+
+.botao-remover {
+  background: transparent;
+  border: none;
+  color: #dc2626;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0.35rem 0.6rem;
+  border-radius: var(--radius);
+  transition: background-color 0.2s ease;
+}
+
+.botao-remover:hover {
+  background-color: rgba(220, 38, 38, 0.1);
+}
+
+.tabela-carrinho tfoot {
+  background-color: var(--surface-subtle);
+  font-weight: 600;
+}
+.rotulo-total {
+  text-align: right;
+}
+
+.valor-total {
+  color: var(--text-primary);
+  font-size: var(--text-base);
+}
+
+.acoes-carrinho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.acoes-carrinho .botao-secundario {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+.acoes-carrinho .botao-secundario:hover {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+}
+
+.visualmente-oculto{
+  display: none;
 }
