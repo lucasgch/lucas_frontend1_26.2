@@ -45,307 +45,307 @@
         </section>
         
         <section id="produtos" aria-labelledby="titulo-produtos">
-  <h2 id="titulo-produtos">Nossos Produtos</h2>
-
+          <h2 id="titulo-produtos">Nossos Produtos</h2>
   
-  <section class="secao-filtros" aria-labelledby="titulo-filtros">
-    <h3 id="titulo-filtros" class="visualmente-oculto">Filtros</h3>
-    
-    <form id="form-filtros" class="form-filtros" action="/loja" method="GET">
-      <!-- 1. Campo de Busca -->
-      <div class="campo-busca-grupo">
-        <label for="campo-busca-livros">Buscar livros:</label>
-        <div class="campo-busca">
-          <input 
-            type="search" 
-            id="campo-busca-livros" 
-            name="busca" 
-            placeholder="Título, autor ou palavra-chave..."
-            autocomplete="off">
-          <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
-            <span>Buscar</span>
-          </button>
-        </div>
-      </div>
-      <!-- 2. Controles de Filtros Visuais -->
-      <div class="filtros-opcoes">
-        <!-- Categoria -->
-        <div class="grupo-filtro">
-          <label for="filtro-categoria">Categoria:</label>
-          <select id="filtro-categoria" name="categoria">
-            <option value="">Todas as categorias</option>
-            <option value="ficcao">Ficção Científica</option>
-            <option value="fantasia">Fantasia</option>
-            <option value="terror">Terror</option>
-            <option value="nao-ficcao">Não Ficção</option>
-            <option value="desenvolvimento">Desenvolvimento Pessoal</option>
-          </select>
-        </div>
-        <!-- Faixa de Preço -->
-        <div class="grupo-filtro">
-          <label for="filtro-preco">Faixa de preço:</label>
-          <select id="filtro-preco" name="preco">
-            <option value="">Qualquer preço</option>
-            <option value="0-50">Até R$ 50,00</option>
-            <option value="50-100">R$ 50,00 a R$ 100,00</option>
-            <option value="100-200">R$ 100,00 a R$ 200,00</option>
-            <option value="200+">Acima de R$ 200,00</option>
-          </select>
-        </div>
-        <!-- Ordenação -->
-        <div class="grupo-filtro">
-          <label for="filtro-ordem">Ordenar por:</label>
-          <select id="filtro-ordem" name="ordem">
-            <option value="destaque">Destaques</option>
-            <option value="menor-preco">Menor preço</option>
-            <option value="maior-preco">Maior preço</option>
-            <option value="titulo-az">Título (A-Z)</option>
-          </select>
-        </div>
-        <!-- Botão para redefinir/limpar -->
-        <div class="grupo-filtro acoes-filtro">
-          <button type="reset" class="botao-limpar">Limpar</button>
-        </div>
-      </div>
-    </form>
-  </section>
+          <section class="secao-filtros" aria-labelledby="titulo-filtros">
+            <h3 id="titulo-filtros" class="visualmente-oculto">Filtros</h3>
+            
+            <form id="form-filtros" class="form-filtros" action="/loja" method="GET">
+              <!-- 1. Campo de Busca -->
+              <div class="campo-busca-grupo">
+                <label for="campo-busca-livros">Buscar livros:</label>
+                <div class="campo-busca">
+                  <input 
+                    type="search" 
+                    id="campo-busca-livros" 
+                    name="busca" 
+                    placeholder="Título, autor ou palavra-chave..."
+                    autocomplete="off">
+                  <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
+                    <span>Buscar</span>
+                  </button>
+                </div>
+              </div>
+              <!-- 2. Controles de Filtros Visuais -->
+              <div class="filtros-opcoes">
+                <!-- Categoria -->
+                <div class="grupo-filtro">
+                  <label for="filtro-categoria">Categoria:</label>
+                  <select id="filtro-categoria" name="categoria">
+                    <option value="">Todas as categorias</option>
+                    <option value="ficcao">Ficção Científica</option>
+                    <option value="fantasia">Fantasia</option>
+                    <option value="terror">Terror</option>
+                    <option value="nao-ficcao">Não Ficção</option>
+                    <option value="desenvolvimento">Desenvolvimento Pessoal</option>
+                  </select>
+                </div>
+                <!-- Faixa de Preço -->
+                <div class="grupo-filtro">
+                  <label for="filtro-preco">Faixa de preço:</label>
+                  <select id="filtro-preco" name="preco">
+                    <option value="">Qualquer preço</option>
+                    <option value="0-50">Até R$ 50,00</option>
+                    <option value="50-100">R$ 50,00 a R$ 100,00</option>
+                    <option value="100-200">R$ 100,00 a R$ 200,00</option>
+                    <option value="200+">Acima de R$ 200,00</option>
+                  </select>
+                </div>
+                <!-- Ordenação -->
+                <div class="grupo-filtro">
+                  <label for="filtro-ordem">Ordenar por:</label>
+                  <select id="filtro-ordem" name="ordem">
+                    <option value="destaque">Destaques</option>
+                    <option value="menor-preco">Menor preço</option>
+                    <option value="maior-preco">Maior preço</option>
+                    <option value="titulo-az">Título (A-Z)</option>
+                  </select>
+                </div>
+                <!-- Botão para redefinir/limpar -->
+                <div class="grupo-filtro acoes-filtro">
+                  <button type="reset" class="botao-limpar">Limpar</button>
+                </div>
+              </div>
+            </form>
+          </section>
+        </section>
 
-  <ul class="grade-produtos">
-    <!-- Produto 1 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-01.jpg" alt="Livro Androides sonham com ovelhas elétricas?" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Androides sonham com ovelhas elétricas?</h3>
-          <p class="autor-livro">Philip K. Dick</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Ficção Científica</li>
-            <li class="tag">Cyberpunk</li>
-          </ul>
-        </header>
-        <p class="descricao">Romance de ficção científica ambientado em uma Terra pós-apocalíptica que inspirou o filme Blade Runner. Acompanhamos a história de um caçador de Androides fugitivos, criados para mineirar planetas distantes. A medida que a história avança, dilemas morais são apresentados, discutindo questões como humanidade, empatia, crueldade, desejos e sentimentos.</p>
-        <p class="preco">R$ 99,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+      <ul class="grade-produtos">
+        <!-- Produto 1 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-01.jpg" alt="Livro Androides sonham com ovelhas elétricas?" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Androides sonham com ovelhas elétricas?</h3>
+              <p class="autor-livro">Philip K. Dick</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Ficção Científica</li>
+                <li class="tag">Cyberpunk</li>
+              </ul>
+            </header>
+            <p class="descricao">Romance de ficção científica ambientado em uma Terra pós-apocalíptica que inspirou o filme Blade Runner. Acompanhamos a história de um caçador de Androides fugitivos, criados para mineirar planetas distantes. A medida que a história avança, dilemas morais são apresentados, discutindo questões como humanidade, empatia, crueldade, desejos e sentimentos.</p>
+            <p class="preco">R$ 99,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 2 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-02.jpg" alt="Livro A Guerra dos Tronos : As Crônicas de Gelo e Fogo" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">A Guerra dos Tronos : As Crônicas de Gelo e Fogo</h3>
-          <p class="autor-livro">George R. R. Martin</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Fantasia</li>
-          </ul>
-        </header>
-        <p class="descricao">Série de fantasia épica que inspirou Game of Thrones da HBO. A história se passa no continente de Westeros e regiões vizinhas, onde estações do ano podem durar anos ou décadas. A saga acompanha diversos personagens em uma trama elaborada por disputas de poder, traições, intrigas e perigos iminentes.</p>
-        <p class="preco">R$ 149,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 2 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-02.jpg" alt="Livro A Guerra dos Tronos : As Crônicas de Gelo e Fogo" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">A Guerra dos Tronos : As Crônicas de Gelo e Fogo</h3>
+              <p class="autor-livro">George R. R. Martin</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Fantasia</li>
+              </ul>
+            </header>
+            <p class="descricao">Série de fantasia épica que inspirou Game of Thrones da HBO. A história se passa no continente de Westeros e regiões vizinhas, onde estações do ano podem durar anos ou décadas. A saga acompanha diversos personagens em uma trama elaborada por disputas de poder, traições, intrigas e perigos iminentes.</p>
+            <p class="preco">R$ 149,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 3 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-03.jpg" alt="Livro Drácula de Bram Stoker" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Drácula</h3>
-          <p class="autor-livro">Bram Stoker</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Horror</li>
-            <li class="tag">Drama</li>
-          </ul>
-        </header>
-        <p class="descricao"> Jonathan Harker, um jovem advogado inglês, viaja até o castelo do Conde Drácula nas montanhas dos Cárpatos (Romênia) para auxiliar o nobre com trâmites de compra de propriedades em Londres. Harker logo descobre que é prisioneiro de uma criatura imortal sobrenatural, enquanto o Conde parte rumo à Inglaterra.</p>
-        <p class="preco">R$ 79,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 3 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-03.jpg" alt="Livro Drácula de Bram Stoker" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Drácula</h3>
+              <p class="autor-livro">Bram Stoker</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Horror</li>
+                <li class="tag">Drama</li>
+              </ul>
+            </header>
+            <p class="descricao"> Jonathan Harker, um jovem advogado inglês, viaja até o castelo do Conde Drácula nas montanhas dos Cárpatos (Romênia) para auxiliar o nobre com trâmites de compra de propriedades em Londres. Harker logo descobre que é prisioneiro de uma criatura imortal sobrenatural, enquanto o Conde parte rumo à Inglaterra.</p>
+            <p class="preco">R$ 79,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 4 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-04.jpg" alt="Livro O desvio de Gerbrand Bakker" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">O desvio</h3>
-          <p class="autor-livro">Gerbrand Bakker</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Drama</li>
-            <li class="tag">Literatura estrangeira</li>
-          </ul>
-        </header>
-        <p class="descricao">Uma mulher holandesa, sozinha em uma casa de campo alugada em um país estrangeiro. Entre as memórias que carrega e os resquícios que há no local, ela ocupa os seus dias atividades simples. Enquanto acompanhamos a curiosidade dessa protagonista pelas paisagens e trilhas, descobrimos aos poucos a complexidade da narrativa.</p>
-        <p class="preco">R$ 199,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 4 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-04.jpg" alt="Livro O desvio de Gerbrand Bakker" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">O desvio</h3>
+              <p class="autor-livro">Gerbrand Bakker</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Drama</li>
+                <li class="tag">Literatura estrangeira</li>
+              </ul>
+            </header>
+            <p class="descricao">Uma mulher holandesa, sozinha em uma casa de campo alugada em um país estrangeiro. Entre as memórias que carrega e os resquícios que há no local, ela ocupa os seus dias atividades simples. Enquanto acompanhamos a curiosidade dessa protagonista pelas paisagens e trilhas, descobrimos aos poucos a complexidade da narrativa.</p>
+            <p class="preco">R$ 199,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 5 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-05.jpg" alt="Livro Mate-me por favor vol. 1 e 2" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Mate-Me Por Favor - Vol. 1 e 2</h3>
-          <p class="autor-livro">Gillian Mccain, Legs Mcneil</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">História</li>
-            <li class="tag">Punk</li>
-            <li class="tag">Música</li>
-          </ul>
-        </header>
-        <p class="descricao">A história do punk é narrada por meio de entrevistas com renomados artistas do movimento. Acompanhamos um pouco dos excessos, da arte, das brigas, do tédio e da energia caótica dos que marcou esse movimento nos anos 1960, 70 e o início dos anos 80.</p>
-        <p class="preco">R$ 59,90</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 5 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-05.jpg" alt="Livro Mate-me por favor vol. 1 e 2" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Mate-Me Por Favor - Vol. 1 e 2</h3>
+              <p class="autor-livro">Gillian Mccain, Legs Mcneil</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">História</li>
+                <li class="tag">Punk</li>
+                <li class="tag">Música</li>
+              </ul>
+            </header>
+            <p class="descricao">A história do punk é narrada por meio de entrevistas com renomados artistas do movimento. Acompanhamos um pouco dos excessos, da arte, das brigas, do tédio e da energia caótica dos que marcou esse movimento nos anos 1960, 70 e o início dos anos 80.</p>
+            <p class="preco">R$ 59,90</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 6 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-06.jpg" alt="Livro Powerskills de Dafna Blaschkauer" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Powerskills</h3>
-          <p class="autor-livro">Dafna Blaschkauer</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Desenvolvimento pessoal</li>
-          </ul>
-        </header>
-        <p class="descricao">A obra apresenta um guia prático focado na combinação integrada entre as hard skills (habilidades técnicas) e as soft skills (comportamentais), transformando-as em superpoderes corporativos e pessoais capazes de gerar alta performance.</p>
-        <p class="preco">R$ 120,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 6 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-06.jpg" alt="Livro Powerskills de Dafna Blaschkauer" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Powerskills</h3>
+              <p class="autor-livro">Dafna Blaschkauer</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Desenvolvimento pessoal</li>
+              </ul>
+            </header>
+            <p class="descricao">A obra apresenta um guia prático focado na combinação integrada entre as hard skills (habilidades técnicas) e as soft skills (comportamentais), transformando-as em superpoderes corporativos e pessoais capazes de gerar alta performance.</p>
+            <p class="preco">R$ 120,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 7 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-07.jpg" alt="Livro arrume a sua cama de William H. McRaven" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Arrume a sua cama</h3>
-          <p class="autor-livro">William H. McRaven</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Desenvolvimento pessoal</li>
-          </ul>
-        </header>
-        <p class="descricao">A premissa é que grandes mudanças começam com pequenas atitudes. Quando você arruma sua cama logo ao acordar, você completa a primeira tarefa do dia. Isso traz uma sensação de orgulho e disciplina, criando um efeito em cadeia que motiva a realização de tarefas maiores.</p>
-        <p class="preco">R$ 85,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 7 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-07.jpg" alt="Livro arrume a sua cama de William H. McRaven" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Arrume a sua cama</h3>
+              <p class="autor-livro">William H. McRaven</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Desenvolvimento pessoal</li>
+              </ul>
+            </header>
+            <p class="descricao">A premissa é que grandes mudanças começam com pequenas atitudes. Quando você arruma sua cama logo ao acordar, você completa a primeira tarefa do dia. Isso traz uma sensação de orgulho e disciplina, criando um efeito em cadeia que motiva a realização de tarefas maiores.</p>
+            <p class="preco">R$ 85,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 8 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-08.jpg" alt="Descrição detalhada do Produto 8" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">A cidade das ilusões</h3>
-          <p class="autor-livro">Ursula K. Le Guin</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Ficção Científica</li>
-            <li class="tag">Literatura estrangeira</li>
-          </ul>
-        </header>
-        <p class="descricao">Um homem adulto é encontrado sozinho em uma floresta densa na Terra do futuro. Ele está coberto de lama, sem memória de quem é ou de onde veio, e possui características físicas estranhas — incluindo olhos grandes, com a íris em formato oval e cor de âmbar, parecidos com os de um gato, e um olhar não humano.</p>
-        <p class="preco">R$ 210,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 8 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-08.jpg" alt="Descrição detalhada do Produto 8" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">A cidade das ilusões</h3>
+              <p class="autor-livro">Ursula K. Le Guin</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Ficção Científica</li>
+                <li class="tag">Literatura estrangeira</li>
+              </ul>
+            </header>
+            <p class="descricao">Um homem adulto é encontrado sozinho em uma floresta densa na Terra do futuro. Ele está coberto de lama, sem memória de quem é ou de onde veio, e possui características físicas estranhas — incluindo olhos grandes, com a íris em formato oval e cor de âmbar, parecidos com os de um gato, e um olhar não humano.</p>
+            <p class="preco">R$ 210,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 9 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-09.jpg" alt="Descrição detalhada do Produto 9" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">As cidades invisíveis</h3>
-          <p class="autor-livro">Ítalo Calvino</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Ficção</li>
-            <li class="tag">Literatura estrangeira</li>
-          </ul>
-        </header>
-        <p class="descricao">"Concentrar em um único símbolo todas as minhas reflexões, experiências e conjeturas." Assim se refere o próprio autor a esta obra surpreendente, em que a cidade deixa de ser um conceito geográfico para se tornar o símbolo complexo e inesgotável da existência humana.</p>
-        <p class="preco">R$ 45,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 9 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-09.jpg" alt="Descrição detalhada do Produto 9" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">As cidades invisíveis</h3>
+              <p class="autor-livro">Ítalo Calvino</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Ficção</li>
+                <li class="tag">Literatura estrangeira</li>
+              </ul>
+            </header>
+            <p class="descricao">"Concentrar em um único símbolo todas as minhas reflexões, experiências e conjeturas." Assim se refere o próprio autor a esta obra surpreendente, em que a cidade deixa de ser um conceito geográfico para se tornar o símbolo complexo e inesgotável da existência humana.</p>
+            <p class="preco">R$ 45,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 10 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-10.jpg" alt="Descrição detalhada do Produto 10" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">O Cavaleiro dos Sete Reinos</h3>
-          <p class="autor-livro">George R. R. Martin</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Fantasia</li>
-          </ul>
-        </header>
-        <p class="descricao">Coletânea de três novelas ambientadas no universo de As Crônicas de Gelo e Fogo, cerca de 90 a 100 anos antes dos eventos de Game of Thrones. A história acompanha um cavaleiro andante, proveniente das classes mais baixas da sociedade, em sua aventura em busca de ouro, fama e reconhecimento.</p>
-        <p class="preco">R$ 150,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 10 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-10.jpg" alt="Descrição detalhada do Produto 10" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">O Cavaleiro dos Sete Reinos</h3>
+              <p class="autor-livro">George R. R. Martin</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Fantasia</li>
+              </ul>
+            </header>
+            <p class="descricao">Coletânea de três novelas ambientadas no universo de As Crônicas de Gelo e Fogo, cerca de 90 a 100 anos antes dos eventos de Game of Thrones. A história acompanha um cavaleiro andante, proveniente das classes mais baixas da sociedade, em sua aventura em busca de ouro, fama e reconhecimento.</p>
+            <p class="preco">R$ 150,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 11 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-11.jpg" alt="Descrição detalhada do Produto 11" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Os maiores sucessos de Harlan Ellison</h3>
-          <p class="autor-livro">Harlan Ellison</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Ficção Científica</li>
-            <li class="tag">Horror</li>
-          </ul>
-        </header>
-        <p class="descricao">O livro Os maiores sucessos de Harlan Ellison (tradução da coletânea original Greatest Hits, organizada por J. Michael Straczynski) reúne 19 contos e novelas fundamentais da ficção científica, fantasia e horror do autor.</p>
-        <p class="preco">R$ 175,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 11 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-11.jpg" alt="Descrição detalhada do Produto 11" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Os maiores sucessos de Harlan Ellison</h3>
+              <p class="autor-livro">Harlan Ellison</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Ficção Científica</li>
+                <li class="tag">Horror</li>
+              </ul>
+            </header>
+            <p class="descricao">O livro Os maiores sucessos de Harlan Ellison (tradução da coletânea original Greatest Hits, organizada por J. Michael Straczynski) reúne 19 contos e novelas fundamentais da ficção científica, fantasia e horror do autor.</p>
+            <p class="preco">R$ 175,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 12 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-12.jpg" alt="Descrição detalhada do Produto 12" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Os futuros de Darcy Ribeiro</h3>
-          <p class="autor-livro">Darcy Ribeiro</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">História</li>
-            <li class="tag">Política</li>
-          </ul>
-        </header>
-        <p class="descricao">Uma seleção de textos que traçam um panorama de suas visões sobre o futuro do Brasil e da América Latina entre as décadas de 1960 e 1990. Permite imaginar e pensar porque alguns projetos emancipadores não se concretizaram.</p>
-        <p class="preco">R$ 95,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
+        <!-- Produto 12 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-12.jpg" alt="Descrição detalhada do Produto 12" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Os futuros de Darcy Ribeiro</h3>
+              <p class="autor-livro">Darcy Ribeiro</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">História</li>
+                <li class="tag">Política</li>
+              </ul>
+            </header>
+            <p class="descricao">Uma seleção de textos que traçam um panorama de suas visões sobre o futuro do Brasil e da América Latina entre as décadas de 1960 e 1990. Permite imaginar e pensar porque alguns projetos emancipadores não se concretizaram.</p>
+            <p class="preco">R$ 95,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
 
-    <!-- Produto 13 -->
-    <li class="item-produto">
-      <article class="card-produto">
-        <img src="./img/produtos/produto-13.jpg" alt="Descrição detalhada do Produto 13" loading="lazy">
-        <header class="card-cabecalho">
-          <h3 class="titulo-livro">Sangue, suor e pixels</h3>
-          <p class="autor-livro">Jason Schreier</p>
-          <ul class="tags-categoria" aria-label="Categorias do livro">
-            <li class="tag">Tecnologia</li>
-            <li class="tag">Não ficção</li>
-          </ul>
-        </header>
-        <p class="descricao">O livro responde a uma pergunta central: por que é tão difícil fazer videogames? Com capítulos dedicados a diferentes jogos de diferentes tipos, revela o caos, a exaustão, os problemas técnicos e as crises nos bastidores da indústria.</p>
-        <p class="preco">R$ 250,00</p>
-        <button type="button">Adicionar ao carrinho</button>
-      </article>
-    </li>
-  </ul>
-  <a href="index.html" class="botao botao-primario">&larr; Voltar para a página principal</a>.
-</section>
+        <!-- Produto 13 -->
+        <li class="item-produto">
+          <article class="card-produto">
+            <img src="./img/produtos/produto-13.jpg" alt="Descrição detalhada do Produto 13" loading="lazy">
+            <header class="card-cabecalho">
+              <h3 class="titulo-livro">Sangue, suor e pixels</h3>
+              <p class="autor-livro">Jason Schreier</p>
+              <ul class="tags-categoria" aria-label="Categorias do livro">
+                <li class="tag">Tecnologia</li>
+                <li class="tag">Não ficção</li>
+              </ul>
+            </header>
+            <p class="descricao">O livro responde a uma pergunta central: por que é tão difícil fazer videogames? Com capítulos dedicados a diferentes jogos de diferentes tipos, revela o caos, a exaustão, os problemas técnicos e as crises nos bastidores da indústria.</p>
+            <p class="preco">R$ 250,00</p>
+            <button type="button">Adicionar ao carrinho</button>
+          </article>
+        </li>
+      </ul>
+      <a href="index.html" class="botao botao-primario">&larr; Voltar para a página principal</a>.
+    </main>
 
-    <footer class="container footer-container">
+  <footer class="container footer-container">
     <div class="site-logo footer-logo">
       <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
       <span class="title-site">Livros</span>

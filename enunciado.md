@@ -5,7 +5,7 @@
 > Docentes responsáveis:
 >
 > - Profa. Ana Scharf – <ana.scharf@ifsc.edu.br>
-> - Prof. Cleber Joerge Amaral 
+> - Prof. Cleber Joerge Amaral
 > - Prof. Pedro Camara -  <pedro.camara@ifsc.edu.br>
 
 Projeto de Loja Virtual desenvolvido por *Lucas de Godoy Chicarelli* como parte da avaliação para a disciplina de **PROGRAMAÇÃO FRONTEND I** do Curso de **Análise e Desenvolvimento de Sistemas** - IFSC - Campus São José.
@@ -29,14 +29,14 @@ Avaliação feita do ponto de vista do usuário, considerando interface, organiz
 
 ## 2.2 Cadastro, login e perfil do cliente
 
-- [ ] - (a) Cadastro (cadastro.html): formulário com nome, e-mail, senha e CPF (no mínimo quatro informações), mais confirmação de senha. Utilizar os recursos nativos do HTML: labels associados aos campos, tipos de input adequados, required, minlength, pattern (CPF), placeholder e autocomplete.
-- [ ] - (b) Login (login.html): formulário de autenticação com e-mail e senha, com link para a página de cadastro.
-- [ ] - (c) Perfil (perfil.html): formulário de edição dos dados do cliente com todos os campos do cadastro. O ID do cliente (ex.: C001) deve aparecer em um campo que não pode ser editado (readonly ou disabled). A página deve conter também uma tabela de exemplo “Meus pedidos”.
-- [ ] - (d) Consistência: as três telas devem seguir o mesmo padrão visual de formulário (espaçamentos, botões, estados de foco e de erro visual).
+- [X] - (a) Cadastro (cadastro.html): formulário com nome, e-mail, senha e CPF (no mínimo quatro informações), mais confirmação de senha. Utilizar os recursos nativos do HTML: labels associados aos campos, tipos de input adequados, required, minlength, pattern (CPF), placeholder e autocomplete.
+- [X] - (b) Login (login.html): formulário de autenticação com e-mail e senha, com link para a página de cadastro.
+- [X] - (c) Perfil (perfil.html): formulário de edição dos dados do cliente com todos os campos do cadastro. O ID do cliente (ex.: C001) deve aparecer em um campo que não pode ser editado (readonly ou disabled). A página deve conter também uma tabela de exemplo “Meus pedidos”.
+- [X] - (d) Consistência: as três telas devem seguir o mesmo padrão visual de formulário (espaçamentos, botões, estados de foco e de erro visual).
 
 ## 2.3 Loja e carrinho
 
-- [ ] - (a) Catálogo (loja.html): grade de produtos com filtros visuais (categoria, faixa de preço e ordenação) e campo de busca.
+- [X] - (a) Catálogo (loja.html): grade de produtos com filtros visuais (categoria, faixa de preço e ordenação) e campo de busca.
 - [ ] - (b) Carrinho: área de carrinho com pelo menos 3 itens de exemplo, mostrando produto,
 quantidade, preço unitário, subtotal, botão de remover, total e botão “Finalizar compra”.
 - [ ] - (c) Confirmação: bloco de mensagem de compra finalizada (com número de pedido de exemplo, ex.: CP001) estilizado e ocultado com o atributo hidden. Documentar no README como visualizá-lo (removendo o atributo).
