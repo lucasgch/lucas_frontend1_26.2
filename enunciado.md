@@ -22,10 +22,10 @@ Avaliação feita do ponto de vista do usuário, considerando interface, organiz
 
 ## 2.1 Página inicial e produtos
 
-- (a) Produtos disponíveis: apresentar no mínimo 10 produtos diferentes. Cada produto deve conter nome, imagem, descrição e preço, além de um botão “Adicionar ao carrinho” (apenas visual nesta etapa).
-- (b) Descrição da loja: apresentar a história/descrição da empresa e dos produtos comercializados, com pelo menos duas imagens fora da galeria de produtos.
-- (c) Destaque: incluir uma área de destaque (banner ou chamada principal) com nome e logo da loja.
-- (d) Contato: exibir informações da empresa (endereço, telefone, e-mail, horário) e um formulário de contato com nome, e-mail e mensagem.
+- [X] - (a) Produtos disponíveis: apresentar no mínimo 10 produtos diferentes. Cada produto deve conter nome, imagem, descrição e preço, além de um botão “Adicionar ao carrinho” (apenas visual nesta etapa).
+- [ ] - (b) Descrição da loja: apresentar a história/descrição da empresa e dos produtos comercializados, com pelo menos duas imagens fora da galeria de produtos.
+- [ ] - (c) Destaque: incluir uma área de destaque (banner ou chamada principal) com nome e logo da loja.
+- [ ] - (d) Contato: exibir informações da empresa (endereço, telefone, e-mail, horário) e um formulário de contato com nome, e-mail e mensagem.
 
 ## 2.2 Cadastro, login e perfil do cliente
 
@@ -60,7 +60,7 @@ total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, clien
   - tablet (≥ 768px e ≤ 1024px);
   - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
 - (e) Identidade visual: paleta de cores e tipografia coerentes com a loja, uso de variáveis CSS  (custom properties), Flexbox e/ou Grid para o layout, estados :hover, :focus-visible e :active, e  pelo menos uma transição ou animação sutil.
-- (f) Acessibilidade básica: texto alternativo em todas as imagens, contraste adequado, foco visível e hierarquia de títulos correta (h1 a h3).
+- [ ] -(f) Acessibilidade básica: texto alternativo em todas as imagens, contraste adequado, foco visível e hierarquia de títulos correta (h1 a h3).
 
 ## 3 Requisitos técnicos
 
