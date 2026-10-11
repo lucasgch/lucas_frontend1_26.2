@@ -426,10 +426,21 @@
           </table>
         </div>
         <div class="acoes-carrinho">
-          <a href="#produtos" class="botao botao-secundario">&larr; Escolher mais livros</a>
-          <button type="button" id="btn-finalizar-compra" class="botao botao-primario botao-finalizar">
+          <a href="#produtos" class="botao botao-secundario" href="#confirmacao-compra">&larr; Escolher mais livros</a>
+          <a href="#confirmacao-compra" id="btn-finalizar-compra" class="botao botao-primario">
             Finalizar compra
-          </button>
+          </a>
+        </div>
+      </section>
+
+      <section id="confirmacao-compra" class="mensagem-confirmacao" hidden  aria-labelledby="titulo-confirmacao">
+        <div class="confirmacao-conteudo">
+          <span class="icone-sucesso" aria-hidden="true">&#10003;</span>
+          <h2 id="titulo-confirmacao">Compra finalizada com sucesso!</h2>
+          <p>Obrigado por comprar conosco.</p>
+          <p>O número do seu pedido é: <strong>CP001</strong>.</p>
+          <p>Enviamos os detalhes para o seu e-mail.</p>
+          <a href="loja.html" class="botao botao-primario">Continuar comprando</a>
         </div>
       </section>
 

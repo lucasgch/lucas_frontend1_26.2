@@ -88,3 +88,8 @@ h3 {
   line-height: 1.4;
   margin-bottom: 0.35rem;
 }
+
+/* Para maior compatibilidade com navegadores */
+[hidden] {
+  display: none !important;
+}
