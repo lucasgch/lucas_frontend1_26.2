@@ -44,6 +44,35 @@
         <a class="botao botao-primario" href="#produtos">Ver livros</a>
       </div>
     </section>
+
+    <section id="about" class="secao-about" aria-labelledby="titulo-about">
+        <h2 id="titulo-about">Sobre nós</h2>
+        <div class="about-content">
+          <figure class="about-img">
+            <img 
+              src="./img/about/about-01.jpg" 
+              alt="Estante de livros organizada em um ambiente iluminado e acolhedor" 
+              loading="lazy" 
+              width="400" 
+              height="300">
+            <figcaption>Nosso espaço de seleção e acervo comunitário.</figcaption>
+          </figure>
+          <p>Olá! Um dos grandes problemas que enfrentamos nos dias atuais é a falta de conexão comunitária. Por esse motivo, em 2026, como parte da avaliação da disciplina de Front End 1 do curso de Análise e Desenvolvimento de Sistemas do IFSC (Campus São José), criei este espaço para fortalecermos nossos vínculos.</p>
+          <figure class="about-img">
+            <img 
+              src="./img/about/about-02.jpg" 
+              alt="Pessoa selecionando e avaliando exemplares físicos de livros sobre uma mesa de madeira" 
+              loading="lazy" 
+              width="400" 
+              height="300">
+            <figcaption>Curadoria dedicada de cada obra disponibilizada.</figcaption>
+          </figure>
+          <p>Aqui, você encontrará obras cuidadosamente selecionadas que li recentemente e que estou colocando à disposição da comunidade.</p>
+          <p>Os preços são acessíveis e estou sempre aberto às trocas literárias.</p>
+          <p>Tudo elaborado com muito carinho.</p>
+          <a class="botao botao-primario" href="#produtos">Confira e participe!</a>
+        </div>
+    </section>
         
     <section id="produtos" aria-labelledby="titulo-produtos">
       <h2 id="titulo-produtos">Nossos Produtos</h2>
@@ -151,13 +180,44 @@
       <a href="loja.html" class="botao botao-primario">Ver catálogo completo na Loja &rarr;</a>
     </section>
   </main>
-  <footer class="container">
-      <div class="site-logo footer-logo" aria-label="&lt;//&gt; Livros - Contato">
-        <span class="logo-icon" aria-hidden="true" data-astro-cid-jo6i4kqk="">&lt;//&gt;</span>
-        <span class="title-site">Livros - Contato</span>
-      </div>
-      <address class="footer-contact">
-        <p><strong>Endereço:</strong> Online - São José/SC</p>
+  <footer class="container footer-container">
+    <div class="site-logo footer-logo">
+      <span class="logo-icon" aria-hidden="true">&lt;//&gt;</span>
+      <span class="title-site">Livros</span>
+    </div>
+
+    <section class="footer-form" aria-labelledby="titulo-contato">
+      <h3 id="titulo-contato" aria-label="Formulário de Contato">
+          Formulário de Contato
+      </h3>
+      <form action="https://localhost" method="POST"> 
+        <!-- Campos ocultos de configuração -->
+        <input type="hidden" name="recipient" value="testeiseuemail@gmail.com">
+        <input type="hidden" name="redirect" value="http://seudominio">
+        <input type="hidden" name="subject" value="teste de assunto">
+        <input type="hidden" name="email" value="email@doseudominio"> 
+        <div class="campo-form">
+          <label for="campo-nome">Nome:</label>
+          <input type="text" id="campo-nome" name="nome" autocomplete="name" required placeholder="Seu nome completo">    
+        </div>  
+        <div class="campo-form">
+          <label for="campo-email">E-mail:</label>
+          <input type="email" id="campo-email" name="replyto" autocomplete="email" required placeholder="seuemail@exemplo.com">
+        </div>
+        <div class="campo-form">
+          <label for="campo-comentarios">Comentários:</label>
+          <textarea id="campo-comentarios" name="Comentarios" rows="4" required placeholder="Digite sua mensagem aqui..."></textarea>
+        </div>
+        <div class="acoes-form">
+          <button type="submit" class="botao botao-primario">Enviar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="footer-address-section">
+      <h3 id="titulo-address">Endereço</h3>
+      <address class="footer-address">
+        <p>Online - São José/SC</p>
         <p>
           <strong>Telefone:</strong> 
           <a href="tel:+554800000000">+55 (48) 0000-0000</a>
@@ -171,6 +231,7 @@
           <span>De seg. a sex. das 9h às 22h</span>
         </p>
       </address>
+    </section>
       
       <div class="footer-bottom">
         <p>&copy; 2026 - São José/SC</p>
