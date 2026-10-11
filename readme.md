@@ -22,4 +22,10 @@ O enunciado completo com todos os requisitos desse desafio pode ser encontrado n
 
 - [Enunciado completo do laboratório](./docs/enunciado.md)
 
-## TODO
+## Como visualizar a tela de confirmação de compra
+
+1. Abra a página `loja.html` no navegador.
+2. Abra o DevTools (F12 ou botão direito > Inspecionar).
+3. Localize o elemento `<section id="confirmacao-compra" ... hidden>`.
+4. Remova o atributo `hidden` e pressione tab para salvar a modificação de forma temporária. Deve ficar desta forma: `<section id="confirmacao-compra" class="mensagem-confirmacao" aria-labelledby="titulo-confirmacao">`
+5. Ao navegar pela página novamente, a mensagem de confirmação de compra será exibida abaixo do carrinho de compra.
