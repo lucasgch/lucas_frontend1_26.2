@@ -343,6 +343,96 @@
         </li>
       </ul>
       <a href="index.html" class="botao botao-primario">&larr; Voltar para a página principal</a>.
+
+      <section id="carrinho" class="secao-carrinho" aria-labelledby="titulo-carrinho">
+        <div class="carrinho-cabecalho">
+          <h2 id="titulo-carrinho">Meu Carrinho</h2>
+          <p>Confira os itens selecionados antes de finalizar o pedido:</p>
+        </div>
+        <div class="tabela-container">
+          <table id="tabela-carrinho" class="tabela-carrinho">
+            <caption>Itens adicionados ao seu carrinho de compras</caption>
+            <thead>
+              <tr>
+                <th scope="col">Produto</th>
+                <th scope="col">Preço Unitário</th>
+                <th scope="col">Quantidade</th>
+                <th scope="col">Subtotal</th>
+                <th scope="col"><span class="visualmente-oculto">Ações</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Item 1 -->
+              <tr id="item-carrinho-1">
+                <th scope="row" class="coluna-produto">
+                  <img src="./img/produtos/produto-13.jpg" alt="Capa do livro Sangue, suor e pixels" class="miniatura-carrinho">
+                  <span class="nome-produto-carrinho">Sangue, suor e pixels</span>
+                </th>
+                <td class="preco-unitario">R$ 250,00</td>
+                <td class="coluna-quantidade">
+                  <label for="qtd-item-1" class="visualmente-oculto">Quantidade de Sangue, suor e pixels</label>
+                  <input type="number" id="qtd-item-1" name="qtd_item_1" class="input-quantidade" value="1" min="1">
+                </td>
+                <td class="subtotal-item">R$ 250,00</td>
+                <td>
+                  <button type="button" id="btn-remover-1" class="botao botao-remover" aria-label="Remover Sangue, suor e pixels do carrinho">
+                    Remover
+                  </button>
+                </td>
+              </tr>
+              <!-- Item 2 -->
+              <tr id="item-carrinho-2">
+                <th scope="row" class="coluna-produto">
+                  <img src="./img/produtos/produto-01.jpg" alt="Capa do livro O Guia do Mochileiro das Galáxias" class="miniatura-carrinho">
+                  <span class="nome-produto-carrinho">O Guia do Mochileiro das Galáxias</span>
+                </th>
+                <td class="preco-unitario">R$ 49,90</td>
+                <td class="coluna-quantidade">
+                  <label for="qtd-item-2" class="visualmente-oculto">Quantidade de O Guia do Mochileiro</label>
+                  <input type="number" id="qtd-item-2" name="qtd_item_2" class="input-quantidade" value="2" min="1">
+                </td>
+                <td class="subtotal-item">R$ 99,80</td>
+                <td>
+                  <button type="button" id="btn-remover-2" class="botao botao-remover" aria-label="Remover O Guia do Mochileiro do carrinho">
+                    Remover
+                  </button>
+                </td>
+              </tr>
+              <!-- Item 3 -->
+              <tr id="item-carrinho-3">
+                <th scope="row" class="coluna-produto">
+                  <img src="./img/produtos/produto-02.jpg" alt="Capa do livro Duna" class="miniatura-carrinho">
+                  <span class="nome-produto-carrinho">Duna</span>
+                </th>
+                <td class="preco-unitario">R$ 89,90</td>
+                <td class="coluna-quantidade">
+                  <label for="qtd-item-3" class="visualmente-oculto">Quantidade de Duna</label>
+                  <input type="number" id="qtd-item-3" name="qtd_item_3" class="input-quantidade" value="1" min="1">
+                </td>
+                <td class="subtotal-item">R$ 89,90</td>
+                <td>
+                  <button type="button" id="btn-remover-3" class="botao botao-remover" aria-label="Remover Duna do carrinho">
+                    Remover
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <th scope="row" colspan="3" class="rotulo-total">Total do Pedido:</th>
+                <td colspan="2" class="valor-total" id="valor-total-carrinho"><strong>R$ 439,70</strong></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div class="acoes-carrinho">
+          <a href="#produtos" class="botao botao-secundario">&larr; Escolher mais livros</a>
+          <button type="button" id="btn-finalizar-compra" class="botao botao-primario botao-finalizar">
+            Finalizar compra
+          </button>
+        </div>
+      </section>
+
     </main>
 
   <footer class="container footer-container">
