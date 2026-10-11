@@ -43,11 +43,72 @@
                 <a class="botao botao-primario" href="#produtos">Ver livros</a>
             </div>
         </section>
-        <section id="sobre">
-
-        </section>
+        
         <section id="produtos" aria-labelledby="titulo-produtos">
   <h2 id="titulo-produtos">Nossos Produtos</h2>
+
+  
+  <section class="secao-filtros" aria-labelledby="titulo-filtros">
+    <h3 id="titulo-filtros" class="visualmente-oculto">Filtros</h3>
+    
+    <form id="form-filtros" class="form-filtros" action="/loja" method="GET">
+      <!-- 1. Campo de Busca -->
+      <div class="campo-busca-grupo">
+        <label for="campo-busca-livros">Buscar livros:</label>
+        <div class="campo-busca">
+          <input 
+            type="search" 
+            id="campo-busca-livros" 
+            name="busca" 
+            placeholder="Título, autor ou palavra-chave..."
+            autocomplete="off">
+          <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
+            <span>Buscar</span>
+          </button>
+        </div>
+      </div>
+      <!-- 2. Controles de Filtros Visuais -->
+      <div class="filtros-opcoes">
+        <!-- Categoria -->
+        <div class="grupo-filtro">
+          <label for="filtro-categoria">Categoria:</label>
+          <select id="filtro-categoria" name="categoria">
+            <option value="">Todas as categorias</option>
+            <option value="ficcao">Ficção Científica</option>
+            <option value="fantasia">Fantasia</option>
+            <option value="terror">Terror</option>
+            <option value="nao-ficcao">Não Ficção</option>
+            <option value="desenvolvimento">Desenvolvimento Pessoal</option>
+          </select>
+        </div>
+        <!-- Faixa de Preço -->
+        <div class="grupo-filtro">
+          <label for="filtro-preco">Faixa de preço:</label>
+          <select id="filtro-preco" name="preco">
+            <option value="">Qualquer preço</option>
+            <option value="0-50">Até R$ 50,00</option>
+            <option value="50-100">R$ 50,00 a R$ 100,00</option>
+            <option value="100-200">R$ 100,00 a R$ 200,00</option>
+            <option value="200+">Acima de R$ 200,00</option>
+          </select>
+        </div>
+        <!-- Ordenação -->
+        <div class="grupo-filtro">
+          <label for="filtro-ordem">Ordenar por:</label>
+          <select id="filtro-ordem" name="ordem">
+            <option value="destaque">Destaques</option>
+            <option value="menor-preco">Menor preço</option>
+            <option value="maior-preco">Maior preço</option>
+            <option value="titulo-az">Título (A-Z)</option>
+          </select>
+        </div>
+        <!-- Botão para redefinir/limpar -->
+        <div class="grupo-filtro acoes-filtro">
+          <button type="reset" class="botao-limpar">Limpar</button>
+        </div>
+      </div>
+    </form>
+  </section>
 
   <ul class="grade-produtos">
     <!-- Produto 1 -->
