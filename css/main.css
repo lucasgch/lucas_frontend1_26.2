@@ -1,5 +1,5 @@
 /* Configuração geral das seções do site */
-section.geral {
+.geral {
     display: flex;
     flex-direction: column;
     padding-block: 2.5rem;
@@ -7,7 +7,7 @@ section.geral {
 }
 
 #titulo-destaque {
-  font-size: 2rem; /* 32px considerando o padrão de 16px */
+  font-size: 2rem;
 }
 
 #about h2 {
@@ -305,6 +305,3 @@ p.link a:hover {
   outline-offset: 2px;
 }
 
-#titulo-relatorio-clientes{
-  margin-bottom: 2.5rem; /* Padrozina com as demais páginas */
-}

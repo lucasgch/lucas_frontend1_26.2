@@ -34,9 +34,9 @@
     </header>
 
     <main class="container">
-        <h1 id="titulo-relatorio-clientes" class="intern-pages-title">Relatório de Clientes</h2>
+        <h1 id="titulo-relatorios" class="intern-pages-title">Relatórios</h1>
         <section class="relatorio cliente" aria-labelledby="titulo-relatorio-clientes">
-            
+            <h2 id="titulo-relatorio-clientes">Relatório de Clientes</h2>
 
             <section class="secao-filtros" aria-labelledby="titulo-filtros">
                 <h3 id="titulo-filtros" class="visualmente-oculto">Filtros</h3>
@@ -77,7 +77,7 @@
             </section><!-- Encerra a seção selecao-filtros -->
 
             <table class="tabela">
-                <caption>Lista de clientes cadastrados no sistema</caption>
+                <caption>Lista de clientes cadastrados</caption>
 
                 <thead>
                     <tr>
@@ -127,7 +127,117 @@
 
             </table>
 
-        </section>
+        </section><!-- Encerra a seção relatorio clientes -->
+
+        <section class="relatorio compras" aria-labelledby="titulo-relatorio-compras">
+            <h2 id="titulo-relatorio-compras">Relatório de Compras</h2>
+
+            <section class="secao-filtros" aria-labelledby="titulo-filtros-compras">
+                <h3 id="titulo-filtros-compras" class="visualmente-oculto">Filtros de Compras</h3>
+            
+                <form id="form-filtros-compras" class="form-filtros" action="/loja" method="GET">
+                    <div class="campo-busca-grupo">
+                        <label for="campo-busca-compras">Buscar compras:</label>
+                        <div class="campo-busca">
+                            <input 
+                                type="search" 
+                                id="campo-busca-compras" 
+                                name="busca" 
+                                placeholder="ID, cliente, data, valor ou produto..."
+                                autocomplete="off">
+                            <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
+                                <span>Buscar</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Controles -->
+                    <div class="filtros-opcoes">
+                        <div class="grupo-filtro">
+                            <label for="filtro-campo-compra">Por:</label>
+                            <select id="filtro-campo-compra" name="campo">
+                                <option value="">Todos os campos</option>
+                                <option value="id">ID</option>
+                                <option value="data">Data</option>
+                                <option value="cliente">Cliente</option>
+                                <option value="valor">Valor</option>
+                                <option value="produto">Produto</option>
+                            </select>
+                        </div>
+
+                        <div class="grupo-filtro acoes-filtro">
+                            <button type="reset" class="botao-limpar">Limpar</button>
+                        </div>
+                    </div>
+                </form>
+            </section><!-- Encerra a seção secao-filtros -->
+
+            <table class="tabela">
+                <caption>Lista de compras realizadas</caption>
+
+                <thead>
+                    <tr>
+                        <th scope="col">ID da Compra</th>
+                        <th scope="col">Data</th>
+                        <th scope="col">Cliente</th>
+                        <th scope="col">Produtos</th>
+                        <th scope="col">Quantidade</th>
+                        <th scope="col">Valor Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th scope="row">#1001</th>
+                        <td><time datetime="2026-03-10">10/03/2026</time></td>
+                        <td>Ana Clara Silva</td>
+                        <td>O Senhor dos Anéis</td>
+                        <td>1</td>
+                        <td>R$ 89,90</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">#1002</th>
+                        <td><time datetime="2026-03-15">15/03/2026</time></td>
+                        <td>Bruno Henrique Souza</td>
+                        <td>1984, Admirável Mundo Novo</td>
+                        <td>1</td>
+                        <td>R$ 75,50</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">#1003</th>
+                        <td><time datetime="2026-03-22">22/03/2026</time></td>
+                        <td>Carla Mendes Oliveira</td>
+                        <td>Duna, Messias de Duna, Filhos de Duna</td>
+                        <td>1</td>
+                        <td>R$ 180,00</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">#1004</th>
+                        <td><time datetime="2026-04-02">02/04/2026</time></td>
+                        <td>Diego Almeida Santos</td>
+                        <td>Fundação</td>
+                        <td>1</td>
+                        <td>R$ 49,90</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">#1005</th>
+                        <td><time datetime="2026-04-05">05/04/2026</time></td>
+                        <td>Eduarda Rocha Lima</td>
+                        <td>Neuromancer, Count Zero</td>
+                        <td>1</td>
+                        <td>R$ 98,00</td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="3">Total de compras listadas: 5</td>
+                        <td>5 itens</td>
+                        <td colspan="2">R$ 542,80</td>
+                    </tr>
+                </tfoot>
+            </table>
+
+        </section><!-- Encerra a seção relatorio compras -->
+
     </main>
 
     <footer class="container footer-container">
