@@ -43,19 +43,19 @@ quantidade, preço unitário, subtotal, botão de remover, total e botão “Fin
 
 2.4 Página de relatórios do administrador
 
-- [ ] - (d) Cabeçalho e rodapé personalizados: a página de relatórios deve ter cabeçalho e rodapé diferentes dos do restante do site (identificação de “Área administrativa”, data/hora de emissão como texto de exemplo, etc.)
+- [X] - (d) Cabeçalho e rodapé personalizados: a página de relatórios deve ter cabeçalho e rodapé diferentes dos do restante do site (identificação de “Área administrativa”, data/hora de emissão como texto de exemplo, etc.)
 - [ ] - (d) Uma folha de estilo própria para impressão (@media print).
-- [ ] - (a) Relatório de clientes: tabela com ID, nome, e-mail e CPF, com pelo menos 5 clientes de exemplo.
-- [ ] - (b) Busca de clientes: formulário de busca por nome, ID, e-mail ou CPF (campo de texto + seletor do critério).
-- [ ] - (c) Relatório e busca de compras: tabela com ID da compra, cliente, produtos, quantidade, valor
+- [X] - (a) Relatório de clientes: tabela com ID, nome, e-mail e CPF, com pelo menos 5 clientes de exemplo.
+- [X] - (b) Busca de clientes: formulário de busca por nome, ID, e-mail ou CPF (campo de texto + seletor do critério).
+- [X] - (c) Relatório e busca de compras: tabela com ID da compra, cliente, produtos, quantidade, valor
 total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, cliente, data, valor ou produto.
-- [ ] - (e) Tabelas semânticas: usar caption, thead, tbody, tfoot (quando fizer sentido) e th com scope.
+- [X] - (e) Tabelas semânticas: usar caption, thead, tbody, tfoot (quando fizer sentido) e th com scope.
 
 ## 2.5 Interface e responsividade
 
-- [ ] - (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
-- [ ] - (b) Rodapé presente em todas as páginas.
-- [ ] - (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
+- [X] - (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
+- [X] - (b) Rodapé presente em todas as páginas.
+- [X] - (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
 - [ ] - (d) Responsividade com media queries para:
   - [ ] - desktop (> 1024px);
   - [ ] - tablet (≥ 768px e ≤ 1024px);
