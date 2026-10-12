@@ -34,8 +34,48 @@
     </header>
 
     <main class="container">
+
         <section class="relatorio cliente" aria-labelledby="titulo-relatorio-clientes">
             <h2 id="titulo-relatorio-clientes">Relatório de Clientes</h2>
+
+            <section class="secao-filtros" aria-labelledby="titulo-filtros">
+                <h3 id="titulo-filtros" class="visualmente-oculto">Filtros</h3>
+            
+                <form id="form-filtros" class="form-filtros" action="/loja" method="GET">
+                
+                <div class="campo-busca-grupo">
+                    <label for="campo-busca-livros">Buscar clientes:</label>
+                    <div class="campo-busca">
+                    <input 
+                        type="search" 
+                        id="campo-busca-livros" 
+                        name="busca" 
+                        placeholder="Título, autor ou palavra-chave..."
+                        autocomplete="off">
+                    <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
+                        <span>Buscar</span>
+                    </button>
+                    </div>
+                </div>
+                <!-- Controles -->
+                <div class="filtros-opcoes">
+                    <div class="grupo-filtro">
+                    <label for="filtro-categoria">Por:</label>
+                    <select id="filtro-categoria" name="categoria">
+                        <option value="">Todas as categorias</option>
+                        <option value="ficcao">Nome</option>
+                        <option value="fantasia">E-mail</option>
+                        <option value="terror">CPF</option>
+                    </select>
+                    </div>
+                </div>
+                    <div class="grupo-filtro acoes-filtro">
+                    <button type="reset" class="botao-limpar">Limpar</button>
+                    </div>
+                </div>
+                </form>
+            </section><!-- Encerra a seção selecao-filtros -->
+
             <table class="tabela">
                 <caption>Lista de clientes cadastrados no sistema</caption>
 
