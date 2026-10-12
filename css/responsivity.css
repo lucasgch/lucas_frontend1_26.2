@@ -1,12 +1,23 @@
 /* SMARTPHONE (<= 320px) — Sem rolagem horizontal */
 @media (max-width: 320px) {
 
+    .container {
+        padding-inline: .5rem;
+    }
+    /* Ajusta espaçamento lateral */
+    .geral{
+        padding-inline: 0;
+    }
 }
 
 /* MOBILE GERAL & MENU HAMBÚRGUER */
 
 @media (max-width: 767px) {
 
+    /* Ajusta espaçamento lateral */
+    .geral{
+        padding-inline: 0.5rem;
+    }
 
 }
 
@@ -14,8 +25,19 @@
 
 @media (min-width: 768px) and (max-width: 1024px) {
 
+
+
     .grade-produtos {
         grid-template-columns: repeat(2, 1fr);
+    }
+
+    /* Ajusta espaçamento lateral */
+    .container {
+        padding-inline: 1rem;
+    }
+
+    .geral{
+        padding-inline: 1rem;
     }
 
 }
@@ -26,6 +48,11 @@
 
     .grade-produtos {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Ajusta espaçamento lateral */
+    .geral{
+        padding-inline: 1rem;
     }
     
 }

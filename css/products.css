@@ -2,11 +2,6 @@
   padding-block: 2.5rem;
 }
 
-#produtos h2 {
-  font-size: var(--text-h2);
-  margin-bottom: 1.5rem;
-}
-
 .grade-produtos {
   list-style: none;
   padding: 0;
