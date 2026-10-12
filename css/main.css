@@ -6,6 +6,10 @@ section.geral {
     max-width: 800px;   
 }
 
+#titulo-destaque {
+  font-size: 2rem; /* 32px considerando o padrão de 16px */
+}
+
 #about h2 {
     margin-bottom: 1.5rem;
     text-align: left;
@@ -175,9 +179,8 @@ p.link a:hover {
   margin-bottom: 2rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
-/* Personaliza filtros de relatórios de admin */
 
-
+/* Padroniza filtros de relatórios  */
 
 #titulo-filtros {
   margin-top: 0;

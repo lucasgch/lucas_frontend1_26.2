@@ -26,9 +26,9 @@
   --text-xs: 0.75rem;    /* 12px */
   --text-sm: 0.85rem;    /* 13.6px */
   --text-base: 1rem;     /* 16px */
-  --text-h3: 1.15rem;    /* 18.4px */
-  --text-h2: 1.44rem;    /* 23px */
-  --text-h1: 2rem;       /* 32px */
+  --text-h3: 0.92rem;    /* 14.7px */
+  --text-h2: 1.15rem;    /* 18.4px */
+  --text-h1: 1.44rem;    /* 23px */
 
   --content-width: 60rem;
   --radius: 0.5rem;
@@ -99,4 +99,10 @@ h3 {
 /* Para maior compatibilidade com navegadores */
 [hidden] {
   display: none !important;
+}
+
+.intern-pages-title {
+  text-align: center;
+  padding-top: 1rem;
+  margin-bottom: 1.5rem;
 }
