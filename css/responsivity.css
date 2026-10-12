@@ -4,6 +4,15 @@
     body {
         overflow-x: hidden; /* Sem rolagem horizontal */
     }
+
+    h1 {
+        font-size: 1.25rem;
+    }
+
+    h2 {
+        font-size: 1.1rem;
+    }
+
     .container {
         padding-inline: 0.5rem;
     }
