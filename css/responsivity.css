@@ -20,6 +20,15 @@
     .geral{
         padding-inline: 0;
     }
+
+    /* Habilita rolagem horizontal nas tabelas */
+    .tabela-container,
+    .tabela-responsiva {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
 }
 
 /* MOBILE GERAL & MENU HAMBÚRGUER */

@@ -1,0 +1,48 @@
+.tabela-container {
+  min-width: 0;
+  max-width: 100%;
+  width: 100%;
+  max-width: 48rem;   /* Evita que a tabela estique demais em telas muito largas */
+  margin-inline: auto; /* Garante a centralização horizontal */
+  overflow-x: auto;
+  border: 1px solid var(--borda);
+  border-radius: var(--radius);
+  background-color: var(--cor-superficie);
+}
+.tabela {
+  width: 100%;
+  min-width: 550px;
+  border-collapse: collapse;
+  text-align: center; /* Centraliza o texto de todas as colunas por padrão */
+  font-size: var(--text-sm);
+}
+.tabela caption {
+  text-align: center; /* Centraliza a legenda/caption */
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  padding: 0.75rem 1rem;
+}
+
+.tabela th,
+.tabela td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--borda);
+  text-align: center;
+}
+.tabela thead th {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.tabela tbody tr:hover {
+  background-color: var(--surface-subtle);
+  transition: background-color 0.2s ease;
+}
+.tabela tfoot {
+  font-weight: 600;
+  background-color: var(--surface-subtle);
+}
+.tabela tfoot th {
+  text-align: right;
+  padding-right: 1.5rem;
+}

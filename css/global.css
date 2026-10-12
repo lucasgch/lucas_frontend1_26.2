@@ -49,13 +49,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-body.admin {
-  background-color: var(--text-inverse);
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 /* No css/main.css */
 body.admin main {
   display: flex;

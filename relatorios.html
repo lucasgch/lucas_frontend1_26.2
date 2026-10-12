@@ -76,57 +76,58 @@
                 </form>
             </section><!-- Encerra a seção selecao-filtros -->
 
-            <table class="tabela">
-                <caption>Lista de clientes cadastrados</caption>
+            <div class="tabela-container">
+                <table id="tabela-clientes" class="tabela">
+                    <caption>Lista de clientes cadastrados</caption>
 
-                <thead>
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Nome</th>
-                        <th scope="col">E-mail</th>
-                        <th scope="col">CPF</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">#001</th>
-                        <td>Ana Clara Silva</td>
-                        <td>ana.silva@email.com</td>
-                        <td>123.456.789-01</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#002</th>
-                        <td>Bruno Henrique Souza</td>
-                        <td>bruno.souza@email.com</td>
-                        <td>234.567.890-12</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#003</th>
-                        <td>Carla Mendes Oliveira</td>
-                        <td>carla.mendes@email.com</td>
-                        <td>345.678.901-23</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#004</th>
-                        <td>Diego Almeida Santos</td>
-                        <td>diego.almeida@email.com</td>
-                        <td>456.789.012-34</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#005</th>
-                        <td>Eduarda Rocha Lima</td>
-                        <td>eduarda.rocha@email.com</td>
-                        <td>567.890.123-45</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="4">Total de clientes listados: 5</td>
-                    </tr>
-                </tfoot>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">CPF</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">#001</th>
+                            <td>Ana Clara Silva</td>
+                            <td>ana.silva@email.com</td>
+                            <td>123.456.789-01</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#002</th>
+                            <td>Bruno Henrique Souza</td>
+                            <td>bruno.souza@email.com</td>
+                            <td>234.567.890-12</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#003</th>
+                            <td>Carla Mendes Oliveira</td>
+                            <td>carla.mendes@email.com</td>
+                            <td>345.678.901-23</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#004</th>
+                            <td>Diego Almeida Santos</td>
+                            <td>diego.almeida@email.com</td>
+                            <td>456.789.012-34</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#005</th>
+                            <td>Eduarda Rocha Lima</td>
+                            <td>eduarda.rocha@email.com</td>
+                            <td>567.890.123-45</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4">Total de clientes listados: 5</td>
+                        </tr>
+                    </tfoot>
 
-            </table>
-
+                </table>
+            </div>
         </section><!-- Encerra a seção relatorio clientes -->
 
         <section class="relatorio compras" aria-labelledby="titulo-relatorio-compras">
@@ -172,69 +173,71 @@
                 </form>
             </section><!-- Encerra a seção secao-filtros -->
 
-            <table class="tabela">
-                <caption>Lista de compras realizadas</caption>
+            <div class="tabela-container">
+                <table id="tabela-compras" class="tabela">
+                    <caption>Lista de compras realizadas</caption>
 
-                <thead>
-                    <tr>
-                        <th scope="col">ID da Compra</th>
-                        <th scope="col">Data</th>
-                        <th scope="col">Cliente</th>
-                        <th scope="col">Produtos</th>
-                        <th scope="col">Quantidade</th>
-                        <th scope="col">Valor Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th scope="row">#1001</th>
-                        <td><time datetime="2026-03-10">10/03/2026</time></td>
-                        <td>Ana Clara Silva</td>
-                        <td>O Senhor dos Anéis</td>
-                        <td>1</td>
-                        <td>R$ 89,90</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#1002</th>
-                        <td><time datetime="2026-03-15">15/03/2026</time></td>
-                        <td>Bruno Henrique Souza</td>
-                        <td>1984, Admirável Mundo Novo</td>
-                        <td>1</td>
-                        <td>R$ 75,50</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#1003</th>
-                        <td><time datetime="2026-03-22">22/03/2026</time></td>
-                        <td>Carla Mendes Oliveira</td>
-                        <td>Duna, Messias de Duna, Filhos de Duna</td>
-                        <td>1</td>
-                        <td>R$ 180,00</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#1004</th>
-                        <td><time datetime="2026-04-02">02/04/2026</time></td>
-                        <td>Diego Almeida Santos</td>
-                        <td>Fundação</td>
-                        <td>1</td>
-                        <td>R$ 49,90</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">#1005</th>
-                        <td><time datetime="2026-04-05">05/04/2026</time></td>
-                        <td>Eduarda Rocha Lima</td>
-                        <td>Neuromancer, Count Zero</td>
-                        <td>1</td>
-                        <td>R$ 98,00</td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="3">Total de compras listadas: 5</td>
-                        <td>5 itens</td>
-                        <td colspan="2">R$ 542,80</td>
-                    </tr>
-                </tfoot>
-            </table>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID da Compra</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Produtos</th>
+                            <th scope="col">Quantidade</th>
+                            <th scope="col">Valor Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <th scope="row">#1001</th>
+                            <td><time datetime="2026-03-10">10/03/2026</time></td>
+                            <td>Ana Clara Silva</td>
+                            <td>O Senhor dos Anéis</td>
+                            <td>1</td>
+                            <td>R$ 89,90</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#1002</th>
+                            <td><time datetime="2026-03-15">15/03/2026</time></td>
+                            <td>Bruno Henrique Souza</td>
+                            <td>1984, Admirável Mundo Novo</td>
+                            <td>1</td>
+                            <td>R$ 75,50</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#1003</th>
+                            <td><time datetime="2026-03-22">22/03/2026</time></td>
+                            <td>Carla Mendes Oliveira</td>
+                            <td>Duna, Messias de Duna, Filhos de Duna</td>
+                            <td>1</td>
+                            <td>R$ 180,00</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#1004</th>
+                            <td><time datetime="2026-04-02">02/04/2026</time></td>
+                            <td>Diego Almeida Santos</td>
+                            <td>Fundação</td>
+                            <td>1</td>
+                            <td>R$ 49,90</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">#1005</th>
+                            <td><time datetime="2026-04-05">05/04/2026</time></td>
+                            <td>Eduarda Rocha Lima</td>
+                            <td>Neuromancer, Count Zero</td>
+                            <td>1</td>
+                            <td>R$ 98,00</td>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3">Total de compras listadas: 5</td>
+                            <td>5 itens</td>
+                            <td colspan="2">R$ 542,80</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
 
         </section><!-- Encerra a seção relatorio compras -->
 
