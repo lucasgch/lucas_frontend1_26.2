@@ -1,4 +1,4 @@
-# Projeto 1  - Loja Virtual: Estrutura e Interface (HTML e CSS) 
+# Projeto 1  - Loja Virtual: Estrutura e Interface (HTML e CSS)
 
 > Disciplina: FEI786202 - PROGRAMAÇÃO FRONTEND I (2026 .2 - T01)
 > Curso: Análise e Desenvolvimento de Sistemas - IFSC - Campus São José
@@ -37,35 +37,36 @@ Avaliação feita do ponto de vista do usuário, considerando interface, organiz
 ## 2.3 Loja e carrinho
 
 - [X] - (a) Catálogo (loja.html): grade de produtos com filtros visuais (categoria, faixa de preço e ordenação) e campo de busca.
-- [ ] - (b) Carrinho: área de carrinho com pelo menos 3 itens de exemplo, mostrando produto,
+- [X] - (b) Carrinho: área de carrinho com pelo menos 3 itens de exemplo, mostrando produto,
 quantidade, preço unitário, subtotal, botão de remover, total e botão “Finalizar compra”.
-- [ ] - (c) Confirmação: bloco de mensagem de compra finalizada (com número de pedido de exemplo, ex.: CP001) estilizado e ocultado com o atributo hidden. Documentar no README como visualizá-lo (removendo o atributo).
+- [X] - (c) Confirmação: bloco de mensagem de compra finalizada (com número de pedido de exemplo, ex.: CP001) estilizado e ocultado com o atributo hidden. Documentar no README como visualizá-lo (removendo o atributo).
 
 2.4 Página de relatórios do administrador
 
-- (a) Relatório de clientes: tabela com ID, nome, e-mail e CPF, com pelo menos 5 clientes de exemplo.
-- (b) Busca de clientes: formulário de busca por nome, ID, e-mail ou CPF (campo de texto + seletor do critério).
-- (c) Relatório e busca de compras: tabela com ID da compra, cliente, produtos, quantidade, valor
+- [ ] - (d) Cabeçalho e rodapé personalizados: a página de relatórios deve ter cabeçalho e rodapé diferentes dos do restante do site (identificação de “Área administrativa”, data/hora de emissão como texto de exemplo, etc.)
+- [ ] - (d) Uma folha de estilo própria para impressão (@media print).
+- [ ] - (a) Relatório de clientes: tabela com ID, nome, e-mail e CPF, com pelo menos 5 clientes de exemplo.
+- [ ] - (b) Busca de clientes: formulário de busca por nome, ID, e-mail ou CPF (campo de texto + seletor do critério).
+- [ ] - (c) Relatório e busca de compras: tabela com ID da compra, cliente, produtos, quantidade, valor
 total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, cliente, data, valor ou produto.
-- (d) Cabeçalho e rodapé personalizados: a página de relatórios deve ter cabeçalho e rodapé diferentes dos do restante do site (identificação de “Área administrativa”, data/hora de emissão como texto de exemplo, etc.) e uma folha de estilo própria para impressão (@media print).
-- (e) Tabelas semânticas: usar caption, thead, tbody, tfoot (quando fizer sentido) e th com scope.
+- [ ] - (e) Tabelas semânticas: usar caption, thead, tbody, tfoot (quando fizer sentido) e th com scope.
 
 ## 2.5 Interface e responsividade
 
-- (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
-- (b) Rodapé presente em todas as páginas.
-- (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
-- (d) Responsividade com media queries para:
-  - desktop (> 1024px);
-  - tablet (≥ 768px e ≤ 1024px);
-  - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
+- [ ] - (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
+- [ ] - (b) Rodapé presente em todas as páginas.
+- [ ] - (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
+- [ ] - (d) Responsividade com media queries para:
+  - [ ] - desktop (> 1024px);
+  - [ ] - tablet (≥ 768px e ≤ 1024px);
+  - [ ] - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
 - [X] - (e) Identidade visual: paleta de cores e tipografia coerentes com a loja, uso de variáveis CSS  (custom properties), Flexbox e/ou Grid para o layout, estados :hover, :focus-visible e :active, e  pelo menos uma transição ou animação sutil.
 - [X] -(f) Acessibilidade básica: texto alternativo em todas as imagens, contraste adequado, foco visível e hierarquia de títulos correta (h1 a h3).
 
 ## 3 Requisitos técnicos
 
-- Usar somente HTML e CSS, sem JavaScript e sem bibliotecas ou frameworks (Bootstrap, Tailwind etc.).
-- O sistema deve ter seis páginas HTML, com os nomes abaixo (os mesmos serão usados na Parte 2):
+- [ ] - Usar somente HTML e CSS, sem JavaScript e sem bibliotecas ou frameworks (Bootstrap, Tailwind etc.).
+- [ ] - O sistema deve ter seis páginas HTML, com os nomes abaixo (os mesmos serão usados na Parte 2):
 
 | Arquivo | Conteúdo Mínimo |
 | :--- | :--- |

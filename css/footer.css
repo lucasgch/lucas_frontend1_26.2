@@ -6,6 +6,7 @@ footer.container,
   align-items: center;
   text-align: center;
   padding-block: 1rem;
+  margin-top: auto;
 }
 
 .footer-logo {
@@ -32,7 +33,7 @@ footer.container,
 }
 
 .footer-address,
-.footer-contact {
+.footer-contact, .footer-logout {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -86,7 +87,8 @@ footer.container,
 footer.container::before,
 .footer-address-section::before,
 .footer-contact::before,
-.footer-bottom::before {
+.footer-bottom::before,
+.footer-logout::before {
   content: "";
   position: absolute;
   top: 0;
@@ -102,4 +104,17 @@ footer.container::before,
     var(--text-tertiary) 50%,
     transparent
   );
+}
+
+.footer-logout {
+  position: relative;
+  padding-top: 1rem;
+}
+
+.footer-logout h2 {
+  margin-bottom: 0.5rem; 
+}
+
+.footer-logout .botao {
+  margin-top: 0;
 }
