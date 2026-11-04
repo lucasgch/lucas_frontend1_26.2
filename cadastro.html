@@ -59,10 +59,29 @@
               id="cad-cpf" 
               name="cpf" 
               required 
-              placeholder="000.000.000-00 ou 11 dígitos" 
-              pattern="(\d{3}\.?\d{3}\.?\d{3}-?\d{2})" 
-              title="Digite um CPF válido no formato 000.000.000-00 ou apenas os 11 números."
+              placeholder="11 dígitos, sem pontos ou traço" 
+              pattern="\d{11}" 
+              minlength="11"
+              maxlength="11"
+              title="Digite apenas os 11 números do CPF, sem pontos ou traço."
               autocomplete="off"
+              inputmode="numeric">
+          </div>
+
+          <!-- Telefone -->
+          <div class="campo-form">
+            <label for="cad-telefone">Telefone:</label>
+            <input 
+              type="tel" 
+              id="cad-telefone" 
+              name="telefone" 
+              required 
+              placeholder="DDD + número, ex: 48999999999" 
+              pattern="\d{10,11}" 
+              minlength="10"
+              maxlength="11"
+              title="Digite o DDD + número, apenas números (10 ou 11 dígitos)."
+              autocomplete="tel-national"
               inputmode="numeric">
           </div>
 
