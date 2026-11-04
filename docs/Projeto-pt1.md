@@ -56,17 +56,17 @@ total e data (mínimo 5 compras de exemplo) e formulário de busca por ID, clien
 - [X] - (a) Menu de navegação presente em todas as páginas, com destaque visual para a página atual (aria-current e CSS).
 - [X] - (b) Rodapé presente em todas as páginas.
 - [X] - (c) Idioma: todo o conteúdo em português (atributo lang='pt-BR' no html).
-- [ ] - (d) Responsividade com media queries para:
-  - [ ] - desktop (> 1024px);
-  - [ ] - tablet (≥ 768px e ≤ 1024px);
-  - [ ] - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
+- [X] - (d) Responsividade com media queries para:
+  - [X] - desktop (> 1024px);
+  - [X] - tablet (≥ 768px e ≤ 1024px);
+  - [X] - smartphone (≤ 320px), sem rolagem horizontal e com menu adaptado (menu “hambúrguer” feito somente com CSS).
 - [X] - (e) Identidade visual: paleta de cores e tipografia coerentes com a loja, uso de variáveis CSS  (custom properties), Flexbox e/ou Grid para o layout, estados :hover, :focus-visible e :active, e  pelo menos uma transição ou animação sutil.
 - [X] -(f) Acessibilidade básica: texto alternativo em todas as imagens, contraste adequado, foco visível e hierarquia de títulos correta (h1 a h3).
 
 ## 3 Requisitos técnicos
 
-- [ ] - Usar somente HTML e CSS, sem JavaScript e sem bibliotecas ou frameworks (Bootstrap, Tailwind etc.).
-- [ ] - O sistema deve ter seis páginas HTML, com os nomes abaixo (os mesmos serão usados na Parte 2):
+- [X] - Usar somente HTML e CSS, sem JavaScript e sem bibliotecas ou frameworks (Bootstrap, Tailwind etc.).
+- [X] - O sistema deve ter seis páginas HTML, com os nomes abaixo (os mesmos serão usados na Parte 2):
 
 | Arquivo | Conteúdo Mínimo |
 | :--- | :--- |
