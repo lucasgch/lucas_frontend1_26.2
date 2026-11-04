@@ -3,5 +3,5 @@
 - [X] - Cadastro: Adicionar nr. telefone
 - [X] - Limitar número cpf
 - [X] - Perfil: Não permitir alterar cpf
-4. Limitar o acesso a relatórios
-5. Limitar cadastro após efetuar login
+- [X] - Limitar o acesso a relatórios
+- [X] - Limitar cadastro após efetuar login
