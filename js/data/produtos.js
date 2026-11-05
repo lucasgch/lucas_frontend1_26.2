@@ -3,7 +3,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P001",
     "nome": "Androides sonham com ovelhas elétricas?",
     "autor": "Philip K. Dick",
-    "categoria": "",
+    "categoria": "ficcao",
     "tags": [
       "Ficção Científica",
       "Cyberpunk"
@@ -12,14 +12,14 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "preco": 99.9,
     "imagem": "./img/produtos/produto-01.jpg",
     "alt": "Livro Androides sonham com ovelhas elétricas?",
-    "estoque": 10,
+    "estoque": 1,
     "destaque": true
   },
   {
     "id": "P002",
     "nome": "A Guerra dos Tronos : As Crônicas de Gelo e Fogo",
     "autor": "George R. R. Martin",
-    "categoria": "",
+    "categoria": "fantasia",
     "tags": [
       "Fantasia"
     ],
@@ -27,14 +27,14 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "preco": 149.9,
     "imagem": "./img/produtos/produto-02.jpg",
     "alt": "Livro A Guerra dos Tronos : As Crônicas de Gelo e Fogo",
-    "estoque": 10,
+    "estoque": 2,
     "destaque": true
   },
   {
     "id": "P003",
     "nome": "Drácula",
     "autor": "Bram Stoker",
-    "categoria": "",
+    "categoria": "terror",
     "tags": [
       "Horror",
       "Drama"
@@ -50,7 +50,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P004",
     "nome": "O desvio",
     "autor": "Gerbrand Bakker",
-    "categoria": "",
+    "categoria": "ficcao",
     "tags": [
       "Drama",
       "Literatura estrangeira"
@@ -66,7 +66,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P005",
     "nome": "Mate-Me Por Favor - Vol. 1 e 2",
     "autor": "Gillian Mccain, Legs Mcneil",
-    "categoria": "",
+    "categoria": "nao-ficcao",
     "tags": [
       "História",
       "Punk",
@@ -83,7 +83,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P006",
     "nome": "Powerskills",
     "autor": "Dafna Blaschkauer",
-    "categoria": "",
+    "categoria": "desenvolvimento",
     "tags": [
       "Desenvolvimento pessoal"
     ],
@@ -98,7 +98,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P007",
     "nome": "Arrume a sua cama",
     "autor": "William H. McRaven",
-    "categoria": "",
+    "categoria": "desenvolvimento",
     "tags": [
       "Desenvolvimento pessoal"
     ],
@@ -113,7 +113,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P008",
     "nome": "A cidade das ilusões",
     "autor": "Ursula K. Le Guin",
-    "categoria": "",
+    "categoria": "ficcao",
     "tags": [
       "Ficção Científica",
       "Literatura estrangeira"
@@ -121,7 +121,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "descricao": "Um homem adulto é encontrado sozinho em uma floresta densa na Terra do futuro. Ele está coberto de lama, sem memória de quem é ou de onde veio, e possui características físicas estranhas — incluindo olhos grandes, com a íris em formato oval e cor de âmbar, parecidos com os de um gato, e um olhar não humano.",
     "preco": 210,
     "imagem": "./img/produtos/produto-08.jpg",
-    "alt": "Descrição detalhada do Produto 8",
+    "alt": "Livro A cidade das ilusões de Ursula K. Le Guin",
     "estoque": 10,
     "destaque": false
   },
@@ -129,7 +129,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P009",
     "nome": "As cidades invisíveis",
     "autor": "Ítalo Calvino",
-    "categoria": "",
+    "categoria": "ficcao",
     "tags": [
       "Ficção",
       "Literatura estrangeira"
@@ -137,7 +137,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "descricao": "\"Concentrar em um único símbolo todas as minhas reflexões, experiências e conjeturas.\" Assim se refere o próprio autor a esta obra surpreendente, em que a cidade deixa de ser um conceito geográfico para se tornar o símbolo complexo e inesgotável da existência humana.",
     "preco": 45,
     "imagem": "./img/produtos/produto-09.jpg",
-    "alt": "Descrição detalhada do Produto 9",
+    "alt": "Livro As cidades invisíveis de Ítalo Calvino",
     "estoque": 10,
     "destaque": false
   },
@@ -145,14 +145,14 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P010",
     "nome": "O Cavaleiro dos Sete Reinos",
     "autor": "George R. R. Martin",
-    "categoria": "",
+    "categoria": "fantasia",
     "tags": [
       "Fantasia"
     ],
     "descricao": "Coletânea de três novelas ambientadas no universo de As Crônicas de Gelo e Fogo, cerca de 90 a 100 anos antes dos eventos de Game of Thrones. A história acompanha um cavaleiro andante, proveniente das classes mais baixas da sociedade, em sua aventura em busca de ouro, fama e reconhecimento.",
     "preco": 150,
     "imagem": "./img/produtos/produto-10.jpg",
-    "alt": "Descrição detalhada do Produto 10",
+    "alt": "Livro O Cavaleiro dos Sete Reinos de George R. R. Martin",
     "estoque": 10,
     "destaque": false
   },
@@ -160,7 +160,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P011",
     "nome": "Os maiores sucessos de Harlan Ellison",
     "autor": "Harlan Ellison",
-    "categoria": "",
+    "categoria": "ficcao",
     "tags": [
       "Ficção Científica",
       "Horror"
@@ -168,7 +168,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "descricao": "O livro Os maiores sucessos de Harlan Ellison (tradução da coletânea original Greatest Hits, organizada por J. Michael Straczynski) reúne 19 contos e novelas fundamentais da ficção científica, fantasia e horror do autor.",
     "preco": 175,
     "imagem": "./img/produtos/produto-11.jpg",
-    "alt": "Descrição detalhada do Produto 11",
+    "alt": "Livro Os maiores sucessos de Harlan Ellison",
     "estoque": 10,
     "destaque": false
   },
@@ -176,7 +176,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P012",
     "nome": "Os futuros de Darcy Ribeiro",
     "autor": "Darcy Ribeiro",
-    "categoria": "",
+    "categoria": "nao-ficcao",
     "tags": [
       "História",
       "Política"
@@ -184,7 +184,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "descricao": "Uma seleção de textos que traçam um panorama de suas visões sobre o futuro do Brasil e da América Latina entre as décadas de 1960 e 1990. Permite imaginar e pensar porque alguns projetos emancipadores não se concretizaram.",
     "preco": 95,
     "imagem": "./img/produtos/produto-12.jpg",
-    "alt": "Descrição detalhada do Produto 12",
+    "alt": "Livro Os futuros de Darcy Ribeiro",
     "estoque": 10,
     "destaque": false
   },
@@ -192,7 +192,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "id": "P013",
     "nome": "Sangue, suor e pixels",
     "autor": "Jason Schreier",
-    "categoria": "",
+    "categoria": "nao-ficcao",
     "tags": [
       "Tecnologia",
       "Não ficção"
@@ -200,7 +200,7 @@ export const PRODUTOS_INICIAIS = Object.freeze([
     "descricao": "O livro responde a uma pergunta central: por que é tão difícil fazer videogames? Com capítulos dedicados a diferentes jogos de diferentes tipos, revela o caos, a exaustão, os problemas técnicos e as crises nos bastidores da indústria.",
     "preco": 250,
     "imagem": "./img/produtos/produto-13.jpg",
-    "alt": "Descrição detalhada do Produto 13",
+    "alt": "Livro Sangue, suor e pixels de Jason Schreier",
     "estoque": 10,
     "destaque": false
   }
