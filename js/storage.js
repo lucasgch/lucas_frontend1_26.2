@@ -80,3 +80,27 @@ export function removerDados(chave){
     return false;
   }
 }
+
+/**
+ * Verifica a versão do esquema e inicializa as estruturas básicas no localStorage.
+ */
+export function inicializarStorage() {
+  const versaoSalva = lerDados(CHAVES_STORAGE.VERSAO);
+  // Se ainda não houver versão salva ou se a versão mudou, atualiza a versão no storage
+  if (versaoSalva !== VERSAO_STORAGE) {
+    salvarDados(CHAVES_STORAGE.VERSAO, VERSAO_STORAGE);
+  }
+  // Garante que o objeto de contadores exista desde o início
+  if (lerDados(CHAVES_STORAGE.CONTADORES) === null) {
+    salvarDados(CHAVES_STORAGE.CONTADORES, {
+      cliente: 0,
+      compra: 0,
+      mensagem: 0
+    });
+  }
+
+  // Garante que a lista de clientes comece como um array vazio [] se não existir
+  if (lerDados(CHAVES_STORAGE.CLIENTES) === null) {
+    salvarDados(CHAVES_STORAGE.CLIENTES, []);
+  }
+}
