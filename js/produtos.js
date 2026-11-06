@@ -102,7 +102,9 @@ const gradePagina = document.querySelector('.grade-produtos');
 if (gradePagina) {
   const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
   inicializarCatalogo({ apenasDestaques });
+  inicializarFiltrosLoja();
 }
+
 
 /**
  * Retorna a lista de produtos sincronizada com o estoque atual do localStorage.
@@ -169,4 +171,39 @@ export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', 
     filtrados.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
   }
   return filtrados;
+}
+
+export function inicializarFiltrosLoja() {
+  const formFiltros = document.getElementById('form-filtros');
+  const grade = document.querySelector('.grade-produtos');
+  if (!formFiltros || !grade) return;
+  const campoBusca = document.getElementById('campo-busca-livros');
+  const selectCategoria = document.getElementById('filtro-categoria');
+  const selectPreco = document.getElementById('filtro-preco');
+  const selectOrdem = document.getElementById('filtro-ordem');
+  function aplicarFiltros() {
+    const todosProdutos = obterProdutosComEstoque();
+    const resultado = filtrarEOrdenarProdutos(todosProdutos, {
+      termo: campoBusca.value,
+      categoria: selectCategoria.value,
+      faixaPreco: selectPreco.value,
+      ordem: selectOrdem.value
+    });
+    renderizarGradeProdutos(resultado, grade);
+  }
+  // Impede o formulário de recarregar a página ao dar Enter ou clicar em Buscar
+  formFiltros.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    aplicarFiltros();
+  });
+  // Busca em tempo real com debounce ao digitar
+  campoBusca.addEventListener('input', debounce(aplicarFiltros, 300));
+  // Atualiza imediatamente ao mudar qualquer select
+  selectCategoria.addEventListener('change', aplicarFiltros);
+  selectPreco.addEventListener('change', aplicarFiltros);
+  selectOrdem.addEventListener('change', aplicarFiltros);
+  // Restaura todos os livros ao clicar no botão "Limpar" (reset)
+  formFiltros.addEventListener('reset', () => {
+    setTimeout(aplicarFiltros, 0);
+  });
 }
