@@ -48,8 +48,14 @@ export function criarCardProduto(produto) {
     liTag.textContent = textoTag;
     ulTags.appendChild(liTag);
   });
-  // 4. Botão de adicionar ao carrinho (desabilita se estoque for 0)
+  
+  // Botão de adicionar ao carrinho (desabilita se estoque for 0)
   const btnAdicionar = clone.querySelector('.botao-adicionar');
+  
+  // Botão de ver detalhes ao carrinho (desabilita se estoque for 0)
+  const btnDetalhes = clone.querySelector('.botao-detalhes');
+  
+  btnDetalhes.dataset.id = produto.id;
   btnAdicionar.dataset.id = produto.id;
   if (produto.estoque <= 0) {
     btnAdicionar.disabled = true;
@@ -103,6 +109,7 @@ if (gradePagina) {
   const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
   inicializarCatalogo({ apenasDestaques });
   inicializarFiltrosLoja();
+  inicializarModalProduto();
 }
 
 
@@ -205,5 +212,81 @@ export function inicializarFiltrosLoja() {
   // Restaura todos os livros ao clicar no botão "Limpar" (reset)
   formFiltros.addEventListener('reset', () => {
     setTimeout(aplicarFiltros, 0);
+  });
+}
+
+/**
+ * Preenche os dados de um produto no <dialog> e abre o modal.
+ * @param {string} produtoId - ID do produto (ex: 'P001').
+ */
+export function abrirModalProduto(produtoId) {
+  const modal = document.getElementById('modal-produto');
+  if (!modal) return;
+
+  // 1. Busca o produto pelo ID na lista atualizada com estoque
+  const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
+  if (!produto) return;
+
+  // 2. Preenche imagem e textos no modal
+  const img = document.getElementById('modal-img');
+  img.src = produto.imagem;
+  img.alt = produto.alt || `Livro ${produto.nome}`;
+
+  document.getElementById('modal-titulo-livro').textContent = produto.nome;
+  document.getElementById('modal-autor').textContent = produto.autor;
+  document.getElementById('modal-descricao').textContent = produto.descricao;
+  document.getElementById('modal-preco').textContent = formatarMoeda(produto.preco);
+  document.getElementById('modal-estoque').textContent =
+    produto.estoque > 0 ? `Estoque disponível: ${produto.estoque} un.` : 'Produto esgotado';
+
+  // 3. Configura o seletor de quantidade e o botão de adicionar
+  const inputQtd = document.getElementById('modal-quantidade');
+  const btnAdicionar = document.getElementById('modal-btn-adicionar');
+  btnAdicionar.dataset.id = produto.id;
+
+  if (produto.estoque > 0) {
+    inputQtd.value = 1;
+    inputQtd.max = produto.estoque;
+    inputQtd.disabled = false;
+    btnAdicionar.disabled = false;
+    btnAdicionar.textContent = 'Adicionar ao carrinho';
+  } else {
+    inputQtd.value = 0;
+    inputQtd.disabled = true;
+    btnAdicionar.disabled = true;
+    btnAdicionar.textContent = 'Esgotado';
+  }
+
+  // 4. Abre o <dialog> nativo na tela
+  modal.showModal();
+}
+
+/**
+ * Configura os cliques para abrir e fechar o modal de detalhes do produto.
+ */
+export function inicializarModalProduto() {
+  const modal = document.getElementById('modal-produto');
+  const grade = document.querySelector('.grade-produtos');
+  const btnFechar = document.getElementById('btn-fechar-modal');
+  if (!modal || !grade) return;
+
+  // Delegação de evento: escuta cliques nos botões "Ver detalhes" dentro da grade
+  grade.addEventListener('click', (evento) => {
+    const btnDetalhes = evento.target.closest('.botao-detalhes');
+    if (btnDetalhes) {
+      abrirModalProduto(btnDetalhes.dataset.id);
+    }
+  });
+
+  // Fecha ao clicar no botão X
+  btnFechar?.addEventListener('click', () => {
+    modal.close();
+  });
+
+  // Fecha ao clicar no fundo escuro fora da caixa do modal
+  modal.addEventListener('click', (evento) => {
+    if (evento.target === modal) {
+      modal.close();
+    }
   });
 }
