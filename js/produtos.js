@@ -1,6 +1,6 @@
 // js/produtos.js
 import { PRODUTOS_INICIAIS } from './data/produtos.js';
-import { formatarMoeda } from './utils.js';
+import { formatarMoeda, normalizarTexto, debounce } from './utils.js';
 import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 
 const ROTULOS_CATEGORIA = {
@@ -124,4 +124,19 @@ export function obterProdutosComEstoque() {
     ...produto,
     estoque: mapaEstoque[produto.id] ?? produto.estoque
   }));
+}
+
+/**
+ * Verifica se o preço de um produto está dentro da faixa selecionada.
+ * @param {number} preco - Preço do produto.
+ * @param {string} faixa - Faixa selecionada ('0-50', '50-100', '100-200', '200+' ou '').
+ * @returns {boolean}
+ */
+function verificarFaixaPreco(preco, faixa) {
+  if (!faixa) return true;
+  if (faixa === '0-50') return preco <= 50;
+  if (faixa === '50-100') return preco >= 50 && preco <= 100;
+  if (faixa === '100-200') return preco >= 100 && preco <= 200;
+  if (faixa === '200+') return preco >= 200;
+  return true;
 }
