@@ -45,3 +45,23 @@ export function salvarDados(chave, valor) {
     return false;
   }
 }
+
+/**
+ * Gera um ID sequencial único (ex: C001, CP001) a partir de um contador persistente.
+ * @param {string} tipo - Nome do contador (ex: 'cliente', 'compra', 'mensagem').
+ * @param {string} prefixo - Prefixo do ID (ex: 'C', 'CP', 'M').
+ * @returns {string} O novo ID formatado.
+ */
+export function gerarProximoId(tipo, prefixo) {
+  // 1. Lê o objeto de contadores do localStorage (se não existir, começa com objeto vazio {})
+  const contadores = lerDados(CHAVES_STORAGE.CONTADORES, {});
+  // 2. Pega o valor atual daquele 'tipo' (ou 0 se não existir) e soma 1
+  const ultimoNumero = contadores[tipo] || 0;
+  const proximoNumero = ultimoNumero + 1;
+  // 3. Atualiza o objeto e salva de volta no localStorage
+  contadores[tipo] = proximoNumero;
+  salvarDados(CHAVES_STORAGE.CONTADORES, contadores);
+  // 4. Formata o número com 3 dígitos (ex: '001') e junta com o prefixo
+  const numeroFormatado = String(proximoNumero).padStart(3, '0');
+  return `${prefixo}${numeroFormatado}`;
+}
