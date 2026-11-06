@@ -81,6 +81,13 @@
   line-height: 1.2;
 }
 
+.tags-categoria .tag-categoria {
+  color: var(--text-accent);
+  background-color: rgba(2, 132, 199, 0.08);
+  border-color: rgba(2, 132, 199, 0.2);
+  font-weight: 600;
+}
+
 .card-produto:hover {
   transform: translateY(-4px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);

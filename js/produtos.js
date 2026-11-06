@@ -1,6 +1,15 @@
 // js/produtos.js
 import { PRODUTOS_INICIAIS } from './data/produtos.js';
 import { formatarMoeda } from './utils.js';
+
+const ROTULOS_CATEGORIA = {
+  'ficcao': 'Ficção Científica',
+  'fantasia': 'Fantasia',
+  'terror': 'Terror',
+  'nao-ficcao': 'Não Ficção',
+  'desenvolvimento': 'Desenvolvimento Pessoal'
+};
+
 /**
  * Cria o elemento <li> de um produto a partir do <template>
  * @param {Object} produto
@@ -21,9 +30,18 @@ export function criarCardProduto(produto) {
   clone.querySelector('.autor-livro').textContent = produto.autor;
   clone.querySelector('.descricao').textContent = produto.descricao;
   clone.querySelector('.preco').textContent = formatarMoeda(produto.preco);
-  // 3. Tags de categoria
+  // 3. Categoria principal + Tags
   const ulTags = clone.querySelector('.tags-categoria');
+  const nomeCategoria = ROTULOS_CATEGORIA[produto.categoria] || produto.categoria;
+  if (nomeCategoria) {
+    const liCategoria = document.createElement('li');
+    liCategoria.className = 'tag tag-categoria';
+    liCategoria.textContent = nomeCategoria;
+    ulTags.appendChild(liCategoria);
+  }
   produto.tags.forEach((textoTag) => {
+    // Evita exibir tag duplicada se for igual ao nome da categoria
+    if (textoTag.toLowerCase() === nomeCategoria?.toLowerCase()) return;
     const liTag = document.createElement('li');
     liTag.className = 'tag';
     liTag.textContent = textoTag;
