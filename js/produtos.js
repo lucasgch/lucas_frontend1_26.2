@@ -241,23 +241,27 @@ export function abrirModalProduto(produtoId) {
 
   // 3. Configura o seletor de quantidade e o botão de adicionar
   const inputQtd = document.getElementById('modal-quantidade');
+  const btnMenos = document.getElementById('modal-qtd-menos');
+  const btnMais = document.getElementById('modal-qtd-mais');
   const btnAdicionar = document.getElementById('modal-btn-adicionar');
   const erroQtd = document.getElementById('modal-erro-qtd');
   if (erroQtd) {
     erroQtd.textContent = '';
-    erroQtd.hidden = true;
   }
   btnAdicionar.dataset.id = produto.id;
-
   if (produto.estoque > 0) {
     inputQtd.value = 1;
     inputQtd.max = produto.estoque;
     inputQtd.disabled = false;
+    if (btnMenos) btnMenos.disabled = true; // começa em 1, então '-' começa travado
+    if (btnMais) btnMais.disabled = produto.estoque <= 1; // destrava o '+' se estoque for > 1!
     btnAdicionar.disabled = false;
     btnAdicionar.textContent = 'Adicionar ao carrinho';
   } else {
     inputQtd.value = 0;
     inputQtd.disabled = true;
+    if (btnMenos) btnMenos.disabled = true;
+    if (btnMais) btnMais.disabled = true;
     btnAdicionar.disabled = true;
     btnAdicionar.textContent = 'Esgotado';
   }
@@ -314,16 +318,14 @@ export function inicializarModalProduto() {
 
     if (qtd > maxEstoque) {
       btnAdicionar.disabled = true;
-      erroQtd.textContent = `Quantidade inválida! Máximo disponível: ${maxEstoque} un.`;
+      erroQtd.textContent = `Máximo disponível: ${maxEstoque} un.`;
       erroQtd.hidden = false;
     } else if (!Number.isInteger(qtd) || qtd <= 0) {
       btnAdicionar.disabled = true;
       erroQtd.textContent = '';
-      erroQtd.hidden = true;
     } else {
       btnAdicionar.disabled = false;
       erroQtd.textContent = '';
-      erroQtd.hidden = true;
     }
   }
 
