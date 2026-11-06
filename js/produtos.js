@@ -242,6 +242,11 @@ export function abrirModalProduto(produtoId) {
   // 3. Configura o seletor de quantidade e o botão de adicionar
   const inputQtd = document.getElementById('modal-quantidade');
   const btnAdicionar = document.getElementById('modal-btn-adicionar');
+  const erroQtd = document.getElementById('modal-erro-qtd');
+  if (erroQtd) {
+    erroQtd.textContent = '';
+    erroQtd.hidden = true;
+  }
   btnAdicionar.dataset.id = produto.id;
 
   if (produto.estoque > 0) {
@@ -290,19 +295,63 @@ export function inicializarModalProduto() {
     }
   });
 
-  const inputQtd = document.getElementById('modal-quantidade');
+    const inputQtd = document.getElementById('modal-quantidade');
+  const btnMenos = document.getElementById('modal-qtd-menos');
+  const btnMais = document.getElementById('modal-qtd-mais');
   const btnAdicionar = document.getElementById('modal-btn-adicionar');
-  const infoEstoque = document.getElementById('modal-estoque');
-  // Valida a quantidade digitada em tempo real no modal
-  inputQtd?.addEventListener('input', () => {
+  const erroQtd = document.getElementById('modal-erro-qtd');
+
+  // Função que valida o valor atual e atualiza os botões (-, + e Adicionar)
+  function validarQuantidadeModal() {
+    // Remove qualquer sinal de '-' ou caractere que não seja número (0-9)
+    inputQtd.value = inputQtd.value.replace(/\D/g, '');
     const qtd = Number(inputQtd.value);
     const maxEstoque = Number(inputQtd.max);
-    if (!Number.isInteger(qtd) || qtd < 1 || qtd > maxEstoque) {
+
+    // Trava o botão '-' se já estiver em 1 (ou menos) e o '+' se já estiver no estoque máximo
+    if (btnMenos) btnMenos.disabled = qtd <= 1;
+    if (btnMais) btnMais.disabled = qtd >= maxEstoque;
+
+    if (qtd > maxEstoque) {
       btnAdicionar.disabled = true;
-      infoEstoque.textContent = `Quantidade inválida! Máximo disponível: ${maxEstoque} un.`;
+      erroQtd.textContent = `Quantidade inválida! Máximo disponível: ${maxEstoque} un.`;
+      erroQtd.hidden = false;
+    } else if (!Number.isInteger(qtd) || qtd <= 0) {
+      btnAdicionar.disabled = true;
+      erroQtd.textContent = '';
+      erroQtd.hidden = true;
     } else {
       btnAdicionar.disabled = false;
-      infoEstoque.textContent = `Estoque disponível: ${maxEstoque} un.`;
+      erroQtd.textContent = '';
+      erroQtd.hidden = true;
+    }
+  }
+
+  // 1. Chama a validação toda vez que o valor do campo mudar (digitação ou Ctrl+V)
+  inputQtd?.addEventListener('input', validarQuantidadeModal);
+  // 2. Impede digitar sinal negativo (-), ponto, vírgula ou 'e' no teclado
+  inputQtd?.addEventListener('keydown', (evento) => {
+    if (['-', '+', 'e', 'E', '.', ','].includes(evento.key)) {
+      evento.preventDefault();
+    }
+  });
+
+  // Diminui 1 ao clicar no botão '-'
+  btnMenos?.addEventListener('click', () => {
+    const atual = Number(inputQtd.value) || 1;
+    if (atual > 1) {
+      inputQtd.value = atual - 1;
+      validarQuantidadeModal();
+    }
+  });
+
+  // Aumenta 1 ao clicar no botão '+'
+  btnMais?.addEventListener('click', () => {
+    const atual = Number(inputQtd.value) || 0;
+    const maxEstoque = Number(inputQtd.max);
+    if (atual < maxEstoque) {
+      inputQtd.value = atual + 1;
+      validarQuantidadeModal();
     }
   });
 }

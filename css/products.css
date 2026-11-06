@@ -239,27 +239,96 @@
   color: var(--text-muted);
   margin-bottom: 0.5rem;
 }
+
 .modal-acoes {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  margin-inline: auto;
+  flex-direction: column;
+  align-items: stretch; /* Faz a barra de quantidade e o botão terem a mesma largura! */
   gap: 0.75rem;
+  width: 100%;
+  max-width: 18rem; /* Largura elegante igual à da sua imagem de referência */
   margin-top: 0.75rem;
   padding-top: 0.75rem;
   border-top: 1px solid rgba(0, 0, 0, 0.08);
 }
-.modal-acoes label {
-  font-size: var(--text-sm);
+.modal-grupo-quantidade {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  width: 100%;
+}
+/* Caixa cinza clara com - no canto esquerdo, número no meio e + no canto direito */
+.seletor-quantidade {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 2.75rem;
+  background-color: var(--surface-subtle);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding-inline: 0.25rem;
+}
+/* Quando o input lá dentro estiver inválido (:invalid), deixa a caixa inteira vermelha! */
+.seletor-quantidade:has(.input-quantidade-modal:invalid) {
+  border-color: #dc2626;
+  background-color: rgba(220, 38, 38, 0.06);
+}
+.btn-qtd {
+  background: transparent;
+  border: none;
+  color: var(--text-accent);
+  font-size: 1.25rem;
+  font-weight: 700;
+  width: 2.5rem;
+  height: 100%;
+  cursor: pointer;
+  border-radius: calc(var(--radius) - 2px);
+  transition: background-color 0.2s ease;
+}
+.btn-qtd:hover:not(:disabled) {
+  background-color: var(--surface-subtle-hover);
+}
+.btn-qtd:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+/* Número centralizado e sem as setinhas feias padrão do navegador */
+.input-quantidade-modal {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: center;
+  font-family: var(--font-inter);
+  font-size: var(--text-base);
+  font-weight: 700;
+  color: var(--text-primary);
+  outline: none;
+  -moz-appearance: textfield;
+}
+.input-quantidade-modal::-webkit-outer-spin-button,
+.input-quantidade-modal::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* Botão Adicionar ao carrinho ocupando 100% da mesma largura da barra de cima */
+.modal-btn-comprar {
+  width: 100%;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin: 0;
+}
+.mensagem-erro-campo {
+  font-size: var(--text-xs);
   font-weight: 500;
+  color: #dc2626;
+  margin: 0;
 }
 
-/* Destaca o input de quantidade em vermelho quando o número for menor que min ou maior que max */
-#modal-quantidade:invalid {
-  border-color: #dc2626;
-  outline-color: #dc2626;
-  background-color: rgba(220, 38, 38, 0.06);
-  color: #dc2626;
-}
 /* Estilo para quando o botão de adicionar estiver bloqueado */
 .modal-acoes button:disabled {
   opacity: 0.5;
