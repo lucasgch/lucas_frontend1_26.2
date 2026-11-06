@@ -289,4 +289,20 @@ export function inicializarModalProduto() {
       modal.close();
     }
   });
+
+  const inputQtd = document.getElementById('modal-quantidade');
+  const btnAdicionar = document.getElementById('modal-btn-adicionar');
+  const infoEstoque = document.getElementById('modal-estoque');
+  // Valida a quantidade digitada em tempo real no modal
+  inputQtd?.addEventListener('input', () => {
+    const qtd = Number(inputQtd.value);
+    const maxEstoque = Number(inputQtd.max);
+    if (!Number.isInteger(qtd) || qtd < 1 || qtd > maxEstoque) {
+      btnAdicionar.disabled = true;
+      infoEstoque.textContent = `Quantidade inválida! Máximo disponível: ${maxEstoque} un.`;
+    } else {
+      btnAdicionar.disabled = false;
+      infoEstoque.textContent = `Estoque disponível: ${maxEstoque} un.`;
+    }
+  });
 }
