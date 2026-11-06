@@ -140,3 +140,33 @@ function verificarFaixaPreco(preco, faixa) {
   if (faixa === '200+') return preco >= 200;
   return true;
 }
+
+/**
+ * Filtra e ordena uma lista de produtos com base nos critérios informados.
+ * @param {Array<Object>} produtos - Lista completa de produtos.
+ * @param {Object} filtros - Critérios de filtragem e ordenação.
+ * @returns {Array<Object>} Lista filtrada e ordenada.
+ */
+export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', faixaPreco = '', ordem = 'destaque' } = {}) {
+  const termoNormalizado = normalizarTexto(termo);
+  // 1. Filtra os produtos que atendem a todos os critérios
+  const filtrados = produtos.filter((produto) => {
+    const bateTexto =
+      !termoNormalizado ||
+      normalizarTexto(produto.nome).includes(termoNormalizado) ||
+      normalizarTexto(produto.autor).includes(termoNormalizado) ||
+      normalizarTexto(produto.descricao).includes(termoNormalizado);
+    const bateCategoria = !categoria || produto.categoria === categoria;
+    const batePreco = verificarFaixaPreco(produto.preco, faixaPreco);
+    return bateTexto && bateCategoria && batePreco;
+  });
+  // 2. Ordena a lista filtrada conforme a opção escolhida
+  if (ordem === 'menor-preco') {
+    filtrados.sort((a, b) => a.preco - b.preco);
+  } else if (ordem === 'maior-preco') {
+    filtrados.sort((a, b) => b.preco - a.preco);
+  } else if (ordem === 'titulo-az') {
+    filtrados.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  }
+  return filtrados;
+}
