@@ -8,7 +8,7 @@ export function formatarMoeda(valor) {
 }
 
 export function normalizarTexto(texto = ''){
-  let textoNormalizado = texto.toLowerCase().trim().nomarlize('NFD').replace(/[\u0300-\u036f]/g, '');
+  let textoNormalizado = texto.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   return textoNormalizado;
 }
 
