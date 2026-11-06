@@ -2,7 +2,8 @@ export const VERSAO_STORAGE = '1.0';
 export const CHAVES_STORAGE = Object.freeze({
   VERSAO: 'lojaLivros:versao',
   CONTADORES: 'lojaLivros:contadores',
-  ESTOQUE: 'lojaLivros:estoque'
+  ESTOQUE: 'lojaLivros:estoque',
+  CLIENTES: 'lojaLivros:cliente'
   // TODO adicionar CLIENTES, SESSAO, TENTATIVAS_LOGIN, ESTOQUE, CARRINHO, COMPRAS, MENSAGENS, TEMA e etc...
 });
 
@@ -20,6 +21,7 @@ export function lerDados(chave, valorPadrao = null){
     if (textoSalvo === null) {
       return valorPadrao;
     }
+    return JSON.parse(textoSalvo);
   } catch (erro) {
     // 4. Se o JSON estiver corrompido, avisa no console e retorna o valorPadrao sem quebrar o site
     console.error(`Erro ao ler a chave "${chave}" do localStorage:`, erro);

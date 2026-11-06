@@ -1,6 +1,7 @@
 // js/produtos.js
 import { PRODUTOS_INICIAIS } from './data/produtos.js';
 import { formatarMoeda } from './utils.js';
+import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 
 const ROTULOS_CATEGORIA = {
   'ficcao': 'Ficção Científica',
@@ -89,9 +90,10 @@ export function renderizarGradeProdutos(produtos, container) {
 export function inicializarCatalogo({ apenasDestaques = false } = {}) {
   const grade = document.querySelector('.grade-produtos');
   if (!grade) return;
+  const todosProdutos = obterProdutosComEstoque();
   const lista = apenasDestaques
-    ? PRODUTOS_INICIAIS.filter((p) => p.destaque)
-    : PRODUTOS_INICIAIS;
+    ? todosProdutos.filter((p) => p.destaque)
+    : todosProdutos;
   renderizarGradeProdutos(lista, grade);
 }
 
@@ -100,4 +102,26 @@ const gradePagina = document.querySelector('.grade-produtos');
 if (gradePagina) {
   const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
   inicializarCatalogo({ apenasDestaques });
+}
+
+/**
+ * Retorna a lista de produtos sincronizada com o estoque atual do localStorage.
+ * Na primeira execução, inicializa a chave de estoque no localStorage.
+ * @returns {Array<Object>}
+ */
+export function obterProdutosComEstoque() {
+  let mapaEstoque = lerDados(CHAVES_STORAGE.ESTOQUE, null);
+  // Se ainda não existe estoque salvo no navegador, cria a partir dos produtos iniciais
+  if (mapaEstoque === null) {
+    mapaEstoque = {};
+    PRODUTOS_INICIAIS.forEach((produto) => {
+      mapaEstoque[produto.id] = produto.estoque;
+    });
+    salvarDados(CHAVES_STORAGE.ESTOQUE, mapaEstoque);
+  }
+  // Retorna uma cópia dos produtos substituindo o estoque pelo valor salvo no localStorage
+  return PRODUTOS_INICIAIS.map((produto) => ({
+    ...produto,
+    estoque: mapaEstoque[produto.id] ?? produto.estoque
+  }));
 }
