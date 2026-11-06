@@ -65,3 +65,18 @@ export function gerarProximoId(tipo, prefixo) {
   const numeroFormatado = String(proximoNumero).padStart(3, '0');
   return `${prefixo}${numeroFormatado}`;
 }
+
+/**
+ * Remove uma chave e seu valor do localStorage.
+ * @param {string} chave - Nome da chave a ser removida.
+ * @returns {boolean} Retorna true se removeu com sucesso, ou false em caso de erro.
+ */
+export function removerDados(chave){
+  try{
+    localStorage.removeItem(chave);
+    return true;
+  } catch (erro) {
+    console.error(`Erro ao remover chave "${chave}" do localStorage:`, erro);
+    return false;
+  }
+}
