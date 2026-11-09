@@ -17,8 +17,20 @@ export function obterCarrinho(donoId = 'visitante'){
   return Array.isArray(itens) ? itens : [];
 }
 
-export function salvarCarrinho(itens){
-    /** TODO */
+/**
+ * Salva a lista de itens no carrinho do usuário atual (ou 'visitante').
+ * @param {Array<{produtoId: string, quantidade: number}>} itens - Lista de itens do carrinho.
+ * @param {string} [donoId='visitante'] - ID do cliente logado ou 'visitante'.
+ * @returns {boolean}
+ */
+export function salvarCarrinho(itens, donoId = 'visitante') {
+    // 1. Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
+    const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+    // 2. Busca o array de itens do donoId ('visitante' por padrão)
+    todosOsCarrinhos[donoId] = itens;
+  
+    // 3. Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
+    return salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
 
 export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
