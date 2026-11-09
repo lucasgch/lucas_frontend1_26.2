@@ -81,7 +81,34 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
  * @returns {{sucesso: boolean, mensagem: string}}
  */
 export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
-    /** TODO */
+    const qtd = Number(novaQuantidade);
+    
+    // Verifica se a quantidade é válida
+    if(!Number.isInteger(qtd) || qtd <1 ){
+        return { sucesso: false, mensagem: 'Quantidade mínima é 1' };
+    }
+
+    // Verifica se o produto está no carrinho
+    const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
+    if (!produto) {
+        return { sucesso: false, mensagem: 'Produto não encontrado.' };
+    }
+
+    // Verifique se há quantidade suficiente em estoque
+    if (qtd > produto.estoque) {
+        return { sucesso: false, mensagem: 'Apenas ${produto.estoque} unidade(s) disponível(is) em estoque' };
+    }
+
+    const itens = obterCarrinho();
+    const item = itens.find((i) => i.produtoId === produtoId);
+    if (!item) {
+        return { sucesso: false, mensagem: 'Item não está no carrinho.' }
+    }
+
+    item.quantidade = qtd;
+    salvarCarrinho(itens);
+    return { sucesso: true, mensagem: 'Quantidade atualizada.'}
+    
 }
 
 /**
