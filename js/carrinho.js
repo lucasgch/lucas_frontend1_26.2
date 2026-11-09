@@ -74,11 +74,22 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
     return { sucesso: true, mensagem: `"${produto.nome}" adicionado ao carrinho!` };
 }
 
+/**
+ * Altera diretamente a quantidade de um item já presente no carrinho.
+ * @param {string} produtoId - ID do produto.
+ * @param {number} novaQuantidade - Nova quantidade desejada.
+ * @returns {{sucesso: boolean, mensagem: string}}
+ */
 export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
     /** TODO */
 }
 
-
+/**
+ * Remove um produto do carrinho.
+ * @param {string} produtoId - ID do produto a ser removido.
+ */
 export function removerDoCarrinho(produtoId){
-    /** TODO */
+    const itensAtuais = obterCarrinho();
+    const itensRestantes = itensAtuais.filter((item) => item.produtoId !== produtoId);
+    salvarCarrinho(itensRestantes);
 }
