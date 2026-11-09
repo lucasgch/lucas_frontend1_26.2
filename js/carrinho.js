@@ -125,22 +125,37 @@ export function removerDoCarrinho(produtoId){
 }
 
 /**
- * Atualiza o contador (badge) de itens do carrinho no menu de navegação.
+ * Atualiza o botão de carrinho com ícone e contador (badge) no menu de navegação.
  */
 export function atualizarBadgeCarrinho() {
   const itens = obterCarrinho();
   const totalUnidades = itens.reduce((soma, item) => soma + item.quantidade, 0);
   let badge = document.getElementById('badge-carrinho');
-  // Se o badge ainda não existe no menu, cria dentro do link "Loja"
   if (!badge) {
-    const linkLoja = document.querySelector('#menu-principal a[href="loja.html"]');
-    if (!linkLoja) return;
+    const listaMenu = document.querySelector('#menu-principal ul');
+    if (!listaMenu) return;
+    const liCarrinho = document.createElement('li');
+    liCarrinho.className = 'item-menu-carrinho';
+    const linkCarrinho = document.createElement('a');
+    linkCarrinho.href = 'loja.html#carrinho';
+    linkCarrinho.className = 'link-icone-carrinho';
+    linkCarrinho.setAttribute('aria-label', 'Ver meu carrinho de compras');
+    // Ícone SVG minimalista de sacola/carrinho
+    linkCarrinho.innerHTML = `
+      <svg class="icone-carrinho-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+        <path d="M3 6h18"/>
+        <path d="M16 10a4 4 0 0 1-8 0"/>
+      </svg>
+    `;
     badge = document.createElement('span');
     badge.id = 'badge-carrinho';
     badge.className = 'badge-carrinho';
-    linkLoja.appendChild(badge);
+    linkCarrinho.appendChild(badge);
+    liCarrinho.appendChild(linkCarrinho);
+    listaMenu.appendChild(liCarrinho);
   }
-  badge.textContent = totalUnidades;
+  badge.textContent = totalUnidades > 99 ? '99+' : totalUnidades;
   badge.hidden = totalUnidades === 0;
 }
 
