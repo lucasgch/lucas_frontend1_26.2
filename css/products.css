@@ -305,6 +305,7 @@
   font-weight: 700;
   color: var(--text-primary);
   outline: none;
+  appearance: textfield;
   -moz-appearance: textfield;
 }
 .input-quantidade-modal::-webkit-outer-spin-button,

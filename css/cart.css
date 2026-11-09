@@ -41,6 +41,7 @@
 }
 
 .botao-remover {
+  margin: 0 auto;
   background: transparent;
   border: none;
   color: #dc2626;
