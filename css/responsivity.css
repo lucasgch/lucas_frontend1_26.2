@@ -94,6 +94,12 @@
         padding-inline: 1rem;
     }
 
+    #hero {
+        aspect-ratio: 21 / 9;
+        min-height: 24rem;
+        max-height: 60dvh;
+    }
+
 }
 
 /* DESKTOP (> 1024px) */

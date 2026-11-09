@@ -100,12 +100,13 @@
 #hero {
     position: relative;
     width: 100%;
-    aspect-ratio: 21 / 9; /* Ultrawide */
-    max-height: 60vh;
+    min-height: 22rem; /* Garante altura mínima confortável no mobile */
+    padding-block: 2rem; /* Espaço de respiro em cima e embaixo do texto */
     overflow: hidden;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: var(--radius); /* Opcional: acabamento visual */
 }
 
 .hero-media {
