@@ -46,9 +46,11 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
     const qtdAdicionar = Number(quantidade);
     
     // Verifica se a quantidade é válida
-    if(!Number.isInteger(qtdAdicionar || qtdAdicionar <=0 )){
+    if (!Number.isInteger(qtdAdicionar) || qtdAdicionar <= 0){
         return { sucesso: false, mensagem: 'Quantidade inválida' };
     }
+    
+    const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
 
     // Busca os itens atuais do carrinho
     const itens = obterCarrinho();
@@ -57,7 +59,7 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
     const novaQuantidadeTotal = qtdAtualNoCarrinho + qtdAdicionar;    
 
     // Valida o estoque e não permite exceder o estoque disponível
-    if (novaQuantidadeTotal > poduto.estoque) {
+    if (novaQuantidadeTotal > produto.estoque) {
         return {
             sucesso: false, mensagem: `Estoque insuficiente! Você já tem ${qtdAtualNoCarrinho} no carrinho (máx: ${produto.estoque}).`
         };
@@ -96,7 +98,7 @@ export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
 
     // Verifique se há quantidade suficiente em estoque
     if (qtd > produto.estoque) {
-        return { sucesso: false, mensagem: 'Apenas ${produto.estoque} unidade(s) disponível(is) em estoque' };
+        return { sucesso: false, mensagem: `Apenas ${produto.estoque} unidade(s) disponível(is) em estoque.` };
     }
 
     const itens = obterCarrinho();
