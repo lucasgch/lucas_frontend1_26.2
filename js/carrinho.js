@@ -1,4 +1,5 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
+import { obterProdutosComEstoque } from './produtos.js';
 
 /**
  * Retorna a lista de itens do carrinho do usuário atual (ou 'visitante').
@@ -7,14 +8,15 @@ import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
  * @returns {Array<{produtoId: string, quantidade: number}>}
  */
 export function obterCarrinho(donoId = 'visitante'){
-  // 1. Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
-  const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-  
-  // 2. Busca o array de itens do donoId ('visitante' por padrão)
-  const itens = todosOsCarrinhos[donoId];
-  
-  // 3. Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
-  return Array.isArray(itens) ? itens : [];
+
+    // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
+    const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+    
+    // Busca o array de itens do donoId ('visitante' por padrão)
+    const itens = todosOsCarrinhos[donoId];
+    
+    // Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
+    return Array.isArray(itens) ? itens : [];
 }
 
 /**
@@ -24,13 +26,52 @@ export function obterCarrinho(donoId = 'visitante'){
  * @returns {boolean}
  */
 export function salvarCarrinho(itens, donoId = 'visitante') {
-    // 1. Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
+
+    // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
     const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-    // 2. Busca o array de itens do donoId ('visitante' por padrão)
+    // Busca o array de itens do donoId ('visitante' por padrão)
     todosOsCarrinhos[donoId] = itens;
   
-    // 3. Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
+    // Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
     return salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
+}
+
+/**
+ * Adiciona um produto ao carrinho respeitando o limite de estoque disponível.
+ * @param {string} produtoId - ID do produto (ex: 'P001').
+ * @param {number} [quantidade=1] - Quantidade a adicionar.
+ * @returns {{sucesso: boolean, mensagem: string}}
+ */
+export function adicionarAoCarrinho(produtoId, quantidade = 1){
+    const qtdAdicionar = Number(quantidade);
+    
+    // Verifica se a quantidade é válida
+    if(!Number.isInteger(qtdAdicionar || qtdAdicionar <=0 )){
+        return { sucesso: false, mensagem: 'Quantidade inválida' };
+    }
+
+    // Busca os itens atuais do carrinho
+    const itens = obterCarrinho();
+    const itemExistente = itens.find((item) => item.produtoId === produtoId);
+    const qtdAtualNoCarrinho = itemExistente ? itemExistente.quantidade : 0;
+    const novaQuantidadeTotal = qtdAtualNoCarrinho + qtdAdicionar;    
+
+    // Valida o estoque e não permite exceder o estoque disponível
+    if (novaQuantidadeTotal > poduto.estoque) {
+        return {
+            sucesso: false, mensagem: `Estoque insuficiente! Você já tem ${qtdAtualNoCarrinho} no carrinho (máx: ${produto.estoque}).`
+        };
+    }
+
+    // Atualiza intem presente no carrinho ou adiciona novo caso não existir
+    if (itemExistente) {
+        itemExistente.quantidade = novaQuantidadeTotal;
+    } else {
+        itens.push({ produtoId, quantidade: qtdAdicionar});
+    }
+
+    salvarCarrinho(itens);
+    return { sucesso: true, mensagem: `"${produto.nome}" adicionado ao carrinho!` };
 }
 
 export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
