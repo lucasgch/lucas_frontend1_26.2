@@ -161,13 +161,15 @@ export function renderizarCarrinho() {
 
      tbody.replaceChildren();
 
-     if (itensCarrinho = length === 0) {
+     if (itensCarrinho.length === 0) {
         const trVazia = document.createElement('tr');
         const tdVazia = document.createElement('td');
         tdVazia.colSpan = 5;
         tdVazia.textContent = 'Seu carrinho está vazio.';
         trVazia.appendChild(tdVazia);
         tbody.appendChild(trVazia);
+        if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
+        if (btnFinalizar) btnFinalizar.setAttribute('aria-disabled', 'true');
         return;
      }
 
@@ -191,9 +193,9 @@ export function renderizarCarrinho() {
         thProduto.scope = 'row';
         thProduto.className = 'coluna-produto';
 
-        const img = document.createElement('th');
+        const img = document.createElement('img');
         img.src = produto.imagem;
-        img.alt = produto.alt || 'Capa do livro $(produto.nome)';
+        img.alt = produto.alt || `Capa do livro ${produto.nome}`;
         img.className = 'miniatura-carrinho';
 
         const spanNome = document.createElement('span');
@@ -254,7 +256,7 @@ export function renderizarCarrinho() {
         fragmento.appendChild(tr);
      });
 
-     tbody.appendChild(framento);
+     tbody.appendChild(fragmento);
 
      if (celulaTotal) {
         const strongTotal = document.createElement('strong');
@@ -262,3 +264,68 @@ export function renderizarCarrinho() {
         celulaTotal.replaceChildren(strongTotal);
     }
 }
+
+/**
+ * Inicializa os eventos de adicionar, alterar quantidade e remover do carrinho.
+ */
+export function inicializarCarrinho() {
+    renderizarCarrinho();
+
+    // Clique em "Adicionar ao carrinho" nos cards da grade (Home ou Loja)
+    const grade = document.querySelector('.grade-produtos');
+    grade?.addEventListener('click', (evento) => {
+        const btnAdicionar = evento.target.closest('.botao-adicionar');
+        if (!btnAdicionar) return;
+        adicionarAoCarrinho(btnAdicionar.dataset.id, 1);
+        renderizarCarrinho();
+    });
+
+    // Clique em "Adicionar ao carrinho" dentro do Modal de detalhes
+    const btnModalAdicionar = document.getElementById('modal-btn-adicionar');
+    
+    btnModalAdicionar?.addEventListener('click', () => {
+    const inputQtd = document.getElementById('modal-quantidade');
+    const modal = document.getElementById('modal-produto');
+    const qtd = Number(inputQtd?.value) || 1;
+    const resultado = adicionarAoCarrinho(btnModalAdicionar.dataset.id, qtd);
+    if (resultado.sucesso) {
+      renderizarCarrinho();
+      modal?.close();
+    } else {
+      const erroQtd = document.getElementById('modal-erro-qtd');
+      if (erroQtd) {
+        erroQtd.textContent = resultado.mensagem;
+        erroQtd.hidden = false;
+      }
+    }
+  });
+
+  // Cliques na tabela do carrinho (-, + e Remover)
+  const tabela = document.getElementById('tabela-carrinho');
+  tabela?.addEventListener('click', (evento) => {
+    const btnMenos = evento.target.closest('.btn-carrinho-menos');
+    const btnMais = evento.target.closest('.btn-carrinho-mais');
+    const btnRemover = evento.target.closest('.botao-remover');
+    if (btnMenos) {
+      const id = btnMenos.dataset.id;
+      const item = obterCarrinho().find((i) => i.produtoId === id);
+      if (item && item.quantidade > 1) {
+        alterarQuantidadeCarrinho(id, item.quantidade - 1);
+        renderizarCarrinho();
+      }
+    } else if (btnMais) {
+      const id = btnMais.dataset.id;
+      const item = obterCarrinho().find((i) => i.produtoId === id);
+      if (item) {
+        alterarQuantidadeCarrinho(id, item.quantidade + 1);
+        renderizarCarrinho();
+      }
+    } else if (btnRemover) {
+      removerDoCarrinho(btnRemover.dataset.id);
+      renderizarCarrinho();
+    }
+  });
+}
+
+// Executa ao carregar a página
+inicializarCarrinho();
