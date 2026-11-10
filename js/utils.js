@@ -115,3 +115,36 @@ export function validarEmail(email = '') {
   const texto = String(email).trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto);
 }
+
+/**
+ * Avalia a senha segundo os requisitos (min. 8 caracteres, com letras e números)
+ * e calcula o nível de força para o indicador em tempo real.
+ * @param {string} [senha=''] - Senha digitada.
+ * @returns {{valida: boolean, nivel: 'vazia'|'fraca'|'media'|'forte', texto: string}}
+ */
+export function avaliarForcaSenha(senha = '') {
+    const texto = String(senha);
+  if (!texto) {
+    return { valida: false, nivel: 'vazia', texto: '' };
+  }
+  const temMinimo8 = texto.length >= 8;
+  const temLetra = /[a-zA-ZÀ-ÿ]/.test(texto);
+  const temNumero = /\d/.test(texto);
+  const temMaiuscula = /[A-Z]/.test(texto);
+  const temEspecial = /[^a-zA-Z0-9]/.test(texto);
+
+  // Requisito obrigatório
+  const atendeRequisito = temMinimo8 && temLetra && temNumero;
+  
+  if (!atendeRequisito) {
+    return {
+      valida: false,
+      nivel: 'fraca',
+      texto: 'Força: Fraca (mín. 8 caracteres, com letras e números)'
+    };
+  }
+  if (texto.length >= 10 && (temMaiuscula || temEspecial)) {
+    return { valida: true, nivel: 'forte', texto: 'Força: Forte' };
+  }
+  return { valida: true, nivel: 'media', texto: 'Força: Média' };
+}
