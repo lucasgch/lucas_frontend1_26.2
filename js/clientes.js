@@ -96,6 +96,7 @@ export async function cadastrarCliente({ nome, cpf, telefone, email, senha }) {
 export function inicializarCadastro() {
   const formCadastro = document.getElementById('form-cadastro');
   if (!formCadastro) return;
+  formCadastro.noValidate = true;
 
   // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
   formCadastro.querySelectorAll('.campo-form input').forEach((input) => {
@@ -210,5 +211,73 @@ export function inicializarCadastro() {
   }
   campoConfirmaSenha?.addEventListener('input', validarConfirmacao);
   campoConfirmaSenha?.addEventListener('blur', validarConfirmacao);
+
+   // Envia o formulário ao clicar em "Criar conta"
+  formCadastro.addEventListener('submit', async (evento) => {
+    // Impede a página de recarregar
+    evento.preventDefault();
+    let primeiroInvalido = null;
+    const marcarInvalido = (campo, mensagem) => {
+      definirErroCampo(campo, mensagem);
+      if (!primeiroInvalido) primeiroInvalido = campo;
+    };
+    // Confere os 6 campos
+    if (!validarNomeCompleto(campoNome?.value)) {
+      marcarInvalido(campoNome, 'Informe seu nome e sobrenome (mínimo de 3 caracteres).');
+    } else {
+      definirErroCampo(campoNome, '');
+    }
+    if (!validarCPF(campoCpf?.value)) {
+      marcarInvalido(campoCpf, 'CPF inválido. Digite os 11 números corretamente.');
+    } else {
+      definirErroCampo(campoCpf, '');
+    }
+    if (!validarTelefone(campoTelefone?.value)) {
+      marcarInvalido(campoTelefone, 'Informe um telefone válido com DDD (10 ou 11 números).');
+    } else {
+      definirErroCampo(campoTelefone, '');
+    }
+    if (!validarEmail(campoEmail?.value)) {
+      marcarInvalido(campoEmail, 'Informe um endereço de e-mail válido (ex: nome@dominio.com).');
+    } else {
+      definirErroCampo(campoEmail, '');
+    }
+    const avaliacaoSenha = avaliarForcaSenha(campoSenha?.value);
+    if (!avaliacaoSenha.valida) {
+      marcarInvalido(campoSenha, 'A senha deve ter no mínimo 8 caracteres, com letras e números.');
+    }
+    if (!campoConfirmaSenha?.value || campoConfirmaSenha.value !== campoSenha?.value) {
+      marcarInvalido(campoConfirmaSenha, 'As senhas não coincidem.');
+    } else {
+      definirErroCampo(campoConfirmaSenha, '');
+    }
+    // Se algum campo estiver inválido, coloca o cursor no primeiro erro e para
+    if (primeiroInvalido) {
+      primeiroInvalido.focus();
+      return;
+    }
+    // Salva o cliente no localStorage com senha protegida por SHA-256
+    const resultado = await cadastrarCliente({
+      nome: campoNome.value,
+      cpf: campoCpf.value,
+      telefone: campoTelefone.value,
+      email: campoEmail.value,
+      senha: campoSenha.value
+    });
+    // Se o CPF ou E-mail já existie, mostra o erro no campo correspondente
+    if (!resultado.sucesso) {
+      if (resultado.erroCampo === 'cpf') {
+        definirErroCampo(campoCpf, resultado.mensagem);
+        campoCpf.focus();
+      } else if (resultado.erroCampo === 'email') {
+        definirErroCampo(campoEmail, resultado.mensagem);
+        campoEmail.focus();
+      }
+      return;
+    }
+    // Cadastro concluído! Leva o usuário para a tela de login
+    window.location.href = 'login.html?cadastro=sucesso';
+  });
+  
 } // <-- Fecha a função inicializarCadastro()
 inicializarCadastro();
