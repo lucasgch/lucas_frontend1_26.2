@@ -44,6 +44,53 @@ export async function gerarHashSenha(senha, salt) {
 }
 
 /**
+ * Obtem os clientes cadastrados no localStorage.
+ * @returns {Array<Object>}
+ */
+export function obterClientes() {
+  const clientes = lerDados(CHAVES_STORAGE.CLIENTES, []);
+  return Array.isArray(clientes) ? clientes : [];
+}
+
+/**
+ * Cadastra um novo cliente após validar unicidade de e-mail e CPF.
+ * @param {{nome: string, cpf: string, telefone: string, email: string, senha: string}} dados
+ * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem: string, cliente?: Object}>}
+ */
+export async function cadastrarCliente({ nome, cpf, telefone, email, senha }) {
+  inicializarStorage();
+  const clientes = obterClientes();
+  const emailNormalizado = String(email).trim().toLowerCase();
+  const cpfLimpo = limparNumeros(cpf);
+  // Verifica se CPF existe
+  if (clientes.some((c) => limparNumeros(c.cpf) === cpfLimpo)) {
+    return { sucesso: false, erroCampo: 'cpf', mensagem: 'Este CPF já está cadastrado.' };
+  }
+  // Verifica se E-mail existe
+  if (clientes.some((c) => c.email.toLowerCase() === emailNormalizado)) {
+    return { sucesso: false, erroCampo: 'email', mensagem: 'Este e-mail já está cadastrado.' };
+  }
+  // Gera salt + hash SHA-256 da senha e ID sequencial (C001, C002...)
+  const salt = gerarSalt();
+  const senhaHash = await gerarHashSenha(senha, salt);
+  const novoCliente = {
+    id: gerarProximoId('cliente', 'C'),
+    nome: String(nome).trim(),
+    cpf: aplicarMascaraCPF(cpfLimpo),
+    telefone: limparNumeros(telefone),
+    email: emailNormalizado,
+    salt,
+    senhaHash,
+    perfil: 'cliente',
+    bloqueado: false,
+    criadoEm: new Date().toISOString()
+  };
+  clientes.push(novoCliente);
+  salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
+  return { sucesso: true, mensagem: 'Cadastro realizado com sucesso!', cliente: novoCliente };
+}
+
+/**
  * Inicializa as máscaras e validações do formulário de cadastro.
  */
 export function inicializarCadastro() {
