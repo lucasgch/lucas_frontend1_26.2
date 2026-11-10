@@ -1,4 +1,4 @@
-import { aplicarMascaraCPF, validarCPF, validarNomeCompleto } from './utils.js';
+import { aplicarMascaraCPF, validarCPF, validarNomeCompleto, validarTelefone } from './utils.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -38,7 +38,7 @@ export function inicializarCadastro() {
       definirErroCampo(campoNome, '');
     }
   });
-  // 2. Máscara e Validação do CPF (#cad-cpf)
+  // Máscara e Validação do CPF (#cad-cpf)
   const campoCpf = document.getElementById('cad-cpf');
   campoCpf?.addEventListener('input', () => {
     campoCpf.value = aplicarMascaraCPF(campoCpf.value);
@@ -51,6 +51,20 @@ export function inicializarCadastro() {
   campoCpf?.addEventListener('blur', () => {
     if (campoCpf.value && !validarCPF(campoCpf.value)) {
       definirErroCampo(campoCpf, 'CPF inválido. Digite os 11 números corretamente.');
+    }
+  });
+
+  // Validação do Telefone (#cad-telefone — somente números, 10 ou 11 dígitos)
+  const campoTelefone = document.getElementById('cad-telefone');
+  campoTelefone?.addEventListener('input', () => {
+    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
+    if (validarTelefone(campoTelefone.value)) {
+      definirErroCampo(campoTelefone, '');
+    }
+  });
+  campoTelefone?.addEventListener('blur', () => {
+    if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
+      definirErroCampo(campoTelefone, 'Informe um telefone válido com DDD (10 ou 11 números).');
     }
   });
 }

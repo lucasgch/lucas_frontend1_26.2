@@ -94,3 +94,14 @@ export function validarNomeCompleto(nome = '') {
   const partes = texto.split(/\s+/).filter((parte) => parte.length >= 2);
   return partes.length >= 2;
 }
+
+/**
+ * Valida se o telefone contém apenas números e possui 10 ou 11 dígitos (DDD + número).
+ * @param {string} [telefone=''] - Telefone informado.
+ * @returns {boolean}
+ */
+export function validarTelefone(telefone = '') {
+  const texto = String(telefone).trim();
+  // Deve conter apenas dígitos numéricos, entre 10 e 11 números
+  return /^\d{10,11}$/.test(texto);
+}
