@@ -31,3 +31,19 @@ export async function garantirContaAdmin() {
   clientes.push(admin);
   salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
 }
+
+/**
+ * Renova o tempo de expiração da sessão por mais 30 minutos a cada interação.
+ */
+export function renovarSessao() {
+  const sessao = obterSessaoAtiva();
+  if (!sessao) return;
+  sessao.expiraEm = Date.now() + TEMPO_EXPIRACAO_MS;
+  salvarDados(CHAVES_STORAGE.SESSAO, sessao);
+}
+/**
+ * Encerra a sessão do usuário (Logout), mantendo o carrinho salvo.
+ */
+export function encerrarSessao() {
+  removerDados(CHAVES_STORAGE.SESSAO);
+}
