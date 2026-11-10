@@ -81,3 +81,16 @@ export function validarCPF(cpf = '') {
   }
   return true;
 }
+
+/**
+ * Valida se o nome possui no mínimo 3 caracteres e contém nome e sobrenome.
+ * @param {string} [nome=''] - Nome completo informado.
+ * @returns {boolean}
+ */
+export function validarNomeCompleto(nome = '') {
+  const texto = String(nome).trim();
+  if (texto.length < 3) return false;
+  // Divide pelos espaços e verifica se há pelo menos 2 palavras (nome e sobrenome)
+  const partes = texto.split(/\s+/).filter((parte) => parte.length >= 2);
+  return partes.length >= 2;
+}
