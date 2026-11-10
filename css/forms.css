@@ -19,8 +19,12 @@
 .campo-form {
   display: flex;
   flex-direction: column;
-  margin-bottom: 1rem;
+  margin-bottom: 0.25rem; /* Reduzido pois .mensagem-erro-campo já reserva 1.25rem */
   align-items: center;
+}
+
+.campo-form .mensagem-erro-campo {
+  margin-top: 0.2rem;
 }
 
 .campo-form label {

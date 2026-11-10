@@ -1,4 +1,4 @@
-import { aplicarMascaraCPF, validarCPF, validarNomeCompleto, validarTelefone } from './utils.js';
+import { aplicarMascaraCPF, validarCPF, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -24,7 +24,13 @@ export function definirErroCampo(campo, mensagem = '') {
 export function inicializarCadastro() {
   const formCadastro = document.getElementById('form-cadastro');
   if (!formCadastro) return;
-  // 1. Validação do Nome Completo (#cad-nome)
+
+  // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
+  formCadastro.querySelectorAll('.campo-form input').forEach((input) => {
+    definirErroCampo(input, '');
+  });
+
+  // Validação do Nome Completo (#cad-nome)
   const campoNome = document.getElementById('cad-nome');
   campoNome?.addEventListener('blur', () => {
     if (campoNome.value && !validarNomeCompleto(campoNome.value)) {
@@ -65,6 +71,8 @@ export function inicializarCadastro() {
   campoTelefone?.addEventListener('blur', () => {
     if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
       definirErroCampo(campoTelefone, 'Informe um telefone válido com DDD (10 ou 11 números).');
+    } else {
+      definirErroCampo(campoTelefone, '');
     }
   });
 }
