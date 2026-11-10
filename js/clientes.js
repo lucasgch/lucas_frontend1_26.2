@@ -1,4 +1,5 @@
 import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
+import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados } from './storage.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -16,6 +17,30 @@ export function definirErroCampo(campo, mensagem = '') {
   }
   campo.setCustomValidity(mensagem);
   msgErro.textContent = mensagem;
+}
+
+/**
+ * Gera um salt aleatório em hexadecimal (16 bytes) usando Web Crypto API.
+ * @returns {string} Salt em formato hexadecimal.
+ */
+export function gerarSalt() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/**
+ * Gera o hash SHA-256 de uma senha combinada com o salt usando SubtleCrypto.
+ * @param {string} senha - Senha em texto puro.
+ * @param {string} salt - Salt hexadecimal do cliente.
+ * @returns {Promise<string>} Hash SHA-256 em hexadecimal.
+ */
+export async function gerarHashSenha(senha, salt) {
+  const codificador = new TextEncoder();
+  const dados = codificador.encode(`${salt}:${senha}`);
+  const bufferHash = await crypto.subtle.digest('SHA-256', dados);
+  const bytesHash = new Uint8Array(bufferHash);
+  return Array.from(bytesHash, (b) => b.toString(16).padStart(2, '0')).join('');
 }
 
 /**
