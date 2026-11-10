@@ -105,3 +105,13 @@ export function validarTelefone(telefone = '') {
   // Deve conter apenas dígitos numéricos, entre 10 e 11 números
   return /^\d{10,11}$/.test(texto);
 }
+
+/**
+ * Valida o formato de um endereço de e-mail.
+ * @param {string} [email=''] - E-mail informado.
+ * @returns {boolean}
+ */
+export function validarEmail(email = '') {
+  const texto = String(email).trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto);
+}
