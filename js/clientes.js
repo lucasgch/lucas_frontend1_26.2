@@ -1,4 +1,4 @@
-import { aplicarMascaraCPF, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
+import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -90,5 +90,53 @@ export function inicializarCadastro() {
       definirErroCampo(campoEmail, '');
     }
   });
-}
+
+  // Validação da senha
+  const campoSenha = document.getElementById('cad-senha');
+  const campoConfirmaSenha = document.getElementById('cad-confirma-senha');
+
+  if (campoSenha) {
+
+    const containerForca = document.createElement('div');
+    containerForca.className = 'indicador-forca';
+    const barraForca = document.createElement('div');
+    barraForca.className = 'barra-forca-preenchimento';
+    containerForca.appendChild(barraForca);
+    campoSenha.insertAdjacentElement('afterend', containerForca);
+
+   campoSenha.addEventListener('input', () => {
+    const avaliacao = avaliarForcaSenha(campoSenha.value);
+    barraForca.dataset.nivel = avaliacao.nivel;
+    const msgErro = campoSenha.parentElement.querySelector('.mensagem-erro-campo');
+    if (msgErro) {
+      msgErro.textContent = avaliacao.texto;
+      msgErro.dataset.nivel = avaliacao.nivel;
+    }
+    campoSenha.setCustomValidity(
+      avaliacao.valida || !campoSenha.value ? '' : 'A senha deve ter no mínimo 8 caracteres, com letras e números.'
+    );
+    // Se o usuário já preencheu a confirmação, revalida se continuam iguais
+    if (campoConfirmaSenha?.value) {
+      validarConfirmacao();
+    }
+  });
+  campoSenha.addEventListener('blur', () => {
+      const avaliacao = avaliarForcaSenha(campoSenha.value);
+      if (campoSenha.value && !avaliacao.valida) {
+        definirErroCampo(campoSenha, 'A senha deve ter no mínimo 8 caracteres, com letras e números.');
+      }
+    });
+  } // <-- Fecha o if (campoSenha)
+  // 6. Validação da Confirmação de Senha (#cad-confirma-senha)
+  function validarConfirmacao() {
+    if (!campoConfirmaSenha || !campoSenha) return;
+    if (campoConfirmaSenha.value && campoConfirmaSenha.value !== campoSenha.value) {
+      definirErroCampo(campoConfirmaSenha, 'As senhas não coincidem.');
+    } else {
+      definirErroCampo(campoConfirmaSenha, '');
+    }
+  }
+  campoConfirmaSenha?.addEventListener('input', validarConfirmacao);
+  campoConfirmaSenha?.addEventListener('blur', validarConfirmacao);
+} // <-- Fecha a função inicializarCadastro()
 inicializarCadastro();
