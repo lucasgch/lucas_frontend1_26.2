@@ -85,8 +85,9 @@
 
 /* Aviso visual de erro */
 .campo-form input:user-invalid,
-.campo-form textarea:user-invalid {
-    border-color: #c0392b;
+.campo-form textarea:user-invalid,
+.campo-form input.campo-invalido {
+  border-color: #c0392b;
 }
 
 /* Formulário de perfil */

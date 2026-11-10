@@ -45,3 +45,39 @@ export function aplicarMascaraCPF(valor){
     .replace(/(\d{3})(\d)/, '$1.$2')
     .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
 }
+
+/**
+ * Valida um CPF verificando formato, dígitos repetidos e os 2 dígitos verificadores.
+ * @param {string} [cpf=''] - CPF com ou sem máscara.
+ * @returns {boolean} true se o CPF for válido, false caso contrário.
+ */
+export function validarCPF(cpf = '') {
+  const digitos = limparNumeros(cpf);
+  // Deve ter 11 dígitos e não pode ter todos os números iguais
+  if (digitos.length !== 11 || /^(\d)\1{10}$/.test(digitos)) {
+    return false;
+  }
+
+  // Cálculo do 1º dígito verificador (pesos de 10 até 2 sobre os 9 primeiros dígitos)
+  let soma1 = 0;
+  for (let i = 0; i < 9; i++) {
+    soma1 += Number(digitos[i]) * (10 - i);
+  }
+  let resto1 = (soma1 * 10) % 11;
+  if (resto1 === 10 || resto1 === 11) resto1 = 0;
+  if (resto1 !== Number(digitos[9])) {
+    return false;
+  }
+  
+  // Cálculo do 2º dígito verificador (pesos de 11 até 2 sobre os 10 primeiros dígitos)
+  let soma2 = 0;
+  for (let i = 0; i < 10; i++) {
+    soma2 += Number(digitos[i]) * (11 - i);
+  }
+  let resto2 = (soma2 * 10) % 11;
+  if (resto2 === 10 || resto2 === 11) resto2 = 0;
+  if (resto2 !== Number(digitos[10])) {
+    return false;
+  }
+  return true;
+}
