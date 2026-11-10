@@ -29,3 +29,19 @@ export function debounce(funcao, atraso = 300) {
     }, atraso);
   };
 }
+
+/**
+ * Remove todos os caracteres que não sejam números (0-9).
+ * @param {string} [valor=''] - Texto de entrada.
+ * @returns {string} Apenas os dígitos numéricos.
+ */
+export function limparNumeros(valor = '') {
+  return String(valor).replace(/\D/g, '');
+}
+
+export function aplicarMascaraCPF(valor){
+  const apenasDigitos = limparNumeros(valor).slice(0, 11);
+  return apenasDigitos.replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+}
