@@ -1,4 +1,4 @@
-import { aplicarMascaraCPF, validarCPF, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
+import { aplicarMascaraCPF, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -73,6 +73,21 @@ export function inicializarCadastro() {
       definirErroCampo(campoTelefone, 'Informe um telefone válido com DDD (10 ou 11 números).');
     } else {
       definirErroCampo(campoTelefone, '');
+    }
+  });
+
+  // Validação do E-mail (#cad-email)
+  const campoEmail = document.getElementById('cad-email');
+  campoEmail?.addEventListener('blur', () => {
+    if (campoEmail.value && !validarEmail(campoEmail.value)) {
+      definirErroCampo(campoEmail, 'Informe um endereço de e-mail válido (ex: nome@dominio.com).');
+    } else {
+      definirErroCampo(campoEmail, '');
+    }
+  });
+  campoEmail?.addEventListener('input', () => {
+    if (validarEmail(campoEmail.value)) {
+      definirErroCampo(campoEmail, '');
     }
   });
 }
