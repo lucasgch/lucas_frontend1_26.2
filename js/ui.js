@@ -13,7 +13,13 @@ export function renderizarMenuDinamico() {
     const sessao = obterSessaoAtiva();
     const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
 
-    // Limpa itens fixos no HTML
+    document.getElementById('saudacao-header')?.remove();
+    // Se for visitante, o HTML já nasce com o menu de visitante pronto! Só garante o badge do carrinho:
+    if (!sessao) {
+        atualizarBadgeCarrinho();
+        return;
+    }
+    // Se logado, substitui pelos links da conta logada:
     ulMenu.replaceChildren();
 
     // Cria cada item li
@@ -54,7 +60,7 @@ export function renderizarMenuDinamico() {
             spanOla.textContent = `Olá, ${primeiroNome}`;
             logo.insertAdjacentElement('afterend', spanOla);
         }
-        
+
         // "Meu perfil"
         adicionarLink('perfil.html', 'Meu perfil');
 
