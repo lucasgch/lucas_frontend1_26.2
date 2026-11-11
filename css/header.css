@@ -226,3 +226,13 @@
 .badge-carrinho[hidden] {
   display: none;
 }
+
+/* Centraliza Saudação entre o logo e o menu */
+.saudacao-usuario {
+  margin-inline: auto;
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-style: italic;
+  color: var(--text-muted);
+  white-space: nowrap;
+}

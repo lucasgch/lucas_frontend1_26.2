@@ -30,30 +30,34 @@ export function renderizarMenuDinamico() {
     }
 
     // Links comuns
-     adicionarLink('index.html', 'Início');
+    adicionarLink('index.html', 'Início');
     adicionarLink('loja.html', 'Loja');
 
-     if (!sessao) {
+    document.getElementById('saudacao-header')?.remove();
+    
+    if (!sessao) {
         // Visitante vê "Entrar" e "Cadastrar"
         adicionarLink('login.html', 'Entrar');
         adicionarLink('cadastro.html', 'Cadastrar');
-    } else {
+     } else {
         // Administrador vê também "Relatórios"
         if (sessao.perfil === 'administrador') {
             adicionarLink('relatorios.html', 'Relatórios');
         }
-
-        // Saudação "Olá, [primeiro nome]"
-        const primeiroNome = sessao.nome.split(' ')[0];
-        const liSaudacao = document.createElement('li');
-        const spanOla = document.createElement('span');
-        spanOla.className = 'saudacao-usuario';
-        spanOla.textContent = `Olá, ${primeiroNome}`;
-        liSaudacao.appendChild(spanOla);
-        ulMenu.appendChild(liSaudacao);
-
+        // Saudação "Olá, [primeiro nome]" centralizada entre a logo e o menu
+        const logo = document.querySelector('.site-header .site-logo');
+        if (logo) {
+            const primeiroNome = sessao.nome.split(' ')[0];
+            const spanOla = document.createElement('span');
+            spanOla.id = 'saudacao-header';
+            spanOla.className = 'saudacao-usuario';
+            spanOla.textContent = `Olá, ${primeiroNome}`;
+            logo.insertAdjacentElement('afterend', spanOla);
+        }
+        
         // "Meu perfil"
         adicionarLink('perfil.html', 'Meu perfil');
+
         // Botão "Sair"
         const liSair = document.createElement('li');
         const linkSair = document.createElement('a');
