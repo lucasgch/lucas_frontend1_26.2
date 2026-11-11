@@ -240,17 +240,33 @@ export function verificarAcessoPagina() {
     removerDados(CHAVES_STORAGE.SESSAO);
     window.location.href = `login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`;
     return;
+  }
 
     const sessao = obterSessaoAtiva();
 
     // Garantir que perfil seja exibida apenas para usuários logados
-    // TODO
+    if (paginaAtual === 'perfil.html' && !sessao) {
+      window.location.href = 'login.html?motivo=login_necessario&redirect=perfil.html';
+      return;
+  }
 
     // Garantir que admin seja exibida apenas para usuários logados
-    // TODO
+    if (paginaAtual === 'relatorios.html' && (!sessao || sessao.perfil !== 'administrador')) {
+      window.location.href = 'login.html?motivo=login_necessario&redirect=relatorios.html';
+      return;
+    }
 
     // Garantir que cadastro não seja exibido para usuários logados
-    // TODO
+    if (paginaAtual === 'cadastro.html' && sessao) {
+      window.location.href = 'perfil.html';
+      return;
+    }
 
+    // Se logado: renova os 30 min a cada clique ou tecla relevante
+  if (sessao) {
+    renovarSessao();
+    document.addEventListener('click', renovarSessao);
+    document.addEventListener('keydown', renovarSessao);
   }
 }
+verificarAcessoPagina();
