@@ -152,5 +152,78 @@ export async function autenticarUsuario(email, senha) {
  * Inicializa o formulário de login (#form-login) e o cronômetro de bloqueio de 60s.
  */
 export function inicializarLogin() {
-    /** TODO */
+    garantirContaAdmin();
+
+    const formLogin = document.getElementById('form-login');
+    if (!formLogin) return;
+    formLogin.noValidate = true;
+
+    const campoEmail = document.getElementById('login-email');
+    const campoSenha = document.getElementById('login-password');
+    const btnSubmit = formLogin.querySelector('button[type="submit"]');
+
+    const avisoLogin = document.createElement('p');
+    avisoLogin.className = 'mensagem-erro-campo';
+    avisoLogin.setAttribute('role', 'alert');
+    formLogin.querySelector('.acoes-form')?.insertAdjacentElement('beforebegin', avisoLogin);
+
+    // via redirecionamento
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('cadastro') === 'sucesso') {
+      avisoLogin.style.color = '#16a34a';
+      avisoLogin.textContent = 'Cadastro realizado com sucesso! Faça seu login abaixo.';
+    } else if (params.get('motivo') === 'login_necessario') {
+      avisoLogin.textContent = 'Faça login para acessar a página solicitada.'
+    } else if (params.get('motivo') === 'sessao_expirada') {
+      avisoLogin.textContent = 'Sua sessão expirou por inatividade. Faça login novamente.'
+    }
+
+    let timerBloqueio = null;
+
+    function iniciarContagemBloqueio() {
+      clearInterval(timerBloqueio);
+      const atualizar = () => {
+        const seg = obterSegundosRestantesBloqueio();
+        if ( seg > 0 ) {
+          if (btnSubmit) btnSubmit.disabled = true;
+          avisoLogin.style.color = '#dc2626';
+          avisoLogin.textContent = `Login bloqueado temporariamente. Tente novamente em ${seg}s.`;
+        } else {
+          clearInterval(timerBloqueio);
+          if (btnSubmit) btnSubmit.disabled = false;
+          avisoLogin.textContent = '';
+        }
+      };
+      atualizar();
+      if ( obterSegundosRestantesBloqueio() > 0 ){
+        timerBloqueio = setInterval(atualizar, 1000);
+      }
+    }
+
+    // Verificar se há bloqueio ao abrir a página
+    iniciarContagemBloqueio();
+
+    formLogin.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    avisoLogin.style.color = '#dc2626';
+    if (!campoEmail?.value.trim() || !campoSenha?.value) {
+      avisoLogin.textContent = 'Preencha seu e-mail e a sua senha.';
+      (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
+      return;
+    }
+    const resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
+
+    if (!resultado.sucesso) {
+      avisoLogin.textContent = resultado.mensagem;
+      if (resultado.bloqueadoSegundos){
+        iniciarContagemBloqueio();
+      }
+      return;
+    }
+
+    // Volta para a página de origem ou loja
+    const destino = params.get('redirect') || 'loja.html';
+    window.location.href = destino;
+  });
 }
+inicializarLogin();
