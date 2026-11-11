@@ -227,3 +227,30 @@ export function inicializarLogin() {
   });
 }
 inicializarLogin();
+
+/**
+ * Protege páginas restritas (perfil.html e relatorios.html) e renova a sessão ativa.
+ */
+export function verificarAcessoPagina() {
+  const caminho = window.location.pathname;
+  const paginaAtual = caminho.split('/').pop() || 'index.html';
+  //  Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
+  const sessaoBruta = lerDados(CHAVES_STORAGE.SESSAO, null);
+  if (sessaoBruta && Date.now() > sessaoBruta.expiraEm) {
+    removerDados(CHAVES_STORAGE.SESSAO);
+    window.location.href = `login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`;
+    return;
+
+    const sessao = obterSessaoAtiva();
+
+    // Garantir que perfil seja exibida apenas para usuários logados
+    // TODO
+
+    // Garantir que admin seja exibida apenas para usuários logados
+    // TODO
+
+    // Garantir que cadastro não seja exibido para usuários logados
+    // TODO
+
+  }
+}
