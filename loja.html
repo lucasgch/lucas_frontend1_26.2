@@ -22,10 +22,20 @@
 
       <nav id="menu-principal" aria-label="Principal">
         <ul>
-          <li><a href="index.html" aria-current="page">Início</a></li>
-          <li><a href="loja.html">Loja</a></li>
+          <li><a href="index.html">Início</a></li>
+          <li><a href="loja.html" aria-current="page">Loja</a></li>
           <li><a href="login.html">Entrar</a></li>
           <li><a href="cadastro.html">Cadastrar</a></li>
+          <li class="item-menu-carrinho">
+            <a href="loja.html#carrinho" class="link-icone-carrinho" aria-label="Ver meu carrinho de compras">
+              <svg class="icone-carrinho-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                <path d="M3 6h18"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              <span id="badge-carrinho" class="badge-carrinho" hidden>0</span>
+            </a>
+          </li>
         </ul>
       </nav>
     </header>
