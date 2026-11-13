@@ -78,21 +78,22 @@
               id="perfil-cpf" 
               name="cpf" 
               value="123.456.789-00"
+              maxlength="14"
               required 
               placeholder="000.000.000-00 ou 11 dígitos" 
               pattern="(\d{3}\.?\d{3}\.?\d{3}-?\d{2})" 
               title="Digite um CPF válido no formato 000.000.000-00 ou apenas os 11 números."
               autocomplete="off"
               inputmode="numeric"
-              readonly>
+              ><!-- readonly removido por conta do req. 2.1: "Permitir editar todos os campos, exceto o id"-->
           </div>
 
            <!-- Telefone -->
           <div class="campo-form">
-            <label for="cad-telefone">Telefone:</label>
+            <label for="perfil-telefone">Telefone:</label>
             <input 
               type="tel" 
-              id="cad-telefone" 
+              id="perfil-telefone" 
               name="telefone" 
               required 
               placeholder="DDD + número, ex: 48999999999" 
@@ -121,6 +122,18 @@
         <fieldset>
           <legend>Alterar senha</legend>
 
+          <!-- Senha Atual -->
+          <div class="campo-form">
+            <label for="perfil-senha-atual">Senha atual:</label>
+            <input 
+              type="password" 
+              id="perfil-senha-atual" 
+              name="senha_atual" 
+              minlength="8" 
+              placeholder="Digite sua senha atual" 
+              autocomplete="current-password">
+          </div>
+
           <!-- Nova Senha -->
           <div class="campo-form">
             <label for="perfil-senha">Nova senha:</label>
@@ -148,6 +161,7 @@
         <div class="acoes-form">
           <button type="submit" class="botao botao-primario">Salvar alterações</button>
           <button type="reset" class="botao">Desfazer</button>
+          <button type="button" class="botao botao-perigo" id="btn-abrir-excluir-conta">Excluir minha conta</button>
         </div>
       </form>
     </section>
@@ -197,6 +211,17 @@
         </table>
       </div>
     </section>
+
+    <dialog id="modal-excluir-conta" class="modal-confirmacao" aria-labelledby="titulo-modal-excluir">
+      <div class="modal-conteudo">
+        <h2 id="titulo-modal-excluir">Excluir minha conta</h2>
+        <p>Atenção: Deseja realmente excluir a conta? Esta ação não poderá ser desfeita.</p>
+        <div class="acoes-form">
+          <button type="button" id="btn-cancelar-exclusao" class="botao">Cancelar</button>
+          <button type="button" id="btn-confirmar-exclusao" class="botao botao-perigo">Confirmar exclusão</button>
+        </div>
+      </div>
+    </dialog>
   </main>
 
   <footer class="container footer-container">
@@ -259,5 +284,6 @@
   </footer>
   <script type="module" src="./js/ui.js"></script>
   <script type="module" src="./js/auth.js"></script>  
+  <script type="module" src="./js/clientes.js"></script>
 </body>
 </html>
