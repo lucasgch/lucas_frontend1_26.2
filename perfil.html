@@ -87,6 +87,23 @@
               readonly>
           </div>
 
+           <!-- Telefone -->
+          <div class="campo-form">
+            <label for="cad-telefone">Telefone:</label>
+            <input 
+              type="tel" 
+              id="cad-telefone" 
+              name="telefone" 
+              required 
+              placeholder="DDD + número, ex: 48999999999" 
+              pattern="\d{10,11}" 
+              minlength="10"
+              maxlength="11"
+              title="Digite o DDD + número, apenas números (10 ou 11 dígitos)."
+              autocomplete="tel-national"
+              inputmode="numeric">
+          </div>
+
           <!-- E-mail -->
           <div class="campo-form">
             <label for="perfil-email">E-mail:</label>
