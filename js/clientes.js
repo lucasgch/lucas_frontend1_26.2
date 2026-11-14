@@ -1,5 +1,6 @@
-import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
-import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados } from './storage.js';
+import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros, renderizarMenuDinamico } from './utils.js';
+import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados, removerDados } from './storage.js';
+import { encerrarSessao, obterSessaoAtiva } from './auth.js';
 
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
@@ -281,3 +282,83 @@ export function inicializarCadastro() {
   
 } // <-- Fecha a função inicializarCadastro()
 inicializarCadastro();
+
+export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, senhaAtual, novaSenha }) {
+  const clientes = obterClientes();
+  const indice = clientes.findIndex((c) => c.id === idCliente);
+  if (indice === -1) {
+    return { sucesso: false, mensagem: 'Cliente não encontrado.' };
+  }
+  const clienteAtual = clientes[indice];
+  // Padroniza campos recebidos (sempre com const!)
+  const nomeLimpo = String(nome).trim();
+  const cpfMascarado = aplicarMascaraCPF(cpf);
+  const cpfNumeros = limparNumeros(cpf);
+  const telefoneLimpo = limparNumeros(telefone);
+  const emailNormalizado = String(email).trim().toLowerCase();
+  
+  // atualizar apenas se houver alteração
+  if (
+    nomeLimpo === clienteAtual.nome &&
+    limparNumeros(clienteAtual.cpf) === cpfNumeros &&
+    telefoneLimpo === clienteAtual.telefone &&
+    emailNormalizado === clienteAtual.email.toLowerCase() &&
+    !novaSenha
+  ) {
+
+    return { sucesso: false, erroCampo: 'nenhum', mensagem: 'Nenhuma alteração foi feita nos dados.' };
+  
+  }
+  
+  // Percorre a lista de clientes
+  for (const c of clientes) {
+  
+    // Verifica cadastro com o mesmo CPF
+    if (c.id !== idCliente && limparNumeros(c.cpf) === cpfNumeros){
+      return { sucesso: false, erroCampo: 'cpf', mensagem: 'Este CPF já está cadastrado em outra conta.' };
+    }
+
+    // Verifica cadastro com o mesmo E-mail
+    if (c.id !== idCliente && c.email.toLowerCase() === emailNormalizado){
+      return { sucesso: false, erroCampo: 'email', mensagem: 'Este e-mail já está cadastrado em outra conta.' }
+    }
+
+  }
+  
+  // Se o usuário preencheu uma nova senha, exige e confere a senha atual
+  if (novaSenha) {
+    if (!senhaAtual) {
+      return { sucesso: false, erroCampo: 'senhaAtual', mensagem: 'Informe sua senha atual para alterar a senha.' };
+    }
+    const hashDigitado = await gerarHashSenha(String(senhaAtual), clienteAtual.salt);
+    if (hashDigitado !== clienteAtual.senhaHash) {
+      return { sucesso: false, erroCampo: 'senhaAtual', mensagem: 'A senha atual está incorreta.' };
+    }
+    // Senha atual confere! Gera novo salt e novo hash para a nova senha
+    const novoSalt = gerarSalt();
+    clienteAtual.salt = novoSalt;
+    clienteAtual.senhaHash = await gerarHashSenha(String(novaSenha), novoSalt);
+  }
+
+  // Atualiza os campos cadastrais no objeto do cliente
+  clienteAtual.nome = nomeLimpo;
+  clienteAtual.cpf = cpfMascarado;
+  clienteAtual.telefone = telefoneLimpo;
+  clienteAtual.email = emailNormalizado;
+  salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
+
+  // Atualiza também o nome e e-mail na sessão ativa (para refletir no header "Olá, ...")
+  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
+  if (sessao && sessao.usuarioId === idCliente) {
+    sessao.nome = nomeLimpo;
+    sessao.email = emailNormalizado;
+    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
+  }
+
+  return { sucesso: true, mensagem: 'Dados atualizados com sucesso!', cliente: clienteAtual };
+
+}
+
+export function excluirContaCliente(idCliente){}
+
+export function inicializarPerfil(){}
