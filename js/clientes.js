@@ -1,4 +1,5 @@
-import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros, renderizarMenuDinamico } from './utils.js';
+import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
+import { renderizarMenuDinamico } from './ui.js';
 import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados, removerDados } from './storage.js';
 import { encerrarSessao, obterSessaoAtiva } from './auth.js';
 
@@ -359,6 +360,22 @@ export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, 
 
 }
 
-export function excluirContaCliente(idCliente){}
+export function excluirContaCliente(idCliente){
+  
+  // Apaga o carrinho do cliente
+  const carrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+  delete carrinhos[idCliente];
+
+  // Apaga o cliente
+  const clientes = obterClientes();
+  const clientesRestantes = clientes.filter((c) => c.id !== idCliente);
+  
+  // Salva as alterações
+  salvarDados(CHAVES_STORAGE.CARRINHO, carrinhos);
+  salvarDados(CHAVES_STORAGE.CLIENTES, clientesRestantes);
+  
+  // Remove a sessão
+  removerDados(CHAVES_STORAGE.SESSAO);
+}
 
 export function inicializarPerfil(){}
