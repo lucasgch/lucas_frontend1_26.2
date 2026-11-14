@@ -176,3 +176,32 @@
 .mensagem-erro-campo[data-nivel="forte"] {
   color: #16a34a;
 }
+
+/* Botão de ação destrutiva (Excluir conta) */
+.acoes-form .botao.botao-perigo {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+.acoes-form .botao.botao-perigo:hover {
+  background-color: rgba(220, 38, 38, 0.18);
+}
+
+/* Modal de confirmação de exclusão */
+.modal-confirmacao {
+  border: none;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  max-width: 26rem;
+  width: 90%;
+  margin: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+.modal-confirmacao::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+.modal-confirmacao p {
+  margin-block: 0.75rem 1.5rem;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}

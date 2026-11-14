@@ -378,4 +378,169 @@ export function excluirContaCliente(idCliente){
   removerDados(CHAVES_STORAGE.SESSAO);
 }
 
-export function inicializarPerfil(){}
+export function inicializarPerfil(){
+
+  const formPerfil = document.getElementById('form-perfil');
+  
+  if (!formPerfil) return;
+
+  formPerfil.noValidate = true;
+
+  const sessao = obterSessaoAtiva();
+
+  if (!sessao) return;
+
+  const campoId = document.getElementById('perfil-id');
+  const campoNome = document.getElementById('perfil-nome');
+  const campoCpf = document.getElementById('perfil-cpf');
+  const campoTelefone = document.getElementById('perfil-telefone');
+  const campoEmail = document.getElementById('perfil-email');
+  const campoSenhaAtual = document.getElementById('perfil-senha-atual');
+  const campoNovaSenha = document.getElementById('perfil-senha');
+  const campoConfirmaSenha = document.getElementById('perfil-confirma-senha');
+
+  const avisoPerfil = document.createElement('p');
+  avisoPerfil.className = 'mensagem-erro-campo';
+  avisoPerfil.setAttribute('role', 'alert');
+  formPerfil.querySelector('.acoes-form')?.insertAdjacentElement('beforebegin', avisoPerfil);
+
+  function carregarDadosNosCampos(){
+    const cliente = obterClientes().find((c) => c.id === sessao.usuarioId);
+    
+    if (!cliente) return;
+
+    campoId.value = cliente.id;
+    campoNome.value = cliente.nome;
+    campoCpf.value = aplicarMascaraCPF(cliente.cpf);
+    campoTelefone.value = cliente.telefone || '';
+    campoEmail.value = cliente.email;
+    campoSenhaAtual.value = '';
+    campoNovaSenha.value = ''; 
+    campoConfirmaSenha.value = '';
+
+
+    // Atualiza a tabela de pedidos
+    const captionPedidos = document.querySelector('#tabela-pedidos caption');
+    if (captionPedidos) {
+      captionPedidos.textContent = `Histórico de pedidos do cliente ${cliente.id}`;
+    }
+    
+  }
+
+  carregarDadosNosCampos();
+
+  formPerfil.querySelectorAll('.campo-form input').forEach((input) => {
+    definirErroCampo(input, '');
+  });
+
+  // Botão "Desfazer" (reset): restaura os dados reais do cliente logado
+  formPerfil.addEventListener('reset', (evento) => {
+    evento.preventDefault();
+    carregarDadosNosCampos();
+    avisoPerfil.textContent = '';
+    formPerfil.querySelectorAll('.campo-form input').forEach((input) => {
+      definirErroCampo(input, '');
+    });
+  });
+
+  // Máscara do CPF ao digitar
+  campoCpf?.addEventListener('input', () => {
+    campoCpf.value = aplicarMascaraCPF(campoCpf.value);
+    definirErroCampo(campoCpf, '');
+  });
+
+  // Apenas números no Telefone ao digitar
+  campoTelefone?.addEventListener('input', () => {
+    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
+    definirErroCampo(campoTelefone, '');
+  });
+
+  // Limpa erro dos demais campos quando o usuário começa a corrigir
+  [campoNome, campoEmail, campoSenhaAtual, campoNovaSenha, campoConfirmaSenha].forEach((campo) => {
+    campo?.addEventListener('input', () => definirErroCampo(campo, ''));
+  });
+
+    formPerfil.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+    avisoPerfil.textContent = '';
+    let primeiroInvalido = null;
+    const marcarInvalido = (campo, mensagem) => {
+      definirErroCampo(campo, mensagem);
+      if (!primeiroInvalido) primeiroInvalido = campo;
+    };
+    // Valida dados pessoais obrigatórios
+    if (!validarNomeCompleto(campoNome?.value)) {
+      marcarInvalido(campoNome, 'Informe seu nome e sobrenome (mínimo de 3 caracteres).');
+    }
+    if (!validarCPF(campoCpf?.value)) {
+      marcarInvalido(campoCpf, 'CPF inválido. Digite os 11 números corretamente.');
+    }
+    if (!validarTelefone(campoTelefone?.value)) {
+      marcarInvalido(campoTelefone, 'Informe um telefone válido com DDD (10 ou 11 números).');
+    }
+    if (!validarEmail(campoEmail?.value)) {
+      marcarInvalido(campoEmail, 'Informe um endereço de e-mail válido.');
+    }
+    // Valida campos de senha APENAS se o usuário tentou preencher nova senha
+    if (campoNovaSenha?.value || campoConfirmaSenha?.value) {
+      if (!campoSenhaAtual?.value) {
+        marcarInvalido(campoSenhaAtual, 'Informe sua senha atual para alterar a senha.');
+      }
+      if (!avaliarForcaSenha(campoNovaSenha?.value).valida) {
+        marcarInvalido(campoNovaSenha, 'A nova senha deve ter no mínimo 8 caracteres, com letras e números.');
+      }
+      if (campoConfirmaSenha?.value !== campoNovaSenha?.value) {
+        marcarInvalido(campoConfirmaSenha, 'As senhas não coincidem.');
+      }
+    }
+    if (primeiroInvalido) {
+      primeiroInvalido.focus();
+      return;
+    }
+    
+
+    const resultado = await atualizarCliente(sessao.usuarioId, {
+      nome: campoNome.value,
+      cpf: campoCpf.value,
+      telefone: campoTelefone.value,
+      email: campoEmail.value,
+      senhaAtual: campoSenhaAtual.value,
+      novaSenha: campoNovaSenha.value
+    });
+    if (!resultado.sucesso) {
+      if (resultado.erroCampo === 'cpf') {
+        definirErroCampo(campoCpf, resultado.mensagem);
+        campoCpf.focus();
+      } else if (resultado.erroCampo === 'email') {
+        definirErroCampo(campoEmail, resultado.mensagem);
+        campoEmail.focus();
+      } else if (resultado.erroCampo === 'senhaAtual') {
+        definirErroCampo(campoSenhaAtual, resultado.mensagem);
+        campoSenhaAtual.focus();
+      } else {
+        avisoPerfil.style.color = '#d97706';
+        avisoPerfil.textContent = resultado.mensagem;
+      }
+      return;
+    }
+    
+    // Sucesso!
+    avisoPerfil.style.color = '#16a34a';
+    avisoPerfil.textContent = resultado.mensagem;
+    carregarDadosNosCampos();
+    renderizarMenuDinamico();
+  });
+
+  const modalExcluir = document.getElementById('modal-excluir-conta');
+  const btnAbrirExcluir = document.getElementById('btn-abrir-excluir-conta');
+  const btnCancelarExclusao = document.getElementById('btn-cancelar-exclusao');
+  const btnConfirmarExclusao = document.getElementById('btn-confirmar-exclusao');
+  btnAbrirExcluir?.addEventListener('click', () => modalExcluir?.showModal());
+  btnCancelarExclusao?.addEventListener('click', () => modalExcluir?.close());
+  btnConfirmarExclusao?.addEventListener('click', () => {
+    excluirContaCliente(sessao.usuarioId);
+    window.location.href = 'index.html';
+  });
+}
+
+inicializarPerfil();
