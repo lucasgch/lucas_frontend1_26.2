@@ -2,13 +2,24 @@ import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 import { obterProdutosComEstoque } from './produtos.js';
 import { formatarMoeda } from './utils.js';
 
+export function obterDonoCarrinhoAtual(){
+  
+  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
+  // Verifica se existe sessão e se ela não expirou
+  if (sessao && Date.now() <= sessao.expiraEm){
+    return sessao.usuarioId;
+  } else {
+    return 'visitante';
+  }
+}
+
 /**
  * Retorna a lista de itens do carrinho do usuário atual (ou 'visitante').
  * Cada item possui o formato: { produtoId: string, quantidade: number }.
- * @param {string} [donoId='visitante'] - ID do cliente logado ou 'visitante'.
+ * @param {string} [donoId=obterDonoCarrinhoAtual()] - ID dono do carrinho atual.
  * @returns {Array<{produtoId: string, quantidade: number}>}
  */
-export function obterCarrinho(donoId = 'visitante'){
+export function obterCarrinho(donoId = obterDonoCarrinhoAtual()){
 
     // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
     const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
@@ -23,10 +34,10 @@ export function obterCarrinho(donoId = 'visitante'){
 /**
  * Salva a lista de itens no carrinho do usuário atual (ou 'visitante').
  * @param {Array<{produtoId: string, quantidade: number}>} itens - Lista de itens do carrinho.
- * @param {string} [donoId='visitante'] - ID do cliente logado ou 'visitante'.
+ * @param {string} [donoId=obterDonoCarrinhoAtual()] - ID dono do carrinho atual.
  * @returns {boolean}
  */
-export function salvarCarrinho(itens, donoId = 'visitante') {
+export function salvarCarrinho(itens, donoId = obterDonoCarrinhoAtual()) {
 
     // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
     const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
@@ -340,6 +351,38 @@ export function inicializarCarrinho() {
       renderizarCarrinho();
     }
   });
+}
+
+export function mesclarCarrinhoAoLogar(usuarioId){
+  const itensVisitante = obterCarrinho('visitante');
+
+  // Se carrinho vazio, saia da função
+  if (itensVisitante.length === 0) {
+    return
+  }
+
+  const itensCliente = obterCarrinho(usuarioId);
+  const catalogo = obterProdutosComEstoque();
+
+  for (const itemVis of itensVisitante) {
+    
+    // Busca o produto no catalogo e armazena o resultado na const produto
+    const produto = catalogo.find((p) => p.id === itemVis.produtoId);
+    if (!produto || produto.estoque <= 0) {
+      continue;
+    }
+    const itemExistente = itensCliente.find((item) => item.produtoId === itemVis.produtoId);
+    if (itemExistente) {
+      itemExistente.quantidade = Math.min(itemExistente.quantidade + itemVis.quantidade, produto.estoque);
+    } else {
+      itensCliente.push({
+        produtoId: itemVis.produtoId,
+        quantidade: Math.min(itemVis.quantidade, produto.estoque)
+      });
+    }
+  }
+  salvarCarrinho(itensCliente, usuarioId);
+  salvarCarrinho([], 'visitante');
 }
 
 // Executa ao carregar a página

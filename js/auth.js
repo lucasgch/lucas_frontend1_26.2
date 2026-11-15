@@ -1,5 +1,6 @@
 import { CHAVES_STORAGE, inicializarStorage, lerDados, removerDados, salvarDados } from './storage.js';
 import { gerarHashSenha, gerarSalt, obterClientes } from './clientes.js';
+import { mesclarCarrinhoAoLogar } from './carrinho.js';
 
 const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 minutos em milissegundos
 const TEMPO_BLOQUEIO_MS = 60 * 1000;       // 60 segundos de bloqueio após 3 erros
@@ -144,6 +145,7 @@ export async function autenticarUsuario(email, senha) {
         inicioEm: agora,
         expiraEm: agora + TEMPO_EXPIRACAO_MS
     };
+    mesclarCarrinhoAoLogar(usuario.id);
     salvarDados(CHAVES_STORAGE.SESSAO, sessao);
     return { sucesso: true, mensagem: `Bem-vindo(a), ${usuario.nome}!`, sessao };
 }
