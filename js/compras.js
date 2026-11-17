@@ -19,7 +19,22 @@ export function obterCompras() {
  * @returns {boolean}
  */
 export function validarValidadeCartao(validade = '') {
-    // TODO
+
+    const match = String(validade).trim().match(/^(0[1-9]|1[0-2])\/(\d{2})$/);
+    if (!match) return false;
+    
+    const mes = Number(match[1]);
+    const ano = 2000 + Number(match[2]);
+    const agora = new Date();
+    const anoAtual = agora.getFullYear();
+    const mesAtual = agora.getMonth() + 1;
+
+    // Cartão é válido até o último dia do mês informado
+    if (ano < anoAtual) return false;
+    
+    if (ano === anoAtual && mes < mesAtual) return false;
+    
+    return true;
 }
 
 /**
@@ -27,7 +42,19 @@ export function validarValidadeCartao(validade = '') {
  * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
  */
 export function baixarEstoqueItens(itensComprados) {
-    // TODO
+    
+    const mapaEstoque = lerDados(CHAVES_STORAGE.ESTOQUE, {});
+    const catalogoAtual = obterProdutosComEstoque();
+    
+    for (const item of itensComprados) {
+        const produto = catalogoAtual.find((p) => p.id === item.produtoId);
+        if (produto) {
+        const novoEstoque = Math.max(0, produto.estoque - item.quantidade);
+        mapaEstoque[item.produtoId] = novoEstoque;
+        }
+    }
+    
+    salvarDados(CHAVES_STORAGE.ESTOQUE, mapaEstoque);
 }
 
 /**
