@@ -350,3 +350,78 @@ export function inicializarCheckout() {
   });
 }
 inicializarCheckout();
+
+/**
+ * Renderiza o histórico real de compras do cliente logado na tabela #tabela-pedidos em perfil.html,
+ * permitindo expandir e visualizar os itens comprados em cada pedido (Requisito 2.4f).
+ */
+export function renderizarMeusPedidos() {
+  const tabela = document.getElementById('tabela-pedidos');
+  if (!tabela) return;
+  const sessao = obterSessaoAtiva();
+  if (!sessao) return;
+  const tbody = tabela.querySelector('tbody');
+  const tfootTd = tabela.querySelector('tfoot td');
+  if (!tbody) return;
+  const todasCompras = obterCompras();
+  // Filtra apenas os pedidos do cliente logado (mais recentes primeiro)
+  const meusPedidos = todasCompras
+    .filter((c) => c.clienteId === sessao.usuarioId)
+    .sort((a, b) => new Date(b.data) - new Date(a.data));
+  tbody.replaceChildren();
+  if (meusPedidos.length === 0) {
+    const trVazia = document.createElement('tr');
+    const tdVazia = document.createElement('td');
+    tdVazia.colSpan = 5;
+    tdVazia.textContent = 'Você ainda não realizou nenhum pedido.';
+    trVazia.appendChild(tdVazia);
+    tbody.appendChild(trVazia);
+    if (tfootTd) tfootTd.textContent = formatarMoeda(0);
+    return;
+  }
+  let somaTotal = 0;
+  for (const pedido of meusPedidos) {
+    if (pedido.status !== 'Cancelado') {
+      somaTotal += Number(pedido.total) || 0;
+    }
+    const tr = document.createElement('tr');
+    // 1. Código do Pedido (ex: CP001)
+    const thId = document.createElement('th');
+    thId.scope = 'row';
+    thId.textContent = pedido.id;
+    // 2. Data formatada em pt-BR dentro de <time>
+    const tdData = document.createElement('td');
+    const timeEl = document.createElement('time');
+    const dataObj = new Date(pedido.data);
+    timeEl.dateTime = pedido.data.slice(0, 10);
+    timeEl.textContent = dataObj.toLocaleDateString('pt-BR');
+    tdData.appendChild(timeEl);
+    // 3. Itens com <details> expansível para ver cada livro comprado
+    const tdItens = document.createElement('td');
+    const qtdTotalItens = (pedido.itens || []).reduce((acc, i) => acc + i.quantidade, 0);
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = `${qtdTotalItens} ${qtdTotalItens === 1 ? 'item' : 'itens'} (ver detalhes)`;
+    details.appendChild(summary);
+    const ulItens = document.createElement('ul');
+    for (const item of pedido.itens || []) {
+      const li = document.createElement('li');
+      li.textContent = `${item.quantidade}x ${item.nome} (${formatarMoeda(item.precoUnitario)} un.)`;
+      ulItens.appendChild(li);
+    }
+    details.appendChild(ulItens);
+    tdItens.appendChild(details);
+    // 4. Status do Pedido
+    const tdStatus = document.createElement('td');
+    tdStatus.textContent = pedido.status || 'Pago';
+    // 5. Valor Total do Pedido
+    const tdTotal = document.createElement('td');
+    tdTotal.textContent = formatarMoeda(pedido.total);
+    tr.append(thId, tdData, tdItens, tdStatus, tdTotal);
+    tbody.appendChild(tr);
+  }
+  if (tfootTd) {
+    tfootTd.textContent = formatarMoeda(somaTotal);
+  }
+}
+renderizarMeusPedidos();
