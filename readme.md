@@ -34,6 +34,23 @@ Na primeira execução do sistema, uma conta administradora é criada automatica
 | **Senha** | `Admin1234` |
 | **Perfil** | `administrador` |
 
+## Mapa de Chaves do `localStorage`
+
+Todos os dados da aplicação são persistidos em formato JSON no `localStorage` do navegador e centralizados no módulo `js/storage.js` (`CHAVES_STORAGE`):
+
+| Constante (`CHAVES_STORAGE`) | Chave no `localStorage` | Tipo / Formato | Descrição |
+| :--- | :--- | :--- | :--- |
+| `VERSAO` | `lojaLivros:versao` | `string` | Versão atual do esquema de dados (`"1.0"`). |
+| `CONTADORES` | `lojaLivros:contadores` | `Object` | Contadores sequenciais persistentes (`{ cliente, compra, mensagem }`) para geração de IDs únicos (`C001`, `CP001`, `M001`). |
+| `ESTOQUE` | `lojaLivros:estoque` | `Object` | Mapa de saldo de estoque por ID do produto (`{ "P001": 1, "P002": 2, ... }`). |
+| `CLIENTES` | `lojaLivros:cliente` | `Array<Object>` | Lista de clientes cadastrados e conta administradora (`id`, `nome`, `cpf`, `telefone`, `email`, `salt`, `senhaHash`, `perfil`, `bloqueado`, `criadoEm`). |
+| `CARRINHO` | `lojaLivros:carrinho` | `Object` | Dicionário de carrinhos indexado por `usuarioId` ou `"visitante"`, além de `:extras` (`codigoCupom` e `cep`). |
+| `SESSAO` | `lojaLivros:sessao` | `Object \| null` | Sessão ativa do usuário logado (`usuarioId`, `nome`, `email`, `perfil`, `inicioEm`, `expiraEm` com validade de 30 min). |
+| `TENTATIVAS_LOGIN` | `lojaLivros:tentativasLogin` | `Object` | Controle de tentativas falhas de login e timestamp de bloqueio temporário de 60s (`{ falhas, bloqueadoAte }`). |
+| `COMPRAS` | `lojaLivros:compras` | `Array<Object>` | Histórico de pedidos finalizados (`id`, `clienteId`, `clienteNome`, `clienteEmail`, `data`, `itens`, `subtotal`, `desconto`, `cupom`, `frete`, `total`, `enderecoEntrega`, `pagamento`, `status`). |
+| `MENSAGENS` | `lojaLivros:mensagens` | `Array<Object>` | Mensagens enviadas pelo formulário de contato da página inicial. |
+| `TEMA` | `lojaLivros:tema` | `string` | Preferência de tema visual do usuário (`"claro"` ou `"escuro"`). |
+
 ## Como visualizar a tela de confirmação de compra
 
 1. Abra a página `loja.html` no navegador.
