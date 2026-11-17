@@ -6,8 +6,10 @@ export const CHAVES_STORAGE = Object.freeze({
   CLIENTES: 'lojaLivros:cliente',
   CARRINHO: 'lojaLivros:carrinho',
   SESSAO: 'lojaLivros:sessao',
-  TENTATIVAS_LOGIN: 'lojaLivros:tentativasLogin'
-  // TODO adicionar  ESTOQUE, COMPRAS, MENSAGENS, TEMA e etc...
+  TENTATIVAS_LOGIN: 'lojaLivros:tentativasLogin',
+  COMPRAS: 'lojaLivros:compras',
+  MENSAGENS: 'lojaLivros:mensagens',
+  TEMA: 'lojaLivros:tema'
 });
 
 /**
