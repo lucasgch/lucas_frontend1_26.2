@@ -148,3 +148,13 @@ export function avaliarForcaSenha(senha = '') {
   }
   return { valida: true, nivel: 'media', texto: 'Força: Média' };
 }
+
+/**
+ * Aplica a máscara de CEP (00000-000).
+ * @param {string} [valor=''] - CEP digitado.
+ * @returns {string} CEP formatado.
+ */
+export function aplicarMascaraCEP(valor = '') {
+  const digitos = limparNumeros(valor).slice(0, 8);
+  return digitos.replace(/^(\d{5})(\d)/, '$1-$2');
+}
