@@ -42,7 +42,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 - [X] - (a) **Login:** validar e-mail e senha comparando o hash. A mensagem de erro deve ser genérica (“E-mail ou senha inválidos”). Após 3 tentativas falhas, bloquear novas tentativas por 60 segundos, exibindo contagem regressiva (o bloqueio deve sobreviver a recarregar a página).
 - [X] - (b) **Sessão:** controle com `localStorage` guardando ID do usuário, perfil (cliente ou administrador), início e expiração por inatividade (30 minutos, renovada a cada interação relevante). Sessão expirada gera logout automático com aviso.
-- [ ] - (c) **Proteção de páginas:** `perfil.html` exige login; finalizar compra exige login; `relatorios.html` exige perfil de administrador. Ao ser barrado, o usuário é enviado para `login.html` com mensagem e, após entrar, retorna à página que tentava acessar (parâmetro na URL).
+- [X] - (c) **Proteção de páginas:** `perfil.html` exige login; finalizar compra exige login; `relatorios.html` exige perfil de administrador. Ao ser barrado, o usuário é enviado para `login.html` com mensagem e, após entrar, retorna à página que tentava acessar (parâmetro na URL).
 - [X] - (d) **Menu dinâmico:** visitante vê “Entrar” e “Cadastrar”; cliente logado vê “Olá, [nome]”, “Meu perfil” e “Sair”; administrador vê também “Relatórios”. Sair encerra a sessão, mas mantém o carrinho salvo.
 - [X] - (e) **Conta administradora:** criada automaticamente na primeira execução (seed), com credenciais documentadas no `README`.
 - [ ] - (f) **Bloqueio de cliente:** clientes bloqueados pelo administrador não conseguem entrar (ver 2.5).
@@ -50,7 +50,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 ### 2.3 Catálogo e carrinho
 
 - [X] - (a) **Catálogo dinâmico:** os produtos passam a ser definidos em um único arquivo JavaScript (`data/produtos.js`) com `id`, `nome`, `categoria`, `descrição`, `preço`, `imagem` e `estoque`, e renderizados dinamicamente em `index.html` e `loja.html` (usar o elemento `<template>` ou `createElement`). O HTML repetido da Parte 1 deve ser eliminado.
-- [ ] - (b) **Busca e filtros em `loja.html`:** busca por texto em tempo real (com *debounce*), filtro por categoria, filtro por faixa de preço, ordenação (menor preço, maior preço, nome) e mensagem quando nada for encontrado.
+- [X] - (b) **Busca e filtros em `loja.html`:** busca por texto em tempo real (com *debounce*), filtro por categoria, filtro por faixa de preço, ordenação (menor preço, maior preço, nome) e mensagem quando nada for encontrado.
 - [X] - (c) **Detalhes do produto:** abrir em uma janela modal (`<dialog>`) com imagem ampliada, descrição, estoque disponível e seletor de quantidade.
 - [X] - (d) **Carrinho:** adicionar, remover e alterar quantidade (botões `+` e `−`, limitado ao estoque), com subtotal por item, total geral e contador no menu (*badge*). Persistido em `localStorage`, com um carrinho por cliente; o carrinho do visitante deve ser mesclado ao carrinho do cliente ao fazer login.
 - [X] - (e) **Cupons:** pelo menos 3 cupons com regras diferentes (percentual, valor fixo e frete grátis), com valor mínimo de compra e data de validade, com mensagens claras de sucesso ou erro.
@@ -61,10 +61,10 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 - [X] - (a) **Acesso:** finalizar compra apenas para clientes logados; visitantes são redirecionados ao login e retornam ao carrinho intacto.
 - [ ] - (b) **Etapas:** resumo do pedido → endereço/entrega → pagamento → confirmação, com validação em cada etapa e possibilidade de voltar.
-- [ ] - (c) **Pagamento simulado:** Pix, cartão e boleto. No cartão, validar número com o algoritmo de Luhn, validade e CVV. Armazenar apenas os 4 últimos dígitos.
-- [ ] - (d) **Registro da compra:** ID automático (`CP001`, `CP002`...), cliente (guardar cópia de ID, nome e e-mail no momento da compra), itens (ID, nome, preço unitário no momento da compra e quantidade), subtotal, desconto, frete, valor total, forma de pagamento, data e hora, e status.
-- [ ] - (e) **Estoque:** dar baixa automática após a compra e revalidar o estoque no momento da finalização, impedindo a venda de itens indisponíveis.
-- [ ] - (f) **Confirmação e histórico:** tela de confirmação com o resumo e o número do pedido, carrinho esvaziado e, em `perfil.html`, a lista real “Meus pedidos” com detalhes expansíveis (elemento `<details>`).
+- [X] - (c) **Pagamento simulado:** Pix, cartão e boleto. No cartão, validar número com o algoritmo de Luhn, validade e CVV. Armazenar apenas os 4 últimos dígitos.
+- [X] - (d) **Registro da compra:** ID automático (`CP001`, `CP002`...), cliente (guardar cópia de ID, nome e e-mail no momento da compra), itens (ID, nome, preço unitário no momento da compra e quantidade), subtotal, desconto, frete, valor total, forma de pagamento, data e hora, e status.
+- [X] - (e) **Estoque:** dar baixa automática após a compra e revalidar o estoque no momento da finalização, impedindo a venda de itens indisponíveis.
+- [X] - (f) **Confirmação e histórico:** tela de confirmação com o resumo e o número do pedido, carrinho esvaziado e, em `perfil.html`, a lista real “Meus pedidos” com detalhes expansíveis (elemento `<details>`).
 
 ### 2.5 Área administrativa
 
@@ -85,9 +85,9 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 ## 3 Requisitos técnicos
 
-- [ ] - Usar somente HTML, CSS e JavaScript puros, sem nenhuma biblioteca externa (jQuery, Chart.js, Bootstrap etc.). APIs nativas do navegador (`SubtleCrypto`, `Intl`, `dialog`, `Blob`) são permitidas.
-- [ ] - Dados armazenados exclusivamente em `localStorage`, em formato JSON.
-- [ ] - Módulos ES (`<script type="module">`), com um arquivo principal por página e responsabilidades separadas, por exemplo:
+- [X] - Usar somente HTML, CSS e JavaScript puros, sem nenhuma biblioteca externa (jQuery, Chart.js, Bootstrap etc.). APIs nativas do navegador (`SubtleCrypto`, `Intl`, `dialog`, `Blob`) são permitidas.
+- [X] - Dados armazenados exclusivamente em `localStorage`, em formato JSON.
+- [X] - Módulos ES (`<script type="module">`), com um arquivo principal por página e responsabilidades separadas, por exemplo:
 
 | Arquivo | Responsabilidade |
 | :--- | :--- |
@@ -100,7 +100,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 | `js/relatorios.js` | Buscas, ordenação, paginação, indicadores e exportação. |
 | `js/ui.js` | Toasts, modais, menu dinâmico e tema. |
 
-- [ ] - **Servidor local:** módulos ES não funcionam abrindo o arquivo diretamente (`file://`). Usar a extensão Live Server do VS Code ou o comando `python -m http.server` e documentar no `README`.
+- [X] - **Servidor local:** módulos ES não funcionam abrindo o arquivo diretamente (`file://`). Usar a extensão Live Server do VS Code ou o comando `python -m http.server` e documentar no `README`.
 - [ ] - Mapa de chaves do `localStorage` documentado no `README` (ex.: `loja:clientes`, `loja:compras`, `loja:sessao`, `loja:carrinho`, `loja:contadores`, `loja:mensagens`, `loja:tema`).
 - [ ] - **Segurança básica:** nunca inserir dados digitados pelo usuário com `innerHTML` sem escapar (usar `textContent` ou `createElement`), evitando XSS; validar todas as entradas antes de gravar.
 - [ ] - **Qualidade do código:** sem variáveis globais soltas, uso de `const`/`let`, funções pequenas e com nomes claros, comentários JSDoc nas funções públicas, sem código duplicado e sem erros ou avisos no console.
