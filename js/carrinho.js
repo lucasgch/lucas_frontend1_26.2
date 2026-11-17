@@ -1,6 +1,6 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 import { obterProdutosComEstoque } from './produtos.js';
-import { formatarMoeda } from './utils.js';
+import { aplicarMascaraCEP, formatarMoeda } from './utils.js';
 
 export function obterDonoCarrinhoAtual(){
   
@@ -392,6 +392,9 @@ export function inicializarCarrinho() {
   const inputCep = document.getElementById('input-cep-carrinho');
   const btnCalcularFrete = document.getElementById('btn-calcular-frete');
   const msgFrete = document.getElementById('msg-frete');
+  inputCep?.addEventListener('input', () => {
+    inputCep.value = aplicarMascaraCEP(inputCep.value);
+  });
   btnCalcularFrete?.addEventListener('click', () => {
     const { subtotal } = obterResumoCarrinho();
     const res = calcularFretePorCep(inputCep?.value, subtotal);
@@ -598,6 +601,15 @@ export function obterResumoCarrinho() {
     codigoCupom: codigoCupomAtivo,
     cep: cepAtivo
   };
+}
+
+/**
+ * Esvazia o carrinho do usuário atual e limpa o cupom/CEP ativos após finalizar uma compra.
+ */
+export function limparCarrinhoAtual() {
+  salvarExtrasCarrinho({ codigoCupom: '', cep: '' });
+  salvarCarrinho([]);
+  renderizarCarrinho();
 }
 
 // Executa ao carregar a página
