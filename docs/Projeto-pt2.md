@@ -43,8 +43,8 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 - [X] - (a) **Login:** validar e-mail e senha comparando o hash. A mensagem de erro deve ser genérica (“E-mail ou senha inválidos”). Após 3 tentativas falhas, bloquear novas tentativas por 60 segundos, exibindo contagem regressiva (o bloqueio deve sobreviver a recarregar a página).
 - [X] - (b) **Sessão:** controle com `localStorage` guardando ID do usuário, perfil (cliente ou administrador), início e expiração por inatividade (30 minutos, renovada a cada interação relevante). Sessão expirada gera logout automático com aviso.
 - [ ] - (c) **Proteção de páginas:** `perfil.html` exige login; finalizar compra exige login; `relatorios.html` exige perfil de administrador. Ao ser barrado, o usuário é enviado para `login.html` com mensagem e, após entrar, retorna à página que tentava acessar (parâmetro na URL).
-- [ ] - (d) **Menu dinâmico:** visitante vê “Entrar” e “Cadastrar”; cliente logado vê “Olá, [nome]”, “Meu perfil” e “Sair”; administrador vê também “Relatórios”. Sair encerra a sessão, mas mantém o carrinho salvo.
-- [ ] - (e) **Conta administradora:** criada automaticamente na primeira execução (seed), com credenciais documentadas no `README`.
+- [X] - (d) **Menu dinâmico:** visitante vê “Entrar” e “Cadastrar”; cliente logado vê “Olá, [nome]”, “Meu perfil” e “Sair”; administrador vê também “Relatórios”. Sair encerra a sessão, mas mantém o carrinho salvo.
+- [X] - (e) **Conta administradora:** criada automaticamente na primeira execução (seed), com credenciais documentadas no `README`.
 - [ ] - (f) **Bloqueio de cliente:** clientes bloqueados pelo administrador não conseguem entrar (ver 2.5).
 
 ### 2.3 Catálogo e carrinho

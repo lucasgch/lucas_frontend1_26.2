@@ -22,6 +22,18 @@ O enunciado completo com todos os requisitos desse desafio pode ser encontrado n
 
 - [Enunciado completo do laboratório](./docs/enunciado.md)
 
+## Credenciais da Conta Administradora (Seed)
+
+Na primeira execução do sistema, uma conta administradora é criada automaticamente no `localStorage` (`garantirContaAdmin()` em `js/auth.js`) com a senha protegida por hash SHA-256 + *salt* aleatório. Utilize os dados abaixo em `login.html` para acessar a área administrativa (`relatorios.html`):
+
+| Campo | Valor |
+| :--- | :--- |
+| **ID** | `ADM01` |
+| **Nome** | `Administrador Loja` |
+| **E-mail** | `admin@livros.com` |
+| **Senha** | `Admin1234` |
+| **Perfil** | `administrador` |
+
 ## Como visualizar a tela de confirmação de compra
 
 1. Abra a página `loja.html` no navegador.

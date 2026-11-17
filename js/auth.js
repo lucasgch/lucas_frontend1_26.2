@@ -223,9 +223,12 @@ export function inicializarLogin() {
       return;
     }
 
-    // Volta para a página de origem ou loja
-    const destino = params.get('redirect') || 'loja.html';
-    window.location.href = destino;
+        // Volta para a página de origem ou loja (evita loop se cliente comum veio de relatorios.html)
+    let destino = params.get('redirect') || 'loja.html';
+    if (destino === 'relatorios.html' && resultado.sessao?.perfil !== 'administrador') {
+      destino = 'loja.html';
+    }
+    window.location.replace(destino);
   });
 }
 inicializarLogin();
@@ -258,8 +261,8 @@ export function verificarAcessoPagina() {
       return;
     }
 
-    // Garantir que cadastro não seja exibido para usuários logados
-    if (paginaAtual === 'cadastro.html' && sessao) {
+    // Garantir que login e cadastro não sejam exibidos para usuários já logados
+    if ((paginaAtual === 'cadastro.html' || paginaAtual === 'login.html') && sessao) {
       window.location.replace('perfil.html');
       return;
     }
