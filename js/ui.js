@@ -1,4 +1,4 @@
-import { encerrarSessao, obterSessaoAtiva, verificarAcessoPagina } from './auth.js';
+import { encerrarSessao, obterSessaoAtiva } from './auth.js';
 import { atualizarBadgeCarrinho } from './carrinho.js';
 
 /**
@@ -92,5 +92,4 @@ export function renderizarMenuDinamico() {
     }
     
     // Protege a página e renderiza o menu ao carregar
-    verificarAcessoPagina();
     renderizarMenuDinamico();

@@ -240,7 +240,7 @@ export function verificarAcessoPagina() {
   const sessaoBruta = lerDados(CHAVES_STORAGE.SESSAO, null);
   if (sessaoBruta && Date.now() > sessaoBruta.expiraEm) {
     removerDados(CHAVES_STORAGE.SESSAO);
-    window.location.href = `login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`;
+    window.location.replace(`login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`);
     return;
   }
 
@@ -248,19 +248,19 @@ export function verificarAcessoPagina() {
 
     // Garantir que perfil seja exibida apenas para usuários logados
     if (paginaAtual === 'perfil.html' && !sessao) {
-      window.location.href = 'login.html?motivo=login_necessario&redirect=perfil.html';
+      window.location.replace('login.html?motivo=login_necessario&redirect=perfil.html');
       return;
   }
 
     // Garantir que admin seja exibida apenas para usuários logados
     if (paginaAtual === 'relatorios.html' && (!sessao || sessao.perfil !== 'administrador')) {
-      window.location.href = 'login.html?motivo=login_necessario&redirect=relatorios.html';
+      window.location.replace('login.html?motivo=login_necessario&redirect=relatorios.html');
       return;
     }
 
     // Garantir que cadastro não seja exibido para usuários logados
     if (paginaAtual === 'cadastro.html' && sessao) {
-      window.location.href = 'perfil.html';
+      window.location.replace('perfil.html');
       return;
     }
 
@@ -273,4 +273,13 @@ export function verificarAcessoPagina() {
   // Se passou pelas verificações de acesso, exibe a página
   document.body.hidden = false;
 }
+
+window.addEventListener('pageshow', (evento) => {
+  if (evento.persisted) {
+    document.body.hidden = true;
+    verificarAcessoPagina();
+  }
+});
+
 verificarAcessoPagina();
+
