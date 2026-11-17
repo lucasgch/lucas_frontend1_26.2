@@ -192,3 +192,98 @@
   padding: 0.6rem 1.1rem;
   white-space: nowrap;
 }
+
+.mensagem-confirmacao[hidden],
+.etapa-checkout[hidden],
+.painel-pagamento[hidden] {
+  display: none !important;
+}
+
+.modal-checkout {
+  max-width: 38rem;
+  width: 92%;
+  margin: auto; /* <-- Centraliza o <dialog> na vertical e na horizontal */
+  border: none;
+  border-radius: var(--radius);
+  padding: 1.75rem;
+  background: var(--bg-surface, #ffffff);
+  color: var(--text-primary);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+}
+
+.modal-checkout::backdrop {
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.modal-checkout-cabecalho {
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  padding-bottom: 0.75rem;
+}
+
+.indicador-etapa {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-top: 0.25rem;
+}
+
+.lista-resumo-checkout {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+  font-size: var(--text-sm);
+}
+
+.linha-resumo-checkout {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.grade-campos-checkout {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.opcoes-pagamento {
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.painel-pagamento {
+  background: var(--surface-subtle);
+  padding: 1rem;
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+}
+
+.codigo-pagamento {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.6rem;
+  background: #ffffff;
+  border: 1px dashed rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  word-break: break-all;
+}
+
+.acoes-checkout {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.25rem;
+}
+
+.acoes-checkout .botao {
+  margin: 0;
+}

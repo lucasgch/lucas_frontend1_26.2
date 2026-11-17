@@ -256,6 +256,119 @@
         </div>
       </section>
 
+      <dialog id="modal-checkout" class="modal-checkout" aria-labelledby="titulo-modal-checkout">
+        <div class="modal-checkout-conteudo">
+          <header class="modal-checkout-cabecalho">
+            <h2 id="titulo-modal-checkout">Finalizar Compra</h2>
+            <p id="indicador-etapa-checkout" class="indicador-etapa">Etapa 1 de 3: Resumo do Pedido</p>
+          </header>
+
+          <!-- ETAPA 1: Resumo do Pedido -->
+          <div id="checkout-etapa-1" class="etapa-checkout">
+            <div id="resumo-itens-checkout" class="lista-resumo-checkout"></div>
+            <div class="acoes-checkout">
+              <button type="button" id="btn-fechar-checkout" class="botao botao-secundario">Cancelar</button>
+              <button type="button" id="btn-ir-etapa-2" class="botao botao-primario">Avançar para Endereço &rarr;</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 2: Endereço de Entrega -->
+          <div id="checkout-etapa-2" class="etapa-checkout" hidden>
+            <div class="grade-campos-checkout">
+              <div class="campo-form">
+                <label for="chk-cep">CEP:</label>
+                <input type="text" id="chk-cep" maxlength="9" placeholder="00000-000" inputmode="numeric">
+              </div>
+              <div class="campo-form">
+                <label for="chk-logradouro">Logradouro (Rua/Av.):</label>
+                <input type="text" id="chk-logradouro" placeholder="Ex: Rua das Flores">
+              </div>
+              <div class="campo-form">
+                <label for="chk-numero">Número:</label>
+                <input type="text" id="chk-numero" placeholder="Ex: 123">
+              </div>
+              <div class="campo-form">
+                <label for="chk-complemento">Complemento (opcional):</label>
+                <input type="text" id="chk-complemento" placeholder="Ex: Apto 202">
+              </div>
+              <div class="campo-form">
+                <label for="chk-bairro">Bairro:</label>
+                <input type="text" id="chk-bairro" placeholder="Ex: Centro">
+              </div>
+              <div class="campo-form">
+                <label for="chk-cidade">Cidade:</label>
+                <input type="text" id="chk-cidade" placeholder="Ex: São José">
+              </div>
+              <div class="campo-form">
+                <label for="chk-uf">UF:</label>
+                <input type="text" id="chk-uf" maxlength="2" placeholder="Ex: SC">
+              </div>
+            </div>
+            <p id="erro-etapa-2" class="mensagem-erro-campo" role="alert"></p>
+            <div class="acoes-checkout">
+              <button type="button" id="btn-voltar-etapa-1" class="botao botao-secundario">&larr; Voltar</button>
+              <button type="button" id="btn-ir-etapa-3" class="botao botao-primario">Avançar para Pagamento &rarr;</button>
+            </div>
+          </div>
+
+          <!-- ETAPA 3: Pagamento Simulado -->
+          <div id="checkout-etapa-3" class="etapa-checkout" hidden>
+            <fieldset class="opcoes-pagamento">
+              <legend>Escolha a forma de pagamento:</legend>
+              <label class="opcao-radio">
+                <input type="radio" name="metodo_pagamento" value="pix" checked> Pix (aprovação imediata)
+              </label>
+              <label class="opcao-radio">
+                <input type="radio" name="metodo_pagamento" value="cartao"> Cartão de Crédito
+              </label>
+              <label class="opcao-radio">
+                <input type="radio" name="metodo_pagamento" value="boleto"> Boleto Bancário
+              </label>
+            </fieldset>
+
+            <!-- Painel Pix -->
+            <div id="painel-pagamento-pix" class="painel-pagamento">
+              <p>Copie o código Pix abaixo para pagamento simulado:</p>
+              <code id="codigo-pix-simulado" class="codigo-pagamento">00020126580014BR.GOV.BCB.PIX0136livros-loja-virtual-ifsc-20265204000053039865802BR</code>
+            </div>
+
+            <!-- Painel Cartão -->
+            <div id="painel-pagamento-cartao" class="painel-pagamento" hidden>
+              <div class="grade-campos-checkout">
+                <div class="campo-form">
+                  <label for="chk-cartao-numero">Número do Cartão (13 a 19 dígitos):</label>
+                  <input type="text" id="chk-cartao-numero" maxlength="19" placeholder="Ex: 4532015112830366" inputmode="numeric">
+                </div>
+                <div class="campo-form">
+                  <label for="chk-cartao-nome">Nome impresso no cartão:</label>
+                  <input type="text" id="chk-cartao-nome" placeholder="Ex: MARIA DA SILVA">
+                </div>
+                <div class="campo-form">
+                  <label for="chk-cartao-validade">Validade (MM/AA):</label>
+                  <input type="text" id="chk-cartao-validade" maxlength="5" placeholder="MM/AA">
+                </div>
+                <div class="campo-form">
+                  <label for="chk-cartao-cvv">CVV (3 ou 4 dígitos):</label>
+                  <input type="text" id="chk-cartao-cvv" maxlength="4" placeholder="123" inputmode="numeric">
+                </div>
+              </div>
+            </div>
+
+            <!-- Painel Boleto -->
+            <div id="painel-pagamento-boleto" class="painel-pagamento" hidden>
+              <p>Linha digitável do boleto simulado:</p>
+              <code id="codigo-boleto-simulado" class="codigo-pagamento">23793.38128 60083.013528 56000.063304 9 98760000010000</code>
+            </div>
+
+            <p id="erro-etapa-3" class="mensagem-erro-campo" role="alert"></p>
+            <div class="acoes-checkout">
+              <button type="button" id="btn-voltar-etapa-2" class="botao botao-secundario">&larr; Voltar</button>
+              <button type="button" id="btn-confirmar-compra" class="botao botao-primario">Confirmar Compra</button>
+            </div>
+          </div>
+        </div>
+      </dialog>
+
     </main>
 
   <footer class="container footer-container">

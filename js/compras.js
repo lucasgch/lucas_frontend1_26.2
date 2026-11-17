@@ -142,3 +142,211 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
     pedido: novoPedido
   };
 }
+
+/**
+ * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisito 2.4a, 2.4b, 2.4e).
+ */
+export function inicializarCheckout() {
+  const btnFinalizar = document.getElementById('btn-finalizar-compra');
+  const modalCheckout = document.getElementById('modal-checkout');
+  if (!btnFinalizar || !modalCheckout) return;
+  const indicadorEtapa = document.getElementById('indicador-etapa-checkout');
+  const etapa1 = document.getElementById('checkout-etapa-1');
+  const etapa2 = document.getElementById('checkout-etapa-2');
+  const etapa3 = document.getElementById('checkout-etapa-3');
+  const divResumo = document.getElementById('resumo-itens-checkout');
+  const erroEtapa2 = document.getElementById('erro-etapa-2');
+  const erroEtapa3 = document.getElementById('erro-etapa-3');
+  // Campos de endereço
+  const inputCep = document.getElementById('chk-cep');
+  const inputLogradouro = document.getElementById('chk-logradouro');
+  const inputNumero = document.getElementById('chk-numero');
+  const inputComplemento = document.getElementById('chk-complemento');
+  const inputBairro = document.getElementById('chk-bairro');
+  const inputCidade = document.getElementById('chk-cidade');
+  const inputUf = document.getElementById('chk-uf');
+  // Campos de cartão
+  const inputCartaoNumero = document.getElementById('chk-cartao-numero');
+  const inputCartaoNome = document.getElementById('chk-cartao-nome');
+  const inputCartaoValidade = document.getElementById('chk-cartao-validade');
+  const inputCartaoCvv = document.getElementById('chk-cartao-cvv');
+  function mostrarEtapa(numero) {
+    etapa1.hidden = numero !== 1;
+    etapa2.hidden = numero !== 2;
+    etapa3.hidden = numero !== 3;
+    const titulos = {
+      1: 'Etapa 1 de 3: Resumo do Pedido',
+      2: 'Etapa 2 de 3: Endereço de Entrega',
+      3: 'Etapa 3 de 3: Pagamento'
+    };
+    if (indicadorEtapa) indicadorEtapa.textContent = titulos[numero];
+  }
+  function preencherResumoEtapa1() {
+    const itens = obterCarrinho();
+    const catalogo = obterProdutosComEstoque();
+    const resumo = obterResumoCarrinho();
+    divResumo.replaceChildren();
+    for (const item of itens) {
+      const produto = catalogo.find((p) => p.id === item.produtoId);
+      if (!produto) continue;
+      const linha = document.createElement('div');
+      linha.className = 'linha-resumo-checkout';
+      const spanNome = document.createElement('span');
+      spanNome.textContent = `${item.quantidade}x ${produto.nome}`;
+      const spanValor = document.createElement('strong');
+      spanValor.textContent = formatarMoeda(produto.preco * item.quantidade);
+      linha.append(spanNome, spanValor);
+      divResumo.appendChild(linha);
+    }
+    const criarLinhaTotal = (rotulo, valorTexto) => {
+      const linha = document.createElement('div');
+      linha.className = 'linha-resumo-checkout';
+      const spanRotulo = document.createElement('span');
+      spanRotulo.textContent = rotulo;
+      const spanValor = document.createElement('strong');
+      spanValor.textContent = valorTexto;
+      linha.append(spanRotulo, spanValor);
+      divResumo.appendChild(linha);
+    };
+    criarLinhaTotal('Subtotal:', formatarMoeda(resumo.subtotal));
+    criarLinhaTotal('Desconto:', `- ${formatarMoeda(resumo.desconto)}`);
+    criarLinhaTotal('Frete:', formatarMoeda(resumo.frete ?? 0));
+    criarLinhaTotal('Total a pagar:', formatarMoeda(resumo.total));
+    if (resumo.cep && inputCep && !inputCep.value) {
+      inputCep.value = aplicarMascaraCEP(resumo.cep);
+    }
+  }
+  // Ao clicar em "Finalizar compra"
+  btnFinalizar.addEventListener('click', (evento) => {
+    evento.preventDefault();
+    const itens = obterCarrinho();
+    if (itens.length === 0) return;
+    // Requisito 2.4a: Exige cliente autenticado
+    const sessao = obterSessaoAtiva();
+    if (!sessao) {
+      window.location.href = 'login.html?motivo=login_necessario&redirect=loja.html%23carrinho';
+      return;
+    }
+    preencherResumoEtapa1();
+    mostrarEtapa(1);
+    modalCheckout.showModal();
+  });
+  // Máscaras rápidas na Etapa 2 e 3
+  inputCep?.addEventListener('input', () => {
+    inputCep.value = aplicarMascaraCEP(inputCep.value);
+  });
+  inputCartaoNumero?.addEventListener('input', () => {
+    inputCartaoNumero.value = limparNumeros(inputCartaoNumero.value).slice(0, 19);
+  });
+  inputCartaoValidade?.addEventListener('input', () => {
+    const d = limparNumeros(inputCartaoValidade.value).slice(0, 4);
+    inputCartaoValidade.value = d.replace(/^(\d{2})(\d)/, '$1/$2');
+  });
+  inputCartaoCvv?.addEventListener('input', () => {
+    inputCartaoCvv.value = limparNumeros(inputCartaoCvv.value).slice(0, 4);
+  });
+  // Navegação entre etapas
+  document.getElementById('btn-fechar-checkout')?.addEventListener('click', () => modalCheckout.close());
+  document.getElementById('btn-ir-etapa-2')?.addEventListener('click', () => mostrarEtapa(2));
+  document.getElementById('btn-voltar-etapa-1')?.addEventListener('click', () => mostrarEtapa(1));
+  document.getElementById('btn-voltar-etapa-2')?.addEventListener('click', () => mostrarEtapa(2));
+  document.getElementById('btn-ir-etapa-3')?.addEventListener('click', () => {
+    erroEtapa2.textContent = '';
+    if (
+      limparNumeros(inputCep?.value).length !== 8 ||
+      !inputLogradouro?.value.trim() ||
+      !inputNumero?.value.trim() ||
+      !inputBairro?.value.trim() ||
+      !inputCidade?.value.trim() ||
+      inputUf?.value.trim().length !== 2
+    ) {
+      erroEtapa2.textContent = 'Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF com 2 letras).';
+      return;
+    }
+    mostrarEtapa(3);
+  });
+  // Alternar painéis Pix / Cartão / Boleto
+  const radiosPagamento = modalCheckout.querySelectorAll('input[name="metodo_pagamento"]');
+  const painelPix = document.getElementById('painel-pagamento-pix');
+  const painelCartao = document.getElementById('painel-pagamento-cartao');
+  const painelBoleto = document.getElementById('painel-pagamento-boleto');
+  radiosPagamento.forEach((radio) => {
+    radio.addEventListener('change', () => {
+      painelPix.hidden = radio.value !== 'pix';
+      painelCartao.hidden = radio.value !== 'cartao';
+      painelBoleto.hidden = radio.value !== 'boleto';
+      erroEtapa3.textContent = '';
+    });
+  });
+  // Confirmar Compra (Etapa 3)
+  document.getElementById('btn-confirmar-compra')?.addEventListener('click', () => {
+    erroEtapa3.textContent = '';
+    const metodo = modalCheckout.querySelector('input[name="metodo_pagamento"]:checked')?.value || 'pix';
+    let dadosPagamento = { metodo };
+    if (metodo === 'cartao') {
+      const numCartao = limparNumeros(inputCartaoNumero?.value);
+      const nomeCartao = inputCartaoNome?.value.trim() || '';
+      const validade = inputCartaoValidade?.value.trim() || '';
+      const cvv = limparNumeros(inputCartaoCvv?.value);
+      if (!validarCartaoLuhn(numCartao)) {
+        erroEtapa3.textContent = 'Número de cartão inválido (falhou na verificação de Luhn).';
+        return;
+      }
+      if (nomeCartao.length < 3) {
+        erroEtapa3.textContent = 'Informe o nome impresso no cartão.';
+        return;
+      }
+      if (!validarValidadeCartao(validade)) {
+        erroEtapa3.textContent = 'Validade inválida ou cartão vencido (use MM/AA).';
+        return;
+      }
+      if (cvv.length < 3 || cvv.length > 4) {
+        erroEtapa3.textContent = 'Informe um CVV válido de 3 ou 4 dígitos.';
+        return;
+      }
+      // Requisito 2.4b: armazena apenas os 4 últimos dígitos do cartão!
+      dadosPagamento = {
+        metodo: 'cartao',
+        ultimos4Digitos: numCartao.slice(-4),
+        titular: nomeCartao
+      };
+    } else if (metodo === 'pix') {
+      dadosPagamento = {
+        metodo: 'pix',
+        codigo: document.getElementById('codigo-pix-simulado')?.textContent || ''
+      };
+    } else if (metodo === 'boleto') {
+      dadosPagamento = {
+        metodo: 'boleto',
+        linhaDigitavel: document.getElementById('codigo-boleto-simulado')?.textContent || ''
+      };
+    }
+    const enderecoEntrega = {
+      cep: aplicarMascaraCEP(inputCep.value),
+      logradouro: inputLogradouro.value.trim(),
+      numero: inputNumero.value.trim(),
+      complemento: inputComplemento?.value.trim() || '',
+      bairro: inputBairro.value.trim(),
+      cidade: inputCidade.value.trim(),
+      uf: inputUf.value.trim().toUpperCase()
+    };
+    const resultado = registrarCompra({ enderecoEntrega, pagamento: dadosPagamento });
+    if (!resultado.sucesso) {
+      erroEtapa3.textContent = resultado.mensagem;
+      return;
+    }
+    modalCheckout.close();
+    // Atualiza o catálogo na tela para refletir o novo estoque imediatamente
+    inicializarCatalogo();
+    inicializarFiltrosLoja();
+    // Exibe a confirmação da compra com o ID real do pedido (CP001, CP002...)
+    const secaoConfirmacao = document.getElementById('confirmacao-compra');
+    if (secaoConfirmacao) {
+      const strongCodigo = secaoConfirmacao.querySelector('strong');
+      if (strongCodigo) strongCodigo.textContent = resultado.pedido.id;
+      secaoConfirmacao.hidden = false;
+      secaoConfirmacao.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+}
+inicializarCheckout();
