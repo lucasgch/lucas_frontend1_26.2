@@ -12,6 +12,30 @@ export function normalizarTexto(texto = ''){
   return textoNormalizado;
 }
 
+const formatadorData = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric'
+});
+
+export function formatarData(dataIso) {
+  const data = new Date(dataIso);
+  return Number.isNaN(data.getTime()) ? '' : formatadorData.format(data);
+}
+
+const formatadorDataHora = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit'
+});
+
+export function formatarDataHora(dataIso) {
+  const data = new Date(dataIso);
+  return Number.isNaN(data.getTime()) ? '' : formatadorDataHora.format(data);
+}
+
 /**
  * Atrasa a execução de uma função até que se passem 'atraso' ms sem novas chamadas.
  * @param {Function} funcao - Função que será executada após o tempo de espera.

@@ -49,17 +49,17 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 ### 2.3 Catálogo e carrinho
 
-- [ ] - (a) **Catálogo dinâmico:** os produtos passam a ser definidos em um único arquivo JavaScript (`data/produtos.js`) com `id`, `nome`, `categoria`, `descrição`, `preço`, `imagem` e `estoque`, e renderizados dinamicamente em `index.html` e `loja.html` (usar o elemento `<template>` ou `createElement`). O HTML repetido da Parte 1 deve ser eliminado.
+- [X] - (a) **Catálogo dinâmico:** os produtos passam a ser definidos em um único arquivo JavaScript (`data/produtos.js`) com `id`, `nome`, `categoria`, `descrição`, `preço`, `imagem` e `estoque`, e renderizados dinamicamente em `index.html` e `loja.html` (usar o elemento `<template>` ou `createElement`). O HTML repetido da Parte 1 deve ser eliminado.
 - [ ] - (b) **Busca e filtros em `loja.html`:** busca por texto em tempo real (com *debounce*), filtro por categoria, filtro por faixa de preço, ordenação (menor preço, maior preço, nome) e mensagem quando nada for encontrado.
-- [ ] - (c) **Detalhes do produto:** abrir em uma janela modal (`<dialog>`) com imagem ampliada, descrição, estoque disponível e seletor de quantidade.
-- [ ] - (d) **Carrinho:** adicionar, remover e alterar quantidade (botões `+` e `−`, limitado ao estoque), com subtotal por item, total geral e contador no menu (*badge*). Persistido em `localStorage`, com um carrinho por cliente; o carrinho do visitante deve ser mesclado ao carrinho do cliente ao fazer login.
-- [ ] - (e) **Cupons:** pelo menos 3 cupons com regras diferentes (percentual, valor fixo e frete grátis), com valor mínimo de compra e data de validade, com mensagens claras de sucesso ou erro.
-- [ ] - (f) **Frete simulado:** calcular por faixa de CEP (mínimo de 3 faixas) com frete grátis acima de um valor definido.
-- [ ] - (g) **Formatação:** valores em moeda brasileira e datas em `pt-BR` usando a API `Intl` (`Intl.NumberFormat` e `Intl.DateTimeFormat`).
+- [X] - (c) **Detalhes do produto:** abrir em uma janela modal (`<dialog>`) com imagem ampliada, descrição, estoque disponível e seletor de quantidade.
+- [X] - (d) **Carrinho:** adicionar, remover e alterar quantidade (botões `+` e `−`, limitado ao estoque), com subtotal por item, total geral e contador no menu (*badge*). Persistido em `localStorage`, com um carrinho por cliente; o carrinho do visitante deve ser mesclado ao carrinho do cliente ao fazer login.
+- [X] - (e) **Cupons:** pelo menos 3 cupons com regras diferentes (percentual, valor fixo e frete grátis), com valor mínimo de compra e data de validade, com mensagens claras de sucesso ou erro.
+- [X] - (f) **Frete simulado:** calcular por faixa de CEP (mínimo de 3 faixas) com frete grátis acima de um valor definido.
+- [X] - (g) **Formatação:** valores em moeda brasileira e datas em `pt-BR` usando a API `Intl` (`Intl.NumberFormat` e `Intl.DateTimeFormat`).
 
 ### 2.4 Compras e checkout
 
-- [ ] - (a) **Acesso:** finalizar compra apenas para clientes logados; visitantes são redirecionados ao login e retornam ao carrinho intacto.
+- [X] - (a) **Acesso:** finalizar compra apenas para clientes logados; visitantes são redirecionados ao login e retornam ao carrinho intacto.
 - [ ] - (b) **Etapas:** resumo do pedido → endereço/entrega → pagamento → confirmação, com validação em cada etapa e possibilidade de voltar.
 - [ ] - (c) **Pagamento simulado:** Pix, cartão e boleto. No cartão, validar número com o algoritmo de Luhn, validade e CVV. Armazenar apenas os 4 últimos dígitos.
 - [ ] - (d) **Registro da compra:** ID automático (`CP001`, `CP002`...), cliente (guardar cópia de ID, nome e e-mail no momento da compra), itens (ID, nome, preço unitário no momento da compra e quantidade), subtotal, desconto, frete, valor total, forma de pagamento, data e hora, e status.

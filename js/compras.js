@@ -2,7 +2,7 @@ import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDad
 import { obterSessaoAtiva } from './auth.js';
 import { obterProdutosComEstoque, inicializarCatalogo, inicializarFiltrosLoja } from './produtos.js';
 import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual } from './carrinho.js';
-import { aplicarMascaraCEP, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
+import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
 
 /**
  * Retorna a lista de todas as compras registradas no localStorage.
@@ -392,9 +392,8 @@ export function renderizarMeusPedidos() {
     // 2. Data formatada em pt-BR dentro de <time>
     const tdData = document.createElement('td');
     const timeEl = document.createElement('time');
-    const dataObj = new Date(pedido.data);
     timeEl.dateTime = pedido.data.slice(0, 10);
-    timeEl.textContent = dataObj.toLocaleDateString('pt-BR');
+    timeEl.textContent = formatarData(pedido.data);
     tdData.appendChild(timeEl);
     // 3. Itens com <details> expansível para ver cada livro comprado
     const tdItens = document.createElement('td');
