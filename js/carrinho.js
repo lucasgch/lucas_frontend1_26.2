@@ -385,5 +385,33 @@ export function mesclarCarrinhoAoLogar(usuarioId){
   salvarCarrinho([], 'visitante');
 }
 
+// Constante de cupons
+export const CUPONS_DISPONIVEIS = {
+  LEITOR10: { codigo: 'LEITOR10', tipo: 'percentual', valor: 10, minimo: 50, validade: '2027-12-31', descricao: '10% de desconto' }, 
+  LIVRO25: { codigo: 'LIVRO25', tipo: 'fixo', valor: 25, minimo: 120, validade: '2027-12-31', descricao: 'R$ 25,00 de desconto' },
+  FRETEGRATIS: { codigo: 'FRETEGRATIS', tipo: 'frete', valor: 0, minimo: 80, validade: '2027-12-31', descricao: 'Frete grátis' },
+  EXPIRADO20: { codigo: 'EXPIRADO20', tipo: 'percentual', valor: 20, minimo: 30, validade: '2025-01-01', descricao: 'Cupom vencido' }
+};
+
+// Função para calcular CEP
+export function calcularFretePorCep(cep, subtotal){
+  const cepLimpo = String(cep).replace(/\D/g, '');
+  if (cepLimpo.length !== 8){
+    return { valido: false, valor: 0, mensagem: 'Digite um CEP válido com 8 números.' };
+  }
+  if ( subtotal>=200 ){
+    return { valido: true, valor: 0, regiao: 'Frete Grátis (acima de R$ 200,00)' };
+  }
+  const primeiroDigito = Number(cepLimpo[0]);
+
+  if (primeiroDigito >= 8 ){
+    return { valido: true, valor: 15, regiao: 'Região Sul' };
+  } else if (primeiroDigito <= 3 ){
+    return { valido: true, valor: 25, regiao: 'Região Sudeste' };
+  } else {
+    return { valido: true, valor: 35, regiao: 'Demais Regiões' };
+  }
+}
+
 // Executa ao carregar a página
 inicializarCarrinho();
