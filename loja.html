@@ -199,12 +199,44 @@
             <tbody></tbody>
             <tfoot>
               <tr>
+                <th scope="row" colspan="3" class="rotulo-total">Subtotal:</th>
+                <td colspan="2" class="valor-total" id="valor-subtotal-carrinho">R$ 0,00</td>
+              </tr>
+              <tr>
+                <th scope="row" colspan="3" class="rotulo-total">Desconto (cupom):</th>
+                <td colspan="2" class="valor-total" id="valor-desconto-carrinho">- R$ 0,00</td>
+              </tr>
+              <tr>
+                <th scope="row" colspan="3" class="rotulo-total">Frete:</th>
+                <td colspan="2" class="valor-total" id="valor-frete-carrinho">A calcular</td>
+              </tr>
+              <tr>
                 <th scope="row" colspan="3" class="rotulo-total">Total do Pedido:</th>
                 <td colspan="2" class="valor-total" id="valor-total-carrinho"><strong>R$ 0,00</strong></td>
               </tr>
             </tfoot>
           </table>
         </div>
+
+        <div class="carrinho-extras">
+          <div class="box-extra-carrinho">
+            <label for="input-cupom">Cupom de desconto:</label>
+            <div class="grupo-input-inline">
+              <input type="text" id="input-cupom" placeholder="Ex: LEITOR10" autocomplete="off">
+              <button type="button" id="btn-aplicar-cupom" class="botao botao-primario">Aplicar</button>
+            </div>
+            <p id="msg-cupom" class="mensagem-erro-campo" role="status" aria-live="polite"></p>
+          </div>
+          <div class="box-extra-carrinho">
+            <label for="input-cep-carrinho">Simular frete (CEP):</label>
+            <div class="grupo-input-inline">
+              <input type="text" id="input-cep-carrinho" placeholder="00000-000" maxlength="9" inputmode="numeric">
+              <button type="button" id="btn-calcular-frete" class="botao botao-primario">Calcular</button>
+            </div>
+            <p id="msg-frete" class="mensagem-erro-campo" role="status" aria-live="polite"></p>
+          </div>
+        </div>
+
         <div class="acoes-carrinho">
           <a href="#produtos" class="botao botao-secundario">&larr; Escolher mais livros</a>
           <a href="#confirmacao-compra" id="btn-finalizar-compra" class="botao botao-primario">
