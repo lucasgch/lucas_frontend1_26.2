@@ -270,5 +270,7 @@ export function verificarAcessoPagina() {
     document.addEventListener('click', renovarSessao);
     document.addEventListener('keydown', renovarSessao);
   }
+  // Se passou pelas verificações de acesso, exibe a página
+  document.body.hidden = false;
 }
 verificarAcessoPagina();

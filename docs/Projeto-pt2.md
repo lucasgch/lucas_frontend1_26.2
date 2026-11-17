@@ -25,19 +25,23 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 - [ ] - (a) **Cadastro funcional:** validar no JavaScript antes de salvar:
   - [X] - nome (mínimo de 3 caracteres, com nome e sobrenome);
   - [X] - e-mail (formato válido e único no sistema);
-  - [ ] - Número de telefone (formato válido e somente com números);
-  - [ ] - senha (mínimo de 8 caracteres, com letras e números) com indicador de força atualizado em tempo real, e confirmação de senha;
-  - [ ] - CPF com máscara automática (`000.000.000-00`) durante a digitação, validação dos dígitos verificadores (não basta usar expressão regular) e unicidade.
-- [ ] - (b) **Mensagens de erro:** exibidas junto ao campo correspondente, sem uso de `alert()`, removidas ao corrigir; ao enviar com erros, o foco vai para o primeiro campo inválido.
-- [ ] - (c) **Identificador:** gerar automaticamente ID sequencial com prefixo comum (`C001`, `C002`...) a partir de um contador persistente, de modo que um ID nunca seja reutilizado, mesmo após exclusões.
-- [ ] - (d) **Senha protegida:** a senha nunca deve ser armazenada em texto puro. Gerar hash SHA-256 com a API nativa `SubtleCrypto` (`crypto.subtle`) combinado a um salt aleatório por cliente. *(Observação didática: em sistemas reais isso é feito no servidor.)*
-- [ ] - (e) **Edição:** em `perfil.html`, carregar os dados do cliente logado e permitir editar todos os campos, exceto o ID. Alterar a senha exige informar a senha atual. E-mail e CPF continuam únicos. Só salvar quando houver alteração e informar o resultado ao usuário.
+  - [X] - Número de telefone (formato válido e somente com números);
+  - [X] - senha (mínimo de 8 caracteres, com letras e números) com indicador de força atualizado em tempo real, e confirmação de senha;
+  - [X] - CPF com máscara automática (`000.000.000-00`) durante a digitação, validação dos dígitos verificadores (não basta usar expressão regular) e unicidade.
+- [X] - (b) **Mensagens de erro:** exibidas junto ao campo correspondente, sem uso de `alert()`, removidas ao corrigir; ao enviar com erros, o foco vai para o primeiro campo inválido.
+- [X] - (c) **Identificador:** gerar automaticamente ID sequencial com prefixo comum (`C001`, `C002`...) a partir de um contador persistente, de modo que um ID nunca seja reutilizado, mesmo após exclusões.
+- [x] - (d) **Senha protegida:** a senha nunca deve ser armazenada em texto puro. Gerar hash SHA-256 com a API nativa `SubtleCrypto` (`crypto.subtle`) combinado a um salt aleatório por cliente. *(Observação didática: em sistemas reais isso é feito no servidor.)*
+- [X] - (e) **Edição:** em `perfil.html`, carregar os dados do cliente logado e permitir editar todos os campos, exceto o ID. Alterar a senha exige informar a senha atual. E-mail e CPF continuam únicos. Só salvar quando houver alteração e informar o resultado ao usuário.
 - [ ] - (f) **Exclusão de conta:** com confirmação em caixa de diálogo (elemento `<dialog>`). O histórico de compras deve ser preservado (ver 2.4).
+
+*Dúvida 1*: Após a parte 1, foi informado que o CPF não poderia ser alterado. O requisito exige que todos os campos sejam editáveis, exceto o ID.
+
+*Dúvida 2*: Ao excluir conta o histórico é preservado no relatório, mas não estará mais vinculado ao novo perfil do usuário. É isso?
 
 ### 2.2 Autenticação e sessão
 
-- [ ] - (a) **Login:** validar e-mail e senha comparando o hash. A mensagem de erro deve ser genérica (“E-mail ou senha inválidos”). Após 3 tentativas falhas, bloquear novas tentativas por 60 segundos, exibindo contagem regressiva (o bloqueio deve sobreviver a recarregar a página).
-- [ ] - (b) **Sessão:** controle com `localStorage` guardando ID do usuário, perfil (cliente ou administrador), início e expiração por inatividade (30 minutos, renovada a cada interação relevante). Sessão expirada gera logout automático com aviso.
+- [X] - (a) **Login:** validar e-mail e senha comparando o hash. A mensagem de erro deve ser genérica (“E-mail ou senha inválidos”). Após 3 tentativas falhas, bloquear novas tentativas por 60 segundos, exibindo contagem regressiva (o bloqueio deve sobreviver a recarregar a página).
+- [X] - (b) **Sessão:** controle com `localStorage` guardando ID do usuário, perfil (cliente ou administrador), início e expiração por inatividade (30 minutos, renovada a cada interação relevante). Sessão expirada gera logout automático com aviso.
 - [ ] - (c) **Proteção de páginas:** `perfil.html` exige login; finalizar compra exige login; `relatorios.html` exige perfil de administrador. Ao ser barrado, o usuário é enviado para `login.html` com mensagem e, após entrar, retorna à página que tentava acessar (parâmetro na URL).
 - [ ] - (d) **Menu dinâmico:** visitante vê “Entrar” e “Cadastrar”; cliente logado vê “Olá, [nome]”, “Meu perfil” e “Sair”; administrador vê também “Relatórios”. Sair encerra a sessão, mas mantém o carrinho salvo.
 - [ ] - (e) **Conta administradora:** criada automaticamente na primeira execução (seed), com credenciais documentadas no `README`.
