@@ -53,7 +53,7 @@ export function baixarEstoqueItens(itensComprados) {
         mapaEstoque[item.produtoId] = novoEstoque;
         }
     }
-    
+
     salvarDados(CHAVES_STORAGE.ESTOQUE, mapaEstoque);
 }
 
@@ -64,5 +64,81 @@ export function baixarEstoqueItens(itensComprados) {
  * @returns {{sucesso: boolean, mensagem: string, pedido?: Object}}
  */
 export function registrarCompra({ enderecoEntrega, pagamento }) {
-    // TODO
+    inicializarStorage();
+
+    // Exige cliente logado (Requisito 2.4a)
+    const sessao = obterSessaoAtiva();
+    if (!sessao) {
+        return { sucesso: false, mensagem: 'Sessão expirada. Faça login novamente.' };
+    }
+
+    // Verifica itens do carrinho e revalida estoque antes de concluir (Requisito 2.4d)
+    const itensCarrinho = obterCarrinho(sessao.usuarioId);
+    if (itensCarrinho.length === 0) {
+        return { sucesso: false, mensagem: 'Seu carrinho está vazio.' };
+    }
+      
+    const catalogo = obterProdutosComEstoque();
+    const itensPedido = [];
+
+    for (const item of itensCarrinho) {
+    const produto = catalogo.find((p) => p.id === item.produtoId);
+    if (!produto) {
+      return { sucesso: false, mensagem: `Produto ${item.produtoId} não encontrado.` };
+    }
+    if (item.quantidade > produto.estoque) {
+      return {
+        sucesso: false,
+        mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`
+      };
+    }
+    // Registra valor unitário praticado no momento da compra (Requisito 2.4c)
+    itensPedido.push({
+      produtoId: produto.id,
+      nome: produto.nome,
+      precoUnitario: produto.preco,
+      quantidade: item.quantidade,
+      subtotal: produto.preco * item.quantidade
+    });
+  }
+
+  // Obtém valores consolidados (subtotal, desconto, frete, total)
+  const resumo = obterResumoCarrinho();
+  const freteFinal = resumo.frete ?? 0;
+  const totalFinal = Math.max(0, resumo.subtotal - resumo.desconto + freteFinal);
+
+  // Registra pedido com ID sequencial
+  const novoPedido = {
+    id: gerarProximoId('compra', 'CP'),
+    clienteId: sessao.usuarioId,
+    clienteNome: sessao.nome,
+    clienteEmail: sessao.email,
+    data: new Date().toISOString(),
+    itens: itensPedido,
+    subtotal: resumo.subtotal,
+    desconto: resumo.desconto,
+    cupom: resumo.codigoCupom || null,
+    frete: freteFinal,
+    total: totalFinal,
+    enderecoEntrega,
+    pagamento,
+    status: 'Pago'
+  };
+
+  //  Baixa no estoque
+  baixarEstoqueItens(itensCarrinho);
+  
+  // Salva a compra
+  const compras = obterCompras();
+  compras.push(novoPedido);
+  salvarDados(CHAVES_STORAGE.COMPRAS, compras);
+
+  // Limpa o carrinho do cliente
+  limparCarrinhoAtual();
+  
+  return {
+    sucesso: true,
+    mensagem: `Compra ${novoPedido.id} realizada com sucesso!`,
+    pedido: novoPedido
+  };
 }
