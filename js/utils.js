@@ -158,3 +158,28 @@ export function aplicarMascaraCEP(valor = '') {
   const digitos = limparNumeros(valor).slice(0, 8);
   return digitos.replace(/^(\d{5})(\d)/, '$1-$2');
 }
+
+/**
+ * Valida o número de um cartão de crédito (13 a 19 dígitos) usando o algoritmo de Luhn (Requisito 2.4b).
+ * @param {string} [numero=''] - Número do cartão com ou sem espaços.
+ * @returns {boolean} true se passar na verificação de Luhn.
+ */
+export function validarCartaoLuhn(numero = '') {
+  const digitos = limparNumeros(numero);
+  if (digitos.length < 13 || digitos.length > 19 || /^(\d)\1+$/.test(digitos)) {
+    return false;
+  }
+  let soma = 0;
+  let dobrar = false;
+  // Percorre os dígitos da direita para a esquerda
+  for (let i = digitos.length - 1; i >= 0; i--) {
+    let n = Number(digitos[i]);
+    if (dobrar) {
+      n *= 2;
+      if (n > 9) n -= 9;
+    }
+    soma += n;
+    dobrar = !dobrar;
+  }
+  return soma % 10 === 0;
+}
