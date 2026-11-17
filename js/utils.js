@@ -102,6 +102,12 @@ export function validarNomeCompleto(nome = '') {
  */
 export function validarTelefone(telefone = '') {
   const texto = String(telefone).trim();
+  // Recusa ddd zero
+  if (!/^[1-9]{2}\d{8,9}$/.test(texto)) return false;
+  // Rejeita dígitos repetidos (ex: 11111111111, 43999999999)
+  if (/^(\d)\1+$/.test(texto) || /^(\d)\1{7}$/.test(texto.slice(-8))) {
+    return false;
+  }
   // Deve conter apenas dígitos numéricos, entre 10 e 11 números
   return /^\d{10,11}$/.test(texto);
 }

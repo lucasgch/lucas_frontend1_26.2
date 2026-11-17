@@ -23,8 +23,8 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 ### 2.1 Clientes
 
 - [ ] - (a) **Cadastro funcional:** validar no JavaScript antes de salvar:
-  - [ ] - nome (mínimo de 3 caracteres, com nome e sobrenome);
-  - [ ] - e-mail (formato válido e único no sistema);
+  - [X] - nome (mínimo de 3 caracteres, com nome e sobrenome);
+  - [X] - e-mail (formato válido e único no sistema);
   - [ ] - Número de telefone (formato válido e somente com números);
   - [ ] - senha (mínimo de 8 caracteres, com letras e números) com indicador de força atualizado em tempo real, e confirmação de senha;
   - [ ] - CPF com máscara automática (`000.000.000-00`) durante a digitação, validação dos dígitos verificadores (não basta usar expressão regular) e unicidade.
