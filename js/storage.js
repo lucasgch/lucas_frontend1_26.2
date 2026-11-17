@@ -106,8 +106,12 @@ export function inicializarStorage() {
     });
   }
 
-  // Garante que a lista de clientes comece como um array vazio [] se não existir
+  // Lista de clientes começa como array vazio [] se não existir
   if (lerDados(CHAVES_STORAGE.CLIENTES) === null) {
     salvarDados(CHAVES_STORAGE.CLIENTES, []);
+  }
+  // Lista de compras começa como array vazio [] se não existir
+  if (lerDados(CHAVES_STORAGE.COMPRAS) === null) {
+    salvarDados(CHAVES_STORAGE.COMPRAS, []);
   }
 }
