@@ -365,22 +365,21 @@ export function inicializarCarrinho() {
     }
   });
 
-    // Aplicar Cupom de Desconto
+ // Aplicar Cupom de Desconto
   const inputCupom = document.getElementById('input-cupom');
   const btnAplicarCupom = document.getElementById('btn-aplicar-cupom');
   const msgCupom = document.getElementById('msg-cupom');
-
   btnAplicarCupom?.addEventListener('click', () => {
     const { subtotal } = obterResumoCarrinho();
     const res = validarCupom(inputCupom?.value, subtotal);
     if (res.valido) {
-      codigoCupomAtivo = res.cupom.codigo;
+      salvarExtrasCarrinho({ codigoCupom: res.cupom.codigo });
       if (msgCupom) {
         msgCupom.style.color = '#16a34a';
         msgCupom.textContent = res.mensagem;
       }
     } else {
-      codigoCupomAtivo = '';
+      salvarExtrasCarrinho({ codigoCupom: '' });
       if (msgCupom) {
         msgCupom.style.color = '#dc2626';
         msgCupom.textContent = res.mensagem;
@@ -393,18 +392,17 @@ export function inicializarCarrinho() {
   const inputCep = document.getElementById('input-cep-carrinho');
   const btnCalcularFrete = document.getElementById('btn-calcular-frete');
   const msgFrete = document.getElementById('msg-frete');
-
   btnCalcularFrete?.addEventListener('click', () => {
     const { subtotal } = obterResumoCarrinho();
     const res = calcularFretePorCep(inputCep?.value, subtotal);
     if (res.valido) {
-      cepAtivo = inputCep.value;
+      salvarExtrasCarrinho({ cep: inputCep.value });
       if (msgFrete) {
         msgFrete.style.color = '#16a34a';
         msgFrete.textContent = `${res.regiao}: ${res.valor === 0 ? 'Grátis' : formatarMoeda(res.valor)}`;
       }
     } else {
-      cepAtivo = '';
+      salvarExtrasCarrinho({ cep: '' });
       if (msgFrete) {
         msgFrete.style.color = '#dc2626';
         msgFrete.textContent = res.mensagem;
@@ -412,22 +410,53 @@ export function inicializarCarrinho() {
     }
     renderizarCarrinho();
   });
+
+   // Restaura nos inputs e nas mensagens o cupom e CEP que já estavam salvos (ex: após login ou F5)
+  const resumoInicial = obterResumoCarrinho();
+  if (resumoInicial.codigoCupom && inputCupom) {
+    inputCupom.value = resumoInicial.codigoCupom;
+    const resCupom = validarCupom(resumoInicial.codigoCupom, resumoInicial.subtotal);
+    if (resCupom.valido && msgCupom) {
+      msgCupom.style.color = '#16a34a';
+      msgCupom.textContent = resCupom.mensagem;
+    }
+  }
+  if (resumoInicial.cep && inputCep) {
+    inputCep.value = resumoInicial.cep;
+    const resFrete = calcularFretePorCep(resumoInicial.cep, resumoInicial.subtotal);
+    if (resFrete.valido && msgFrete) {
+      msgFrete.style.color = '#16a34a';
+      msgFrete.textContent = `${resFrete.regiao}: ${resFrete.valor === 0 ? 'Grátis' : formatarMoeda(resFrete.valor)}`;
+    }
+  }
 }
 
-export function mesclarCarrinhoAoLogar(usuarioId){
+export function mesclarCarrinhoAoLogar(usuarioId) {
   const itensVisitante = obterCarrinho('visitante');
+  const extrasVisitante = obterExtrasCarrinho('visitante');
 
-  // Se carrinho vazio, saia da função
+  // Mescla cupom e CEP do visitante (se o visitante tiver preenchido algum)
+  if (extrasVisitante.codigoCupom || extrasVisitante.cep) {
+    const extrasCliente = obterExtrasCarrinho(usuarioId);
+    salvarExtrasCarrinho(
+      {
+        codigoCupom: extrasVisitante.codigoCupom || extrasCliente.codigoCupom,
+        cep: extrasVisitante.cep || extrasCliente.cep
+      },
+      usuarioId
+    );
+    salvarExtrasCarrinho({ codigoCupom: '', cep: '' }, 'visitante');
+  }
+
+  // Se carrinho de itens do visitante estiver vazio, encerra aqui
   if (itensVisitante.length === 0) {
-    return
+    return;
   }
 
   const itensCliente = obterCarrinho(usuarioId);
   const catalogo = obterProdutosComEstoque();
 
   for (const itemVis of itensVisitante) {
-    
-    // Busca o produto no catalogo e armazena o resultado na const produto
     const produto = catalogo.find((p) => p.id === itemVis.produtoId);
     if (!produto || produto.estoque <= 0) {
       continue;
@@ -490,13 +519,39 @@ export function validarCupom(codigo, subtotal){
   return { valido: true, cupom, mensagem: `Cupom ${cupom.codigo} aplicado (${cupom.descricao})!` };
 }
 
-let codigoCupomAtivo = '';
-let cepAtivo = '';
+/**
+ * Lê o cupom e o CEP salvos para o dono do carrinho atual (ou 'visitante').
+ * @param {string} [donoId=obterDonoCarrinhoAtual()]
+ * @returns {{codigoCupom: string, cep: string}}
+ */
+export function obterExtrasCarrinho(donoId = obterDonoCarrinhoAtual()) {
+  const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+  const extras = todosOsCarrinhos[`${donoId}:extras`];
+  return {
+    codigoCupom: extras?.codigoCupom || '',
+    cep: extras?.cep || ''
+  };
+}
+
+/**
+ * Salva o cupom e/ou CEP ativos para o dono do carrinho atual (ou 'visitante').
+ * @param {{codigoCupom?: string, cep?: string}} novosExtras
+ * @param {string} [donoId=obterDonoCarrinhoAtual()]
+ */
+export function salvarExtrasCarrinho(novosExtras, donoId = obterDonoCarrinhoAtual()) {
+  const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+  const atuais = todosOsCarrinhos[`${donoId}:extras`] || { codigoCupom: '', cep: '' };
+  todosOsCarrinhos[`${donoId}:extras`] = { ...atuais, ...novosExtras };
+  salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
+}
 
 export function obterResumoCarrinho() {
   const itens = obterCarrinho();
   const catalogo = obterProdutosComEstoque();
-  // 1. Soma o subtotal de todos os itens do carrinho
+  const extras = obterExtrasCarrinho();
+  let codigoCupomAtivo = extras.codigoCupom;
+  const cepAtivo = extras.cep;
+  // Soma o subtotal de todos os itens do carrinho
   let subtotal = 0;
   for (const item of itens) {
     const produto = catalogo.find((p) => p.id === item.produtoId);
@@ -504,7 +559,7 @@ export function obterResumoCarrinho() {
       subtotal += produto.preco * item.quantidade;
     }
   }
-  // 2. Calcula o desconto do cupom (se houver cupom ativo)
+  // Calcula o desconto do cupom (se houver cupom ativo)
   let desconto = 0;
   let cupomFreteGratis = false;
   if (codigoCupomAtivo && subtotal > 0) {
@@ -518,11 +573,12 @@ export function obterResumoCarrinho() {
         cupomFreteGratis = true;
       }
     } else {
-      // Se o subtotal caiu abaixo do mínimo do cupom, desativa o cupom
+      // Se o subtotal caiu abaixo do mínimo do cupom, desativa o cupom salvo
       codigoCupomAtivo = '';
+      salvarExtrasCarrinho({ codigoCupom: '' });
     }
   }
-  // 3. Calcula o frete (se o usuário já informou um CEP)
+  // Calcula frete (se o usuário informou um CEP)
   let frete = null;
   if (cepAtivo && subtotal > 0) {
     const resFrete = calcularFretePorCep(cepAtivo, subtotal);
@@ -532,7 +588,7 @@ export function obterResumoCarrinho() {
   } else if (cupomFreteGratis && subtotal > 0) {
     frete = 0;
   }
-  // 4. Calcula o total final
+  // Calcula o total
   const total = Math.max(0, subtotal - desconto + (frete || 0));
   return {
     subtotal,
