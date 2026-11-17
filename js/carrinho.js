@@ -181,6 +181,9 @@ export function renderizarCarrinho() {
 
      const tbody = tabela.querySelector('tbody');
      const celulaTotal = document.getElementById('valor-total-carrinho');
+     const celulaSubtotal = document.getElementById('valor-subtotal-carrinho');
+     const celulaDesconto = document.getElementById('valor-desconto-carrinho');
+     const celulaFrete = document.getElementById('valor-frete-carrinho');
      const btnFinalizar = document.getElementById('btn-finalizar-compra');
      const itensCarrinho = obterCarrinho();
      const catalogo = obterProdutosComEstoque();
@@ -196,6 +199,9 @@ export function renderizarCarrinho() {
         tbody.appendChild(trVazia);
         if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
         if (btnFinalizar) btnFinalizar.setAttribute('aria-disabled', 'true');
+        if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(0);
+        if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(0)}`;
+        if (celulaFrete) celulaFrete.textContent = 'A calcular';
         return;
      }
 
@@ -284,11 +290,18 @@ export function renderizarCarrinho() {
 
      tbody.appendChild(fragmento);
 
+     const resumo = obterResumoCarrinho();
+     if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(resumo.subtotal);
+     if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(resumo.desconto)}`;
+     if (celulaFrete) {
+       celulaFrete.textContent =
+         resumo.frete === null ? 'A calcular' : resumo.frete === 0 ? 'Grátis' : formatarMoeda(resumo.frete);
+     }
      if (celulaTotal) {
-        const strongTotal = document.createElement('strong');
-        strongTotal.textContent = formatarMoeda(totalGeral);
-        celulaTotal.replaceChildren(strongTotal);
-    }
+       const strongTotal = document.createElement('strong');
+       strongTotal.textContent = formatarMoeda(resumo.total);
+       celulaTotal.replaceChildren(strongTotal);
+     }
 }
 
 /**
@@ -351,6 +364,54 @@ export function inicializarCarrinho() {
       renderizarCarrinho();
     }
   });
+
+    // Aplicar Cupom de Desconto
+  const inputCupom = document.getElementById('input-cupom');
+  const btnAplicarCupom = document.getElementById('btn-aplicar-cupom');
+  const msgCupom = document.getElementById('msg-cupom');
+
+  btnAplicarCupom?.addEventListener('click', () => {
+    const { subtotal } = obterResumoCarrinho();
+    const res = validarCupom(inputCupom?.value, subtotal);
+    if (res.valido) {
+      codigoCupomAtivo = res.cupom.codigo;
+      if (msgCupom) {
+        msgCupom.style.color = '#16a34a';
+        msgCupom.textContent = res.mensagem;
+      }
+    } else {
+      codigoCupomAtivo = '';
+      if (msgCupom) {
+        msgCupom.style.color = '#dc2626';
+        msgCupom.textContent = res.mensagem;
+      }
+    }
+    renderizarCarrinho();
+  });
+
+  // Calcular Frete por CEP
+  const inputCep = document.getElementById('input-cep-carrinho');
+  const btnCalcularFrete = document.getElementById('btn-calcular-frete');
+  const msgFrete = document.getElementById('msg-frete');
+
+  btnCalcularFrete?.addEventListener('click', () => {
+    const { subtotal } = obterResumoCarrinho();
+    const res = calcularFretePorCep(inputCep?.value, subtotal);
+    if (res.valido) {
+      cepAtivo = inputCep.value;
+      if (msgFrete) {
+        msgFrete.style.color = '#16a34a';
+        msgFrete.textContent = `${res.regiao}: ${res.valor === 0 ? 'Grátis' : formatarMoeda(res.valor)}`;
+      }
+    } else {
+      cepAtivo = '';
+      if (msgFrete) {
+        msgFrete.style.color = '#dc2626';
+        msgFrete.textContent = res.mensagem;
+      }
+    }
+    renderizarCarrinho();
+  });
 }
 
 export function mesclarCarrinhoAoLogar(usuarioId){
@@ -411,6 +472,76 @@ export function calcularFretePorCep(cep, subtotal){
   } else {
     return { valido: true, valor: 35, regiao: 'Demais Regiões' };
   }
+}
+
+export function validarCupom(codigo, subtotal){
+  const chave = String(codigo).trim().toUpperCase();
+  const cupom = CUPONS_DISPONIVEIS[chave];
+  if (!cupom) {
+    return { valido: false, mensagem: 'Cupom inválido ou inexistente.' };
+  }
+    const dataLimite = new Date(`${cupom.validade}T23:59:59`);
+  if (Date.now() > dataLimite.getTime() ){
+    return { valido: false, mensagem: 'Este cupom está expirado.' };
+  }
+   if (subtotal < cupom.minimo) {
+    return { valido: false, mensagem: `Valor mínimo para este cupom é ${formatarMoeda(cupom.minimo)}.` };
+  }
+  return { valido: true, cupom, mensagem: `Cupom ${cupom.codigo} aplicado (${cupom.descricao})!` };
+}
+
+let codigoCupomAtivo = '';
+let cepAtivo = '';
+
+export function obterResumoCarrinho() {
+  const itens = obterCarrinho();
+  const catalogo = obterProdutosComEstoque();
+  // 1. Soma o subtotal de todos os itens do carrinho
+  let subtotal = 0;
+  for (const item of itens) {
+    const produto = catalogo.find((p) => p.id === item.produtoId);
+    if (produto) {
+      subtotal += produto.preco * item.quantidade;
+    }
+  }
+  // 2. Calcula o desconto do cupom (se houver cupom ativo)
+  let desconto = 0;
+  let cupomFreteGratis = false;
+  if (codigoCupomAtivo && subtotal > 0) {
+    const resCupom = validarCupom(codigoCupomAtivo, subtotal);
+    if (resCupom.valido) {
+      if (resCupom.cupom.tipo === 'percentual') {
+        desconto = subtotal * (resCupom.cupom.valor / 100);
+      } else if (resCupom.cupom.tipo === 'fixo') {
+        desconto = Math.min(resCupom.cupom.valor, subtotal);
+      } else if (resCupom.cupom.tipo === 'frete') {
+        cupomFreteGratis = true;
+      }
+    } else {
+      // Se o subtotal caiu abaixo do mínimo do cupom, desativa o cupom
+      codigoCupomAtivo = '';
+    }
+  }
+  // 3. Calcula o frete (se o usuário já informou um CEP)
+  let frete = null;
+  if (cepAtivo && subtotal > 0) {
+    const resFrete = calcularFretePorCep(cepAtivo, subtotal);
+    if (resFrete.valido) {
+      frete = cupomFreteGratis ? 0 : resFrete.valor;
+    }
+  } else if (cupomFreteGratis && subtotal > 0) {
+    frete = 0;
+  }
+  // 4. Calcula o total final
+  const total = Math.max(0, subtotal - desconto + (frete || 0));
+  return {
+    subtotal,
+    desconto,
+    frete,
+    total,
+    codigoCupom: codigoCupomAtivo,
+    cep: cepAtivo
+  };
 }
 
 // Executa ao carregar a página

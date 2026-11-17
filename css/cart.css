@@ -150,3 +150,45 @@
 .confirmacao-conteudo strong {
   color: #111111;
 }
+
+/* Campos de Cupom de Desconto e Simulação de Frete */
+.carrinho-extras {
+  width: 100%;
+  max-width: 48rem;      /* Mesma largura máxima da .tabela-container */
+  margin-inline: auto;   /* Centraliza na tela igual à tabela */
+  box-sizing: border-box; /* Garante que o padding de 1.25rem não passe dos 48rem */
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1.25rem;
+  background-color: var(--surface-subtle);
+  border-radius: var(--radius);
+}
+.box-extra-carrinho {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.box-extra-carrinho label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.grupo-input-inline {
+  display: flex;
+  gap: 0.5rem;
+}
+.grupo-input-inline input {
+  flex: 1;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius);
+  font-family: inherit;
+  font-size: var(--text-sm);
+}
+.grupo-input-inline .botao {
+  margin: 0;
+  padding: 0.6rem 1.1rem;
+  white-space: nowrap;
+}
