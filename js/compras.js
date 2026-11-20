@@ -1,7 +1,7 @@
 import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados } from './storage.js';
 import { obterSessaoAtiva } from './auth.js';
 import { obterProdutosComEstoque, aplicarFiltrosLoja } from './produtos.js';
-import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual } from './carrinho.js';
+import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';
 import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
 
 /**
@@ -67,7 +67,7 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
     inicializarStorage();
 
     // Exige cliente logado (Requisito 2.4a)
-    const sessao = obterSessaoAtiva();
+    cimport { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual } from './carrinho.js';onst sessao = obterSessaoAtiva();
     if (!sessao) {
         return { sucesso: false, mensagem: 'Sessão expirada. Faça login novamente.' };
     }
@@ -256,11 +256,11 @@ export function inicializarCheckout() {
       linha.append(spanRotulo, spanValor);
       divResumo.appendChild(linha);
     };
-    criarLinhaTotal('Subtotal:', formatarMoeda(resumo.subtotal));
+   criarLinhaTotal('Subtotal:', formatarMoeda(resumo.subtotal));
     criarLinhaTotal('Desconto:', `- ${formatarMoeda(resumo.desconto)}`);
-    criarLinhaTotal('Frete:', formatarMoeda(resumo.frete ?? 0));
     const textoFrete = resumo.frete === null ? 'A calcular' : resumo.frete === 0 ? 'Grátis' : formatarMoeda(resumo.frete);
     criarLinhaTotal('Frete:', textoFrete);
+    criarLinhaTotal('Total a pagar:', formatarMoeda(resumo.total));
     if (resumo.cep && inputCep && !inputCep.value) {
       inputCep.value = aplicarMascaraCEP(resumo.cep);
     }
@@ -270,7 +270,7 @@ export function inicializarCheckout() {
     evento.preventDefault();
     const itens = obterCarrinho();
     if (itens.length === 0) return;
-    // Requisito 2.4a: Exige cliente autenticado
+    // Requisito 2.4a: Exige clienimport { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';te autenticado
     const sessao = obterSessaoAtiva();
     if (!sessao) {
       window.location.href = 'login.html?motivo=login_necessario&redirect=loja.html%23carrinho';
