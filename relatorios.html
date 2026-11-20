@@ -130,7 +130,7 @@
             <section class="secao-filtros" aria-labelledby="titulo-filtros-compras">
                 <h3 id="titulo-filtros-compras" class="visualmente-oculto">Filtros de Compras</h3>
             
-                <form id="form-filtros-compras" class="form-filtros" action="/loja" method="GET">
+                <form id="form-filtros-compras" class="form-filtros" method="GET">
                     <div class="campo-busca-grupo">
                         <label for="campo-busca-compras">Buscar compras:</label>
                         <div class="campo-busca">
@@ -138,30 +138,52 @@
                                 type="search" 
                                 id="campo-busca-compras" 
                                 name="busca" 
-                                placeholder="ID, cliente, data, valor ou produto..."
+                                placeholder="ID da compra, cliente ou produto..."
                                 autocomplete="off">
                             <button type="submit" class="botao botao-busca" aria-label="Pesquisar">
                                 <span>Buscar</span>
                             </button>
                         </div>
                     </div>
-
-                    <!-- Controles -->
+                    <!-- Controles combináveis -->
                     <div class="filtros-opcoes">
                         <div class="grupo-filtro">
-                            <label for="filtro-campo-compra">Por:</label>
+                            <label for="filtro-campo-compra">Buscar em:</label>
                             <select id="filtro-campo-compra" name="campo">
                                 <option value="">Todos os campos</option>
-                                <option value="id">ID</option>
-                                <option value="data">Data</option>
+                                <option value="id">ID da compra</option>
                                 <option value="cliente">Cliente</option>
-                                <option value="valor">Valor</option>
                                 <option value="produto">Produto</option>
                             </select>
                         </div>
-
+                        <div class="grupo-filtro">
+                            <label for="filtro-data-inicio">Data inicial:</label>
+                            <input type="date" id="filtro-data-inicio" name="dataInicio">
+                        </div>
+                        <div class="grupo-filtro">
+                            <label for="filtro-data-fim">Data final:</label>
+                            <input type="date" id="filtro-data-fim" name="dataFim">
+                        </div>
+                        <div class="grupo-filtro">
+                            <label for="filtro-valor-min">Valor mínimo (R$):</label>
+                            <input type="number" id="filtro-valor-min" name="valorMin" min="0" step="0.01" placeholder="0,00">
+                        </div>
+                        <div class="grupo-filtro">
+                            <label for="filtro-valor-max">Valor máximo (R$):</label>
+                            <input type="number" id="filtro-valor-max" name="valorMax" min="0" step="0.01" placeholder="999,99">
+                        </div>
+                        <div class="grupo-filtro">
+                            <label for="filtro-status-compra">Status:</label>
+                            <select id="filtro-status-compra" name="status">
+                                <option value="">Todos</option>
+                                <option value="Pago">Pago</option>
+                                <option value="Enviado">Enviado</option>
+                                <option value="Entregue">Entregue</option>
+                                <option value="Cancelado">Cancelado</option>
+                            </select>
+                        </div>
                         <div class="grupo-filtro acoes-filtro">
-                            <button type="reset" class="botao-limpar">Limpar</button>
+                            <button type="reset" class="botao-limpar">Limpar filtros</button>
                         </div>
                     </div>
                 </form>

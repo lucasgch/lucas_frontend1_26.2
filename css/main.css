@@ -221,8 +221,9 @@ p.link a:hover {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
-/* Estilização dos Selects */
-.grupo-filtro select {
+/* Estilização dos Selects e Inputs de filtro */
+.grupo-filtro select,
+.grupo-filtro input {
   width: 100%;
   max-width: 100%;
   min-width: 0;
@@ -233,10 +234,13 @@ p.link a:hover {
   font-family: inherit;
   font-size: var(--text-sm);
   color: var(--text-primary);
-  cursor: pointer;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.grupo-filtro select:focus {
+.grupo-filtro select {
+  cursor: pointer;
+}
+.grupo-filtro select:focus,
+.grupo-filtro input:focus {
   outline: none;
   border-color: var(--text-accent);
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.15);

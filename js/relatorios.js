@@ -230,6 +230,54 @@ export function renderizarTabelaCompras(listaCompras) {
 }
 
 /**
+ * Filtra compras combinando texto (ID, cliente ou produto), intervalo de datas,
+ * intervalo de valores e status (Requisito 2.5c).
+ * @param {Array<Object>} compras - Lista completa de compras.
+ * @param {Object} [filtros]
+ * @returns {Array<Object>}
+ */
+export function filtrarCompras(
+  compras,
+  { termo = '', campo = '', dataInicio = '', dataFim = '', valorMin = '', valorMax = '', status = '' } = {}
+) {
+  const termoNorm = normalizarTexto(termo);
+  const inicioMs = dataInicio ? new Date(`${dataInicio}T00:00:00`).getTime() : null;
+  const fimMs = dataFim ? new Date(`${dataFim}T23:59:59.999`).getTime() : null;
+  const minVal = valorMin !== '' ? Number(valorMin) : null;
+  const maxVal = valorMax !== '' ? Number(valorMax) : null;
+  return compras.filter((compra) => {
+    // 1. Texto (ID, cliente ou produto)
+    if (termoNorm) {
+      const bateId = normalizarTexto(compra.id).includes(termoNorm);
+      const bateCliente =
+        normalizarTexto(compra.clienteNome).includes(termoNorm) ||
+        normalizarTexto(compra.clienteId).includes(termoNorm) ||
+        normalizarTexto(compra.clienteEmail).includes(termoNorm);
+      const bateProduto = (compra.itens || []).some(
+        (item) =>
+          normalizarTexto(item.nome).includes(termoNorm) ||
+          normalizarTexto(item.produtoId).includes(termoNorm)
+      );
+      if (campo === 'id' && !bateId) return false;
+      if (campo === 'cliente' && !bateCliente) return false;
+      if (campo === 'produto' && !bateProduto) return false;
+      if (!campo && !bateId && !bateCliente && !bateProduto) return false;
+    }
+    // 2. Intervalo de datas (usando horário local)
+    const dataCompraMs = new Date(compra.data).getTime();
+    if (inicioMs !== null && dataCompraMs < inicioMs) return false;
+    if (fimMs !== null && dataCompraMs > fimMs) return false;
+    // 3. Intervalo de valores
+    const total = Number(compra.total) || 0;
+    if (minVal !== null && !Number.isNaN(minVal) && total < minVal) return false;
+    if (maxVal !== null && !Number.isNaN(maxVal) && total > maxVal) return false;
+    // 4. Status
+    if (status && (compra.status || 'Pago') !== status) return false;
+    return true;
+  });
+}
+
+/**
  * Inicializa os relatórios da área administrativa.
  */
 export function inicializarRelatorios() {
@@ -323,7 +371,43 @@ export function inicializarRelatorios() {
     }
   });
   atualizarClientes();
-  renderizarTabelaCompras(obterCompras());
+    // --- Filtros de Compras (Requisito 2.5c) ---
+  const formCompras = document.getElementById('form-filtros-compras');
+  const inputBuscaCompras = document.getElementById('campo-busca-compras');
+  const selectCampoCompra = document.getElementById('filtro-campo-compra');
+  const inputDataInicio = document.getElementById('filtro-data-inicio');
+  const inputDataFim = document.getElementById('filtro-data-fim');
+  const inputValorMin = document.getElementById('filtro-valor-min');
+  const inputValorMax = document.getElementById('filtro-valor-max');
+  const selectStatusCompra = document.getElementById('filtro-status-compra');
+
+  function atualizarCompras() {
+    const filtradas = filtrarCompras(obterCompras(), {
+      termo: inputBuscaCompras?.value || '',
+      campo: selectCampoCompra?.value || '',
+      dataInicio: inputDataInicio?.value || '',
+      dataFim: inputDataFim?.value || '',
+      valorMin: inputValorMin?.value ?? '',
+      valorMax: inputValorMax?.value ?? '',
+      status: selectStatusCompra?.value || ''
+    });
+    renderizarTabelaCompras(filtradas);
+  }
+
+  formCompras?.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    atualizarCompras();
+  });
+  inputBuscaCompras?.addEventListener('input', debounce(atualizarCompras, 250));
+  inputValorMin?.addEventListener('input', debounce(atualizarCompras, 250));
+  inputValorMax?.addEventListener('input', debounce(atualizarCompras, 250));
+  selectCampoCompra?.addEventListener('change', atualizarCompras);
+  inputDataInicio?.addEventListener('change', atualizarCompras);
+  inputDataFim?.addEventListener('change', atualizarCompras);
+  selectStatusCompra?.addEventListener('change', atualizarCompras);
+  formCompras?.addEventListener('reset', () => setTimeout(atualizarCompras, 0));
+
+  atualizarCompras();
 }
 inicializarRelatorios();
 
