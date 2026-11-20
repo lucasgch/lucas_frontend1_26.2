@@ -180,38 +180,39 @@ export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', 
   return filtrados;
 }
 
-export function inicializarFiltrosLoja() {
-  const formFiltros = document.getElementById('form-filtros');
+export function aplicarFiltrosLoja() {
   const grade = document.querySelector('.grade-produtos');
-  if (!formFiltros || !grade) return;
   const campoBusca = document.getElementById('campo-busca-livros');
   const selectCategoria = document.getElementById('filtro-categoria');
   const selectPreco = document.getElementById('filtro-preco');
   const selectOrdem = document.getElementById('filtro-ordem');
-  function aplicarFiltros() {
-    const todosProdutos = obterProdutosComEstoque();
-    const resultado = filtrarEOrdenarProdutos(todosProdutos, {
-      termo: campoBusca.value,
-      categoria: selectCategoria.value,
-      faixaPreco: selectPreco.value,
-      ordem: selectOrdem.value
-    });
-    renderizarGradeProdutos(resultado, grade);
-  }
-  // Impede o formulário de recarregar a página ao dar Enter ou clicar em Buscar
+  if (!grade || !campoBusca || !selectCategoria || !selectPreco || !selectOrdem) return;
+  const todosProdutos = obterProdutosComEstoque();
+  const resultado = filtrarEOrdenarProdutos(todosProdutos, {
+    termo: campoBusca.value,
+    categoria: selectCategoria.value,
+    faixaPreco: selectPreco.value,
+    ordem: selectOrdem.value
+  });
+  renderizarGradeProdutos(resultado, grade);
+}
+export function inicializarFiltrosLoja() {
+  const formFiltros = document.getElementById('form-filtros');
+  const campoBusca = document.getElementById('campo-busca-livros');
+  const selectCategoria = document.getElementById('filtro-categoria');
+  const selectPreco = document.getElementById('filtro-preco');
+  const selectOrdem = document.getElementById('filtro-ordem');
+  if (!formFiltros) return;
   formFiltros.addEventListener('submit', (evento) => {
     evento.preventDefault();
-    aplicarFiltros();
+    aplicarFiltrosLoja();
   });
-  // Busca em tempo real com debounce ao digitar
-  campoBusca.addEventListener('input', debounce(aplicarFiltros, 300));
-  // Atualiza imediatamente ao mudar qualquer select
-  selectCategoria.addEventListener('change', aplicarFiltros);
-  selectPreco.addEventListener('change', aplicarFiltros);
-  selectOrdem.addEventListener('change', aplicarFiltros);
-  // Restaura todos os livros ao clicar no botão "Limpar" (reset)
+  campoBusca?.addEventListener('input', debounce(aplicarFiltrosLoja, 300));
+  selectCategoria?.addEventListener('change', aplicarFiltrosLoja);
+  selectPreco?.addEventListener('change', aplicarFiltrosLoja);
+  selectOrdem?.addEventListener('change', aplicarFiltrosLoja);
   formFiltros.addEventListener('reset', () => {
-    setTimeout(aplicarFiltros, 0);
+    setTimeout(aplicarFiltrosLoja, 0);
   });
 }
 

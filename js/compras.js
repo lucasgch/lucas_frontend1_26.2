@@ -1,6 +1,6 @@
 import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados } from './storage.js';
 import { obterSessaoAtiva } from './auth.js';
-import { obterProdutosComEstoque, inicializarCatalogo, inicializarFiltrosLoja } from './produtos.js';
+import { obterProdutosComEstoque, aplicarFiltrosLoja } from './produtos.js';
 import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual } from './carrinho.js';
 import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
 
@@ -337,8 +337,7 @@ export function inicializarCheckout() {
     }
     modalCheckout.close();
     // Atualiza o catálogo na tela para refletir o novo estoque imediatamente
-    inicializarCatalogo();
-    inicializarFiltrosLoja();
+    aplicarFiltrosLoja();
     // Exibe a confirmação da compra com o ID real do pedido (CP001, CP002...)
     const secaoConfirmacao = document.getElementById('confirmacao-compra');
     if (secaoConfirmacao) {
