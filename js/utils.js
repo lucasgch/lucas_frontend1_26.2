@@ -232,7 +232,7 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
   }
   // Caso especial de CPF sem máscara (ex.: digitou "123456" para "123.456.789-01")
   if (ehCpf) {
-    const termoDigitos = limparNumeros(termo);
+    const termoDigitos = /^[\d.\-\s]+$/.test(String(termo).trim()) ? limparNumeros(termo) : '';
     if (termoDigitos) {
       const posicoesDigitos = [];
       let apenasDigitos = '';

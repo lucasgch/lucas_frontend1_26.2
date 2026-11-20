@@ -68,7 +68,7 @@ export function renderizarTabelaClientes(listaClientes, termoBusca = '', campoBu
 export function filtrarClientes(clientes, { termo = '', campo = '' } = {}) {
   const termoNorm = normalizarTexto(termo);
   if (!termoNorm) return clientes;
-  const termoDigitos = limparNumeros(termo);
+  const termoDigitos = /^[\d.\-\s]+$/.test(String(termo).trim()) ? limparNumeros(termo) : '';
   return clientes.filter((c) => {
     const bateId = normalizarTexto(c.id).includes(termoNorm);
     const bateNome = normalizarTexto(c.nome).includes(termoNorm);
@@ -90,7 +90,29 @@ export function filtrarClientes(clientes, { termo = '', campo = '' } = {}) {
  */
 export function inicializarRelatorios() {
   if (!document.getElementById('tabela-clientes')) return;
-  renderizarTabelaClientes(obterClientes());
+
+  const formClientes = document.getElementById('form-filtros-clientes');
+  const inputBuscaClientes = document.getElementById('campo-busca-clientes');
+  const selectCampoCliente = document.getElementById('filtro-campo-cliente');
+
+  function atualizarClientes() {
+    const termo = inputBuscaClientes?.value || '';
+    const campo = selectCampoCliente?.value || '';
+    const filtrados = filtrarClientes(obterClientes(), { termo, campo });
+    renderizarTabelaClientes(filtrados, termo, campo);
+  }
+
+  formClientes?.addEventListener('submit', (evento) => {
+    evento.preventDefault();
+    atualizarClientes();
+  });
+  inputBuscaClientes?.addEventListener('input', debounce(atualizarClientes, 250));
+  selectCampoCliente?.addEventListener('change', atualizarClientes);
+  formClientes?.addEventListener('reset', () => {
+    setTimeout(atualizarClientes, 0);
+  });
+
+  atualizarClientes();
 }
 inicializarRelatorios();
 
