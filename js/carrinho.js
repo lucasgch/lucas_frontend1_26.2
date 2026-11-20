@@ -548,12 +548,12 @@ export function salvarExtrasCarrinho(novosExtras, donoId = obterDonoCarrinhoAtua
   salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
 
-export function obterResumoCarrinho() {
+export function obterResumoCarrinho(cepAlternativo = '') {
   const itens = obterCarrinho();
   const catalogo = obterProdutosComEstoque();
   const extras = obterExtrasCarrinho();
   let codigoCupomAtivo = extras.codigoCupom;
-  const cepAtivo = extras.cep;
+  const cepAtivo = cepAlternativo || extras.cep;
   // Soma o subtotal de todos os itens do carrinho
   let subtotal = 0;
   for (const item of itens) {

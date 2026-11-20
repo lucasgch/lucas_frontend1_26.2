@@ -103,9 +103,9 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
   }
 
   // Obtém valores consolidados (subtotal, desconto, frete, total)
-  const resumo = obterResumoCarrinho();
+  const resumo = obterResumoCarrinho(enderecoEntrega?.cep);
   const freteFinal = resumo.frete ?? 0;
-  const totalFinal = Math.max(0, resumo.subtotal - resumo.desconto + freteFinal);
+  const totalFinal = resumo.total;
 
   // Registra pedido com ID sequencial
   const novoPedido = {
@@ -211,7 +211,8 @@ export function inicializarCheckout() {
     criarLinhaTotal('Subtotal:', formatarMoeda(resumo.subtotal));
     criarLinhaTotal('Desconto:', `- ${formatarMoeda(resumo.desconto)}`);
     criarLinhaTotal('Frete:', formatarMoeda(resumo.frete ?? 0));
-    criarLinhaTotal('Total a pagar:', formatarMoeda(resumo.total));
+    const textoFrete = resumo.frete === null ? 'A calcular' : resumo.frete === 0 ? 'Grátis' : formatarMoeda(resumo.frete);
+    criarLinhaTotal('Frete:', textoFrete);
     if (resumo.cep && inputCep && !inputCep.value) {
       inputCep.value = aplicarMascaraCEP(resumo.cep);
     }
@@ -248,7 +249,10 @@ export function inicializarCheckout() {
   // Navegação entre etapas
   document.getElementById('btn-fechar-checkout')?.addEventListener('click', () => modalCheckout.close());
   document.getElementById('btn-ir-etapa-2')?.addEventListener('click', () => mostrarEtapa(2));
-  document.getElementById('btn-voltar-etapa-1')?.addEventListener('click', () => mostrarEtapa(1));
+  document.getElementById('btn-voltar-etapa-1')?.addEventListener('click', () => {
+    preencherResumoEtapa1();
+    mostrarEtapa(1);
+  });
   document.getElementById('btn-voltar-etapa-2')?.addEventListener('click', () => mostrarEtapa(2));
   document.getElementById('btn-ir-etapa-3')?.addEventListener('click', () => {
     erroEtapa2.textContent = '';
@@ -263,6 +267,8 @@ export function inicializarCheckout() {
       erroEtapa2.textContent = 'Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF com 2 letras).';
       return;
     }
+    salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep.value) });
+    renderizarCarrinho();
     mostrarEtapa(3);
   });
   // Alternar painéis Pix / Cartão / Boleto
