@@ -46,3 +46,38 @@
   text-align: right;
   padding-right: 1.5rem;
 }
+
+.btn-ordenar {
+  background: transparent;
+  border: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0;
+}
+
+.btn-ordenar:hover {
+  text-decoration: underline;
+}
+
+.paginacao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1rem;
+  font-size: var(--text-sm);
+}
+
+.paginacao .botao {
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+}
+
+.paginacao .botao:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}

@@ -90,11 +90,21 @@
                     <caption>Lista de clientes cadastrados</caption>
                     <thead>
                         <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">E-mail</th>
-                            <th scope="col">CPF</th>
-                            <th scope="col">Status</th>
+                            <th scope="col" aria-sort="ascending">
+                                <button type="button" class="btn-ordenar" data-coluna="id">ID <span class="seta-ordem" aria-hidden="true">▲</span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="nome">Nome <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="email">E-mail <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="cpf">CPF <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="status">Status <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
                             <th scope="col">Ações</th>
                         </tr>
                     </thead>
@@ -106,6 +116,12 @@
                     </tfoot>
                 </table>
             </div>
+
+            <nav id="paginacao-clientes" class="paginacao" aria-label="Paginação de clientes">
+                <button type="button" id="btn-pag-clientes-anterior" class="botao botao-secundario">&larr; Anterior</button>
+                <span id="info-pag-clientes" aria-live="polite">Página 1 de 1</span>
+                <button type="button" id="btn-pag-clientes-proxima" class="botao botao-secundario">Próxima &rarr;</button>
+            </nav>
         </section><!-- Encerra a seção relatorio clientes -->
 
         <section class="relatorio compras" aria-labelledby="titulo-relatorio-compras">
@@ -151,42 +167,29 @@
                 </form>
             </section><!-- Encerra a seção secao-filtros -->
 
-            <div class="tabela-container">
-                <table id="tabela-clientes" class="tabela">
-                    <caption>Lista de clientes cadastrados</caption>
+                        <div class="tabela-container">
+                <table id="tabela-compras" class="tabela">
+                    <caption>Lista de compras realizadas</caption>
+
                     <thead>
                         <tr>
-                            <th scope="col" aria-sort="ascending">
-                                <button type="button" class="btn-ordenar" data-coluna="id">ID <span class="seta-ordem" aria-hidden="true">▲</span></button>
-                            </th>
-                            <th scope="col" aria-sort="none">
-                                <button type="button" class="btn-ordenar" data-coluna="nome">Nome <span class="seta-ordem" aria-hidden="true"></span></button>
-                            </th>
-                            <th scope="col" aria-sort="none">
-                                <button type="button" class="btn-ordenar" data-coluna="email">E-mail <span class="seta-ordem" aria-hidden="true"></span></button>
-                            </th>
-                            <th scope="col" aria-sort="none">
-                                <button type="button" class="btn-ordenar" data-coluna="cpf">CPF <span class="seta-ordem" aria-hidden="true"></span></button>
-                            </th>
-                            <th scope="col" aria-sort="none">
-                                <button type="button" class="btn-ordenar" data-coluna="status">Status <span class="seta-ordem" aria-hidden="true"></span></button>
-                            </th>
+                            <th scope="col">ID da Compra</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Produtos</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Valor Total</th>
                             <th scope="col">Ações</th>
                         </tr>
                     </thead>
-                    <tbody id="tbody-clientes"></tbody>
+                    <tbody id="tbody-compras"></tbody>
                     <tfoot>
                         <tr>
-                            <td id="total-clientes-listados" colspan="6">Total de clientes listados: 0</td>
+                            <td id="total-compras-listadas" colspan="7">Total de compras listadas: 0</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
-            <nav id="paginacao-clientes" class="paginacao" aria-label="Paginação de clientes">
-                <button type="button" id="btn-pag-clientes-anterior" class="botao botao-secundario">&larr; Anterior</button>
-                <span id="info-pag-clientes" aria-live="polite">Página 1 de 1</span>
-                <button type="button" id="btn-pag-clientes-proxima" class="botao botao-secundario">Próxima &rarr;</button>
-            </nav>
 
         </section><!-- Encerra a seção relatorio compras -->
 
