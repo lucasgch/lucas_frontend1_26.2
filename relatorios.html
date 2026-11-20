@@ -152,70 +152,41 @@
             </section><!-- Encerra a seção secao-filtros -->
 
             <div class="tabela-container">
-                <table id="tabela-compras" class="tabela">
-                    <caption>Lista de compras realizadas</caption>
-
+                <table id="tabela-clientes" class="tabela">
+                    <caption>Lista de clientes cadastrados</caption>
                     <thead>
                         <tr>
-                            <th scope="col">ID da Compra</th>
-                            <th scope="col">Data</th>
-                            <th scope="col">Cliente</th>
-                            <th scope="col">Produtos</th>
-                            <th scope="col">Quantidade</th>
-                            <th scope="col">Valor Total</th>
+                            <th scope="col" aria-sort="ascending">
+                                <button type="button" class="btn-ordenar" data-coluna="id">ID <span class="seta-ordem" aria-hidden="true">▲</span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="nome">Nome <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="email">E-mail <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="cpf">CPF <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col" aria-sort="none">
+                                <button type="button" class="btn-ordenar" data-coluna="status">Status <span class="seta-ordem" aria-hidden="true"></span></button>
+                            </th>
+                            <th scope="col">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">#1001</th>
-                            <td><time datetime="2026-03-10">10/03/2026</time></td>
-                            <td>Ana Clara Silva</td>
-                            <td>O Senhor dos Anéis</td>
-                            <td>1</td>
-                            <td>R$ 89,90</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#1002</th>
-                            <td><time datetime="2026-03-15">15/03/2026</time></td>
-                            <td>Bruno Henrique Souza</td>
-                            <td>1984, Admirável Mundo Novo</td>
-                            <td>1</td>
-                            <td>R$ 75,50</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#1003</th>
-                            <td><time datetime="2026-03-22">22/03/2026</time></td>
-                            <td>Carla Mendes Oliveira</td>
-                            <td>Duna, Messias de Duna, Filhos de Duna</td>
-                            <td>1</td>
-                            <td>R$ 180,00</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#1004</th>
-                            <td><time datetime="2026-04-02">02/04/2026</time></td>
-                            <td>Diego Almeida Santos</td>
-                            <td>Fundação</td>
-                            <td>1</td>
-                            <td>R$ 49,90</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#1005</th>
-                            <td><time datetime="2026-04-05">05/04/2026</time></td>
-                            <td>Eduarda Rocha Lima</td>
-                            <td>Neuromancer, Count Zero</td>
-                            <td>1</td>
-                            <td>R$ 98,00</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tbody-clientes"></tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3">Total de compras listadas: 5</td>
-                            <td>5 itens</td>
-                            <td colspan="2">R$ 542,80</td>
+                            <td id="total-clientes-listados" colspan="6">Total de clientes listados: 0</td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
+            <nav id="paginacao-clientes" class="paginacao" aria-label="Paginação de clientes">
+                <button type="button" id="btn-pag-clientes-anterior" class="botao botao-secundario">&larr; Anterior</button>
+                <span id="info-pag-clientes" aria-live="polite">Página 1 de 1</span>
+                <button type="button" id="btn-pag-clientes-proxima" class="botao botao-secundario">Próxima &rarr;</button>
+            </nav>
 
         </section><!-- Encerra a seção relatorio compras -->
 
