@@ -1,5 +1,15 @@
 import { obterClientes } from './clientes.js';
-import { aplicarMascaraCPF, criarConteudoDestacado, debounce, limparNumeros, normalizarTexto } from './utils.js';
+import { obterCompras } from './compras.js';
+import {
+  aplicarMascaraCPF,
+  criarConteudoDestacado,
+  debounce,
+  formatarDataHora,
+  formatarMoeda,
+  limparNumeros,
+  normalizarTexto,
+  ofuscarCPF
+} from './utils.js';
 import { CHAVES_STORAGE, salvarDados } from './storage.js';
 
 // Define a quantidade padrão de itens da paginação
@@ -45,7 +55,7 @@ export function renderizarTabelaClientes(listaClientes, termoBusca = '', campoBu
     const tdCpf = document.createElement('td');
     tdCpf.appendChild(
       criarConteudoDestacado(
-        aplicarMascaraCPF(cliente.cpf),
+        ofuscarCPF(cliente.cpf),
         !campoBusca || campoBusca === 'cpf' ? termoBusca : '',
         true
       )
@@ -150,6 +160,76 @@ export function alternarBloqueioCliente(idCliente) {
 }
 
 /**
+ * Renderiza a lista de compras na tabela #tabela-compras e atualiza o somatório no rodapé (Requisito 2.5c).
+ * @param {Array<Object>} listaCompras - Compras a exibir na tabela.
+ */
+export function renderizarTabelaCompras(listaCompras) {
+  const tbody = document.getElementById('tbody-compras');
+  const celulaTotal = document.getElementById('total-compras-listadas');
+  const celulaSoma = document.getElementById('soma-compras-listadas');
+  if (!tbody) return;
+  tbody.replaceChildren();
+  if (listaCompras.length === 0) {
+    const trVazia = document.createElement('tr');
+    const tdVazia = document.createElement('td');
+    tdVazia.colSpan = 7;
+    tdVazia.textContent = 'Nenhuma compra encontrada.';
+    trVazia.appendChild(tdVazia);
+    tbody.appendChild(trVazia);
+    if (celulaTotal) celulaTotal.textContent = 'Total de compras listadas: 0';
+    if (celulaSoma) celulaSoma.textContent = `Total: ${formatarMoeda(0)}`;
+    return;
+  }
+  // Mais recentes primeiro
+  const ordenadas = [...listaCompras].sort((a, b) => new Date(b.data) - new Date(a.data));
+  const fragmento = document.createDocumentFragment();
+  let somaValores = 0;
+  for (const compra of ordenadas) {
+    if (compra.status !== 'Cancelado') {
+      somaValores += Number(compra.total) || 0;
+    }
+    const tr = document.createElement('tr');
+    // 1. ID da Compra
+    const thId = document.createElement('th');
+    thId.scope = 'row';
+    thId.textContent = compra.id;
+    // 2. Data e hora
+    const tdData = document.createElement('td');
+    const timeEl = document.createElement('time');
+    timeEl.dateTime = String(compra.data || '').slice(0, 10);
+    timeEl.textContent = formatarDataHora(compra.data);
+    tdData.appendChild(timeEl);
+    // 3. Cliente (nome + ID preservados na compra)
+    const tdCliente = document.createElement('td');
+    tdCliente.textContent = `${compra.clienteNome} (${compra.clienteId})`;
+    // 4. Produtos resumidos
+    const tdProdutos = document.createElement('td');
+    const resumoProdutos = (compra.itens || [])
+      .map((item) => `${item.quantidade}x ${item.nome}`)
+      .join(', ');
+    tdProdutos.textContent = resumoProdutos || '—';
+    // 5. Status
+    const tdStatus = document.createElement('td');
+    tdStatus.textContent = compra.status || 'Pago';
+    // 6. Valor Total
+    const tdValor = document.createElement('td');
+    tdValor.textContent = formatarMoeda(compra.total);
+    // 7. Ações (no passo 5.2.3 entrará o botão "Ver detalhes" que abre o modal)
+    const tdAcoes = document.createElement('td');
+    tdAcoes.textContent = '—';
+    tr.append(thId, tdData, tdCliente, tdProdutos, tdStatus, tdValor, tdAcoes);
+    fragmento.appendChild(tr);
+  }
+  tbody.appendChild(fragmento);
+  if (celulaTotal) {
+    celulaTotal.textContent = `Total de compras listadas: ${ordenadas.length}`;
+  }
+  if (celulaSoma) {
+    celulaSoma.textContent = `Total: ${formatarMoeda(somaValores)}`;
+  }
+}
+
+/**
  * Inicializa os relatórios da área administrativa.
  */
 export function inicializarRelatorios() {
@@ -243,6 +323,7 @@ export function inicializarRelatorios() {
     }
   });
   atualizarClientes();
+  renderizarTabelaCompras(obterCompras());
 }
 inicializarRelatorios();
 

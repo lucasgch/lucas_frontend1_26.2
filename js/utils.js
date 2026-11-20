@@ -231,7 +231,7 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
     return fragmento;
   }
   // Caso especial de CPF sem máscara (ex.: digitou "123456" para "123.456.789-01")
-  if (ehCpf) {
+  if (ehCpf && !texto.includes('*')) {
     const termoDigitos = /^[\d.\-\s]+$/.test(String(termo).trim()) ? limparNumeros(termo) : '';
     if (termoDigitos) {
       const posicoesDigitos = [];
@@ -280,4 +280,15 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
     fragmento.appendChild(document.createTextNode(chars.slice(posAtual).join('')));
   }
   return fragmento;
+}
+
+/**
+ * Ofusca os dígitos centrais do CPF para exibição no padrão LGPD (ex.: 123.***.***-01).
+ * @param {string} [cpf=''] - CPF com ou sem máscara.
+ * @returns {string}
+ */
+export function ofuscarCPF(cpf = '') {
+  const digitos = limparNumeros(cpf);
+  if (digitos.length !== 11) return aplicarMascaraCPF(cpf);
+  return `${digitos.slice(0, 3)}.***.***-${digitos.slice(9, 11)}`;
 }

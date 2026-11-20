@@ -28,6 +28,7 @@
   padding: 0.75rem 1rem;
   border-bottom: 1px solid var(--borda);
   text-align: center;
+  vertical-align: middle;
 }
 .tabela thead th {
   background-color: var(--surface-subtle);
@@ -80,4 +81,31 @@
 .paginacao .botao:disabled {
   opacity: 0.45;
   cursor: not-allowed;
+}
+
+.tabela td .botao {
+  margin: 0 auto;
+  padding: 0.4rem 0.85rem;
+  font-size: var(--text-xs);
+  border: none;
+  cursor: pointer;
+}
+
+.tabela td .botao-perigo {
+  background-color: rgba(220, 38, 38, 0.1);
+  color: #dc2626;
+}
+
+.tabela td .botao-perigo:hover {
+  background-color: rgba(220, 38, 38, 0.18);
+}
+
+.tabela td .botao-secundario {
+  background-color: var(--surface-subtle);
+  color: var(--text-primary);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.tabela td .botao-secundario:hover {
+  background-color: var(--surface-subtle-hover);
 }
