@@ -63,6 +63,9 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
     }
     
     const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
+    if (!produto) {
+        return { sucesso: false, mensagem: 'Produto não encontrado.' };
+    }
 
     // Busca os itens atuais do carrinho
     const itens = obterCarrinho();
