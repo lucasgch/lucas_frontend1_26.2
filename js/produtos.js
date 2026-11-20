@@ -180,6 +180,9 @@ export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', 
   return filtrados;
 }
 
+/**
+ * Lê os filtros ativos da loja, consulta o estoque atualizado e re-renderiza a grade de produtos.
+ */
 export function aplicarFiltrosLoja() {
   const grade = document.querySelector('.grade-produtos');
   const campoBusca = document.getElementById('campo-busca-livros');
@@ -196,6 +199,10 @@ export function aplicarFiltrosLoja() {
   });
   renderizarGradeProdutos(resultado, grade);
 }
+
+/**
+ * Registra os eventos do formulário de busca, filtros e ordenação da loja (executar uma única vez).
+ */
 export function inicializarFiltrosLoja() {
   const formFiltros = document.getElementById('form-filtros');
   const campoBusca = document.getElementById('campo-busca-livros');
