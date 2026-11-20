@@ -88,53 +88,22 @@
             <div class="tabela-container">
                 <table id="tabela-clientes" class="tabela">
                     <caption>Lista de clientes cadastrados</caption>
-
                     <thead>
                         <tr>
                             <th scope="col">ID</th>
                             <th scope="col">Nome</th>
                             <th scope="col">E-mail</th>
                             <th scope="col">CPF</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Ações</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <th scope="row">#001</th>
-                            <td>Ana Clara Silva</td>
-                            <td>ana.silva@email.com</td>
-                            <td>123.456.789-01</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#002</th>
-                            <td>Bruno Henrique Souza</td>
-                            <td>bruno.souza@email.com</td>
-                            <td>234.567.890-12</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#003</th>
-                            <td>Carla Mendes Oliveira</td>
-                            <td>carla.mendes@email.com</td>
-                            <td>345.678.901-23</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#004</th>
-                            <td>Diego Almeida Santos</td>
-                            <td>diego.almeida@email.com</td>
-                            <td>456.789.012-34</td>
-                        </tr>
-                        <tr>
-                            <th scope="row">#005</th>
-                            <td>Eduarda Rocha Lima</td>
-                            <td>eduarda.rocha@email.com</td>
-                            <td>567.890.123-45</td>
-                        </tr>
-                    </tbody>
+                    <tbody id="tbody-clientes"></tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="4">Total de clientes listados: 5</td>
+                            <td id="total-clientes-listados" colspan="6">Total de clientes listados: 0</td>
                         </tr>
                     </tfoot>
-
                 </table>
             </div>
         </section><!-- Encerra a seção relatorio clientes -->
@@ -273,5 +242,6 @@
     
     <script type="module" src="./js/ui.js"></script>
     <script type="module" src="./js/auth.js"></script>
+    <script type="module" src="./js/relatorios.js"></script>
 </body>
 </html>

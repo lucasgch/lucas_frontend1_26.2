@@ -20,7 +20,7 @@ export async function garantirContaAdmin() {
   const admin = {
     id: 'ADM01',
     nome: 'Administrador Loja',
-    cpf: '000.000.000-00',
+    cpf: '666.666.666-66',
     telefone: '48999999999',
     email: 'admin@livros.com',
     salt,
