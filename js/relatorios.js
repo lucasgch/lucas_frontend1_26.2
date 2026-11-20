@@ -1,11 +1,13 @@
 import { obterClientes } from './clientes.js';
-import { aplicarMascaraCPF } from './utils.js';
+import { aplicarMascaraCPF, criarConteudoDestacado, debounce, limparNumeros, normalizarTexto } from './utils.js';
 
 /**
- * Renderiza a lista de clientes na tabela #tabela-clientes (Requisito 2.5a).
+ * Renderiza a lista de clientes na tabela #tabela-clientes (Requisito 2.5a e 2.5b).
  * @param {Array<Object>} listaClientes - Clientes a exibir na tabela.
+ * @param {string} [termoBusca=''] - Termo pesquisado para destacar com <mark>.
+ * @param {string} [campoBusca=''] - Campo selecionado no filtro ('', 'id', 'nome', 'email' ou 'cpf').
  */
-export function renderizarTabelaClientes(listaClientes) {
+export function renderizarTabelaClientes(listaClientes, termoBusca = '', campoBusca = '') {
   const tbody = document.getElementById('tbody-clientes');
   const celulaTotal = document.getElementById('total-clientes-listados');
   if (!tbody) return;
@@ -25,13 +27,25 @@ export function renderizarTabelaClientes(listaClientes) {
     const tr = document.createElement('tr');
     const thId = document.createElement('th');
     thId.scope = 'row';
-    thId.textContent = cliente.id;
+    thId.appendChild(
+      criarConteudoDestacado(cliente.id, !campoBusca || campoBusca === 'id' ? termoBusca : '')
+    );
     const tdNome = document.createElement('td');
-    tdNome.textContent = cliente.nome;
+    tdNome.appendChild(
+      criarConteudoDestacado(cliente.nome, !campoBusca || campoBusca === 'nome' ? termoBusca : '')
+    );
     const tdEmail = document.createElement('td');
-    tdEmail.textContent = cliente.email;
+    tdEmail.appendChild(
+      criarConteudoDestacado(cliente.email, !campoBusca || campoBusca === 'email' ? termoBusca : '')
+    );
     const tdCpf = document.createElement('td');
-    tdCpf.textContent = aplicarMascaraCPF(cliente.cpf);
+    tdCpf.appendChild(
+      criarConteudoDestacado(
+        aplicarMascaraCPF(cliente.cpf),
+        !campoBusca || campoBusca === 'cpf' ? termoBusca : '',
+        true
+      )
+    );
     const tdStatus = document.createElement('td');
     tdStatus.textContent = cliente.bloqueado ? 'Bloqueado' : 'Ativo';
     const tdAcoes = document.createElement('td');
@@ -44,6 +58,33 @@ export function renderizarTabelaClientes(listaClientes) {
     celulaTotal.textContent = `Total de clientes listados: ${listaClientes.length}`;
   }
 }
+
+/**
+ * Filtra clientes por ID, nome, e-mail ou CPF (parcial, sem acento/maiúsculas e CPF com ou sem máscara).
+ * @param {Array<Object>} clientes - Lista completa de clientes.
+ * @param {{termo?: string, campo?: string}} [opcoes]
+ * @returns {Array<Object>}
+ */
+export function filtrarClientes(clientes, { termo = '', campo = '' } = {}) {
+  const termoNorm = normalizarTexto(termo);
+  if (!termoNorm) return clientes;
+  const termoDigitos = limparNumeros(termo);
+  return clientes.filter((c) => {
+    const bateId = normalizarTexto(c.id).includes(termoNorm);
+    const bateNome = normalizarTexto(c.nome).includes(termoNorm);
+    const bateEmail = normalizarTexto(c.email).includes(termoNorm);
+    const cpfMascarado = aplicarMascaraCPF(c.cpf);
+    const bateCpf =
+      normalizarTexto(cpfMascarado).includes(termoNorm) ||
+      (termoDigitos.length > 0 && limparNumeros(c.cpf).includes(termoDigitos));
+    if (campo === 'id') return bateId;
+    if (campo === 'nome') return bateNome;
+    if (campo === 'email') return bateEmail;
+    if (campo === 'cpf') return bateCpf;
+    return bateId || bateNome || bateEmail || bateCpf;
+  });
+}
+
 /**
  * Inicializa os relatórios da área administrativa.
  */
@@ -52,3 +93,4 @@ export function inicializarRelatorios() {
   renderizarTabelaClientes(obterClientes());
 }
 inicializarRelatorios();
+

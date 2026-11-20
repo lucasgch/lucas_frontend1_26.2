@@ -213,3 +213,71 @@ export function validarCartaoLuhn(numero = '') {
   }
   return soma % 10 === 0;
 }
+
+/**
+ * Cria um DocumentFragment com todas as ocorrências do termo destacadas em <mark>,
+ * ignorando acentos/maiúsculas e aceitando CPF com ou sem máscara (Requisito 2.5b).
+ * @param {string} textoOriginal - Texto exibido na célula.
+ * @param {string} termo - Termo digitado na busca.
+ * @param {boolean} [ehCpf=false] - Se true, permite destacar dígitos mesmo sem máscara.
+ * @returns {DocumentFragment}
+ */
+export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
+  const fragmento = document.createDocumentFragment();
+  const texto = String(textoOriginal || '').normalize('NFC');
+  const termoNorm = normalizarTexto(termo);
+  if (!termoNorm) {
+    fragmento.appendChild(document.createTextNode(texto));
+    return fragmento;
+  }
+  // Caso especial de CPF sem máscara (ex.: digitou "123456" para "123.456.789-01")
+  if (ehCpf) {
+    const termoDigitos = limparNumeros(termo);
+    if (termoDigitos) {
+      const posicoesDigitos = [];
+      let apenasDigitos = '';
+      for (let i = 0; i < texto.length; i++) {
+        if (/\d/.test(texto[i])) {
+          posicoesDigitos.push(i);
+          apenasDigitos += texto[i];
+        }
+      }
+      const idx = apenasDigitos.indexOf(termoDigitos);
+      if (idx !== -1) {
+        const inicio = posicoesDigitos[idx];
+        const fim = posicoesDigitos[idx + termoDigitos.length - 1] + 1;
+        if (inicio > 0) fragmento.appendChild(document.createTextNode(texto.slice(0, inicio)));
+        const mark = document.createElement('mark');
+        mark.textContent = texto.slice(inicio, fim);
+        fragmento.appendChild(mark);
+        if (fim < texto.length) fragmento.appendChild(document.createTextNode(texto.slice(fim)));
+        return fragmento;
+      }
+    }
+  }
+  // Busca normalizada mantendo os índices do texto original (preserva acentos e maiúsculas)
+  const chars = Array.from(texto);
+  const textoNorm = chars
+    .map((c) => c.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())
+    .join('');
+  let posAtual = 0;
+  let idxEncontrado = textoNorm.indexOf(termoNorm, posAtual);
+  if (idxEncontrado === -1) {
+    fragmento.appendChild(document.createTextNode(texto));
+    return fragmento;
+  }
+  while (idxEncontrado !== -1) {
+    if (idxEncontrado > posAtual) {
+      fragmento.appendChild(document.createTextNode(chars.slice(posAtual, idxEncontrado).join('')));
+    }
+    const mark = document.createElement('mark');
+    mark.textContent = chars.slice(idxEncontrado, idxEncontrado + termoNorm.length).join('');
+    fragmento.appendChild(mark);
+    posAtual = idxEncontrado + termoNorm.length;
+    idxEncontrado = textoNorm.indexOf(termoNorm, posAtual);
+  }
+  if (posAtual < chars.length) {
+    fragmento.appendChild(document.createTextNode(chars.slice(posAtual).join('')));
+  }
+  return fragmento;
+}
