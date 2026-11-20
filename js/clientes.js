@@ -1,4 +1,4 @@
-import { aplicarMascaraCPF, avaliarForcaSenha, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
+import { aplicarMascaraCPF, avaliarForcaSenha, ofuscarCPF, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
 import { renderizarMenuDinamico } from './ui.js';
 import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados, removerDados } from './storage.js';
 import { encerrarSessao, obterSessaoAtiva } from './auth.js';
@@ -411,7 +411,9 @@ export function inicializarPerfil(){
 
     campoId.value = cliente.id;
     campoNome.value = cliente.nome;
-    campoCpf.value = aplicarMascaraCPF(cliente.cpf);
+    campoCpf.value = ofuscarCPF(cliente.cpf);
+    campoCpf.dataset.ofuscado = 'true';
+    campoCpf.dataset.cpfReal = cliente.cpf;
     campoTelefone.value = cliente.telefone || '';
     campoEmail.value = cliente.email;
     campoSenhaAtual.value = '';
@@ -443,8 +445,26 @@ export function inicializarPerfil(){
     });
   });
 
+  // CPF ofuscado (LGPD): limpa ao focar para edição e restaura se sair vazio
+  campoCpf?.addEventListener('focus', () => {
+    if (campoCpf.readOnly) return;
+    if (campoCpf.dataset.ofuscado === 'true') {
+      campoCpf.value = '';
+      campoCpf.dataset.ofuscado = 'false';
+      definirErroCampo(campoCpf, '');
+    }
+  });
+  campoCpf?.addEventListener('blur', () => {
+    if (campoCpf.readOnly) return;
+    if (!campoCpf.value.trim() && campoCpf.dataset.cpfReal) {
+      campoCpf.value = ofuscarCPF(campoCpf.dataset.cpfReal);
+      campoCpf.dataset.ofuscado = 'true';
+      definirErroCampo(campoCpf, '');
+    }
+  });
   // Máscara do CPF ao digitar
   campoCpf?.addEventListener('input', () => {
+    campoCpf.dataset.ofuscado = 'false';
     campoCpf.value = aplicarMascaraCPF(campoCpf.value);
     definirErroCampo(campoCpf, '');
   });
@@ -468,11 +488,15 @@ export function inicializarPerfil(){
       definirErroCampo(campo, mensagem);
       if (!primeiroInvalido) primeiroInvalido = campo;
     };
+    // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
+    const cpfInformado =
+      campoCpf?.dataset.ofuscado === 'true' ? campoCpf.dataset.cpfReal : campoCpf?.value;
+
     // Valida dados pessoais obrigatórios
     if (!validarNomeCompleto(campoNome?.value)) {
       marcarInvalido(campoNome, 'Informe seu nome e sobrenome (mínimo de 3 caracteres).');
     }
-    if (!validarCPF(campoCpf?.value)) {
+    if (!validarCPF(cpfInformado)) {
       marcarInvalido(campoCpf, 'CPF inválido. Digite os 11 números corretamente.');
     }
     if (!validarTelefone(campoTelefone?.value)) {
@@ -501,7 +525,7 @@ export function inicializarPerfil(){
 
     const resultado = await atualizarCliente(sessao.usuarioId, {
       nome: campoNome.value,
-      cpf: campoCpf.value,
+      cpf: cpfInformado,
       telefone: campoTelefone.value,
       email: campoEmail.value,
       senhaAtual: campoSenhaAtual.value,
