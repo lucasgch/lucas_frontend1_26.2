@@ -67,7 +67,7 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
     inicializarStorage();
 
     // Exige cliente logado (Requisito 2.4a)
-    cimport { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual } from './carrinho.js';onst sessao = obterSessaoAtiva();
+    const sessao = obterSessaoAtiva();
     if (!sessao) {
         return { sucesso: false, mensagem: 'Sessão expirada. Faça login novamente.' };
     }
@@ -270,7 +270,7 @@ export function inicializarCheckout() {
     evento.preventDefault();
     const itens = obterCarrinho();
     if (itens.length === 0) return;
-    // Requisito 2.4a: Exige clienimport { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';te autenticado
+    // Requisito 2.4a: Exige cliente autenticado
     const sessao = obterSessaoAtiva();
     if (!sessao) {
       window.location.href = 'login.html?motivo=login_necessario&redirect=loja.html%23carrinho';
