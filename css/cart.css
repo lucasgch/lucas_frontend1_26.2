@@ -287,3 +287,8 @@
 .acoes-checkout .botao {
   margin: 0;
 }
+
+#resumo-confirmacao-pedido {
+  margin-block: 1rem;
+  text-align: left;
+}

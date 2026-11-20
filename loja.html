@@ -245,13 +245,14 @@
         </div>
       </section>
 
-      <section id="confirmacao-compra" class="mensagem-confirmacao" hidden  aria-labelledby="titulo-confirmacao">
+      <section id="confirmacao-compra" class="mensagem-confirmacao" hidden aria-labelledby="titulo-confirmacao">
         <div class="confirmacao-conteudo">
           <span class="icone-sucesso" aria-hidden="true">&#10003;</span>
           <h2 id="titulo-confirmacao">Compra finalizada com sucesso!</h2>
           <p>Obrigado por comprar conosco.</p>
-          <p>O número do seu pedido é: <strong>CP001</strong>.</p>
-          <p>Enviamos os detalhes para o seu e-mail.</p>
+          <p>O número do seu pedido é: <strong id="codigo-pedido-confirmado">CP001</strong>.</p>
+          <div id="resumo-confirmacao-pedido" class="lista-resumo-checkout"></div>
+          <p>Você também pode acompanhar este pedido em <a href="perfil.html">Meus pedidos</a>.</p>
           <a href="loja.html" class="botao botao-primario">Continuar comprando</a>
         </div>
       </section>

@@ -144,6 +144,54 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
 }
 
 /**
+ * Exibe a seção de confirmação preenchida com o código e o resumo completo do pedido (Requisito 2.4f).
+ * @param {Object} pedido - Pedido registrado por registrarCompra().
+ */
+function renderizarConfirmacaoCompra(pedido) {
+  const secaoConfirmacao = document.getElementById('confirmacao-compra');
+  if (!secaoConfirmacao) return;
+  const strongCodigo = document.getElementById('codigo-pedido-confirmado');
+  if (strongCodigo) strongCodigo.textContent = pedido.id;
+  const divResumo = document.getElementById('resumo-confirmacao-pedido');
+  if (divResumo) {
+    divResumo.replaceChildren();
+    const criarLinha = (rotulo, valor) => {
+      const linha = document.createElement('div');
+      linha.className = 'linha-resumo-checkout';
+      const span = document.createElement('span');
+      span.textContent = rotulo;
+      const strong = document.createElement('strong');
+      strong.textContent = valor;
+      linha.append(span, strong);
+      divResumo.appendChild(linha);
+    };
+    // Itens comprados
+    for (const item of pedido.itens) {
+      criarLinha(`${item.quantidade}x ${item.nome}`, formatarMoeda(item.subtotal));
+    }
+    // Valores
+    criarLinha('Subtotal:', formatarMoeda(pedido.subtotal));
+    if (pedido.desconto > 0) {
+      const rotuloDesconto = pedido.cupom ? `Desconto (${pedido.cupom}):` : 'Desconto:';
+      criarLinha(rotuloDesconto, `- ${formatarMoeda(pedido.desconto)}`);
+    }
+    criarLinha('Frete:', pedido.frete === 0 ? 'Grátis' : formatarMoeda(pedido.frete));
+    // Forma de pagamento
+    let textoPagamento = 'Pix';
+    if (pedido.pagamento?.metodo === 'cartao') {
+      textoPagamento = `Cartão de Crédito (final ${pedido.pagamento.ultimos4Digitos})`;
+    } else if (pedido.pagamento?.metodo === 'boleto') {
+      textoPagamento = 'Boleto Bancário';
+    }
+    criarLinha('Pagamento:', textoPagamento);
+    // Total final
+    criarLinha('Total pago:', formatarMoeda(pedido.total));
+  }
+  secaoConfirmacao.hidden = false;
+  secaoConfirmacao.scrollIntoView({ behavior: 'smooth' });
+}
+
+/**
  * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisito 2.4a, 2.4b, 2.4e).
  */
 export function inicializarCheckout() {
@@ -344,14 +392,8 @@ export function inicializarCheckout() {
     modalCheckout.close();
     // Atualiza o catálogo na tela para refletir o novo estoque imediatamente
     aplicarFiltrosLoja();
-    // Exibe a confirmação da compra com o ID real do pedido (CP001, CP002...)
-    const secaoConfirmacao = document.getElementById('confirmacao-compra');
-    if (secaoConfirmacao) {
-      const strongCodigo = secaoConfirmacao.querySelector('strong');
-      if (strongCodigo) strongCodigo.textContent = resultado.pedido.id;
-      secaoConfirmacao.hidden = false;
-      secaoConfirmacao.scrollIntoView({ behavior: 'smooth' });
-    }
+    // Exibe a confirmação com código e resumo completo do pedido (Requisito 2.4f)
+    renderizarConfirmacaoCompra(resultado.pedido);
   });
 }
 inicializarCheckout();
