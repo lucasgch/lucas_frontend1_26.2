@@ -1,3 +1,4 @@
+import { obterSessaoAtiva } from './auth.js';
 import { obterClientes } from './clientes.js';
 import { atualizarStatusCompra, obterCompras } from './compras.js';
 import {
@@ -525,6 +526,8 @@ export function renderizarGraficoVendas() {
 export function inicializarRelatorios() {
   const tabelaClientes = document.getElementById('tabela-clientes');
   if (!tabelaClientes) return;
+  let clientesFiltradosAtuais = [];
+  let comprasFiltradasAtuais = [];
   const formClientes = document.getElementById('form-filtros-clientes');
   const inputBuscaClientes = document.getElementById('campo-busca-clientes');
   const selectCampoCliente = document.getElementById('filtro-campo-cliente');
@@ -554,6 +557,7 @@ export function inicializarRelatorios() {
     const campo = selectCampoCliente?.value || '';
     const filtrados = filtrarClientes(obterClientes(), { termo, campo });
     const ordenados = ordenarClientes(filtrados, estadoClientes.coluna, estadoClientes.direcao);
+    clientesFiltradosAtuais = ordenados;
     const totalPaginas = Math.max(1, Math.ceil(ordenados.length / ITENS_POR_PAGINA));
     if (estadoClientes.paginaAtual > totalPaginas) {
       estadoClientes.paginaAtual = totalPaginas;
@@ -633,6 +637,7 @@ export function inicializarRelatorios() {
       valorMax: inputValorMax?.value ?? '',
       status: selectStatusCompra?.value || ''
     });
+    comprasFiltradasAtuais = filtradas;
     renderizarTabelaCompras(filtradas);
   }
 
@@ -690,6 +695,45 @@ btnSalvarStatus?.addEventListener('click', () => {
     }
   });
   renderizarTabelaMensagens();
+
+  // Impressão / Salvar em PDF (Requisito 2.5f)
+  window.addEventListener('beforeprint', atualizarMetadadosImpressao);
+  document.getElementById('btn-imprimir-relatorio')?.addEventListener('click', () => {
+    atualizarMetadadosImpressao();
+    window.print();
+  });
+
+  // Exportar Clientes filtrados em CSV (com CPF ofuscado LGPD)
+  document.getElementById('btn-csv-clientes')?.addEventListener('click', () => {
+    const cabecalhos = ['ID', 'Nome', 'E-mail', 'CPF', 'Perfil', 'Status'];
+    const linhas = clientesFiltradosAtuais.map((c) => [
+      c.id,
+      c.nome,
+      c.email,
+      ofuscarCPF(c.cpf),
+      c.perfil || 'cliente',
+      c.bloqueado ? 'Bloqueado' : 'Ativo'
+    ]);
+    exportarCSV('relatorio-clientes.csv', cabecalhos, linhas);
+  });
+
+  // Exportar Compras filtradas em CSV
+  document.getElementById('btn-csv-compras')?.addEventListener('click', () => {
+    const cabecalhos = ['ID', 'Data', 'Cliente', 'E-mail', 'Produtos', 'Status', 'Subtotal', 'Desconto', 'Frete', 'Total'];
+    const linhas = comprasFiltradasAtuais.map((c) => [
+      c.id,
+      formatarDataHora(c.data),
+      `${c.clienteNome} (${c.clienteId})`,
+      c.clienteEmail || '',
+      (c.itens || []).map((i) => `${i.quantidade}x ${i.nome}`).join(' | '),
+      c.status || 'Pago',
+      formatarMoeda(c.subtotal),
+      formatarMoeda(c.desconto),
+      c.frete === 0 ? 'Grátis' : formatarMoeda(c.frete),
+      formatarMoeda(c.total)
+    ]);
+    exportarCSV('relatorio-compras.csv', cabecalhos, linhas);
+  });
 }
 
 /**
@@ -788,6 +832,57 @@ export function renderizarTabelaMensagens() {
   if (celulaTotal) {
     celulaTotal.textContent = `Total de mensagens: ${ordenadas.length} (${naoLidas} não ${naoLidas === 1 ? 'lida' : 'lidas'})`;
   }
+}
+
+/**
+ * Escapa um campo para CSV segundo RFC 4180 (envolve em aspas e duplica aspas internas se necessário).
+ * @param {*} valor
+ * @returns {string}
+ */
+export function escaparCampoCSV(valor) {
+  const texto = String(valor ?? '');
+  if (/[",\r\n;]/.test(texto)) {
+    return `"${texto.replace(/"/g, '""')}"`;
+  }
+  return texto;
+}
+
+/**
+ * Gera e dispara o download de um arquivo CSV em UTF-8 com BOM usando Blob (Requisito 2.5f).
+ * @param {string} nomeArquivo - Nome do arquivo (ex: 'clientes.csv').
+ * @param {Array<string>} cabecalhos - Nomes das colunas.
+ * @param {Array<Array<*>>} linhas - Matriz com os valores das linhas.
+ */
+export function exportarCSV(nomeArquivo, cabecalhos, linhas) {
+  const conteudo = [cabecalhos, ...linhas]
+    .map((linha) => linha.map(escaparCampoCSV).join(','))
+    .join('\r\n');
+
+  // '\uFEFF' adiciona o BOM UTF-8 para abrir acentos corretamente no Excel e LibreOffice
+  const blob = new Blob(['\uFEFF' + conteudo], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nomeArquivo;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Preenche o cabeçalho e rodapé de impressão com data/hora de emissão e administrador responsável.
+ */
+function atualizarMetadadosImpressao() {
+  const sessao = obterSessaoAtiva();
+  const agora = formatarDataHora(new Date().toISOString());
+  const responsavel = sessao ? `${sessao.nome} (${sessao.email})` : 'Administrador';
+  const texto = `Emitido em ${agora} | Responsável: ${responsavel}`;
+
+  const cabecalho = document.getElementById('meta-impressao-cabecalho');
+  const rodape = document.getElementById('meta-impressao-rodape');
+  if (cabecalho) cabecalho.textContent = texto;
+  if (rodape) rodape.textContent = `</> Livros — ${texto}`;
 }
 
 inicializarRelatorios();

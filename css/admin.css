@@ -167,3 +167,77 @@
 }
 
 .mensagem-nao-lida { font-weight: 600; }  
+
+/* Barra de ações de impressão e exportação CSV */
+.acoes-relatorio {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 48rem;
+  margin-inline: auto;
+}
+
+.acoes-relatorio .botao {
+  margin: 0;
+  cursor: pointer;
+}
+
+/* Cabeçalho e rodapé exclusivos de impressão (ocultos na tela) */
+.cabecalho-impressao,
+.rodape-impressao {
+  display: none;
+}
+
+/* CSS de impressão / PDF (Requisito 2.5f) */
+@media print {
+  .site-header,
+  .footer-container,
+  .acoes-relatorio,
+  .secao-filtros,
+  .paginacao,
+  .grafico-controle,
+  dialog {
+    display: none !important;
+  }
+
+  /* Esconde a coluna "Ações" (botões) nas tabelas ao imprimir */
+  .tabela th:last-child,
+  .tabela td:last-child {
+    display: none;
+  }
+
+  .cabecalho-impressao,
+  .rodape-impressao {
+    display: block;
+    border-bottom: 1px solid #cccccc;
+    padding-bottom: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: #333333;
+  }
+
+  .rodape-impressao {
+    border-bottom: none;
+    border-top: 1px solid #cccccc;
+    padding-top: 0.75rem;
+    margin-top: 1.5rem;
+    text-align: center;
+  }
+
+  .painel-indicadores,
+  .tabela-container {
+    max-width: 100%;
+    overflow: visible;
+  }
+
+  .tabela {
+    min-width: 0;
+  }
+
+  .barra-preenchimento {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
