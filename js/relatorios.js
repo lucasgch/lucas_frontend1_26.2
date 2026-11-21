@@ -10,7 +10,7 @@ import {
   normalizarTexto,
   ofuscarCPF
 } from './utils.js';
-import { CHAVES_STORAGE, salvarDados } from './storage.js';
+import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 
 // Define a quantidade padrão de itens da paginação
 const ITENS_POR_PAGINA = 10;
@@ -682,6 +682,113 @@ btnSalvarStatus?.addEventListener('click', () => {
   document.getElementById('filtro-periodo-grafico')?.addEventListener('change', renderizarGraficoVendas);
   atualizarCompras();
   renderizarIndicadores();
+  document.getElementById('tbody-mensagens')?.addEventListener('click', (evento) => {
+    const btn = evento.target.closest('.btn-lida-mensagem');
+    if (!btn) return;
+    if (alternarLeituraMensagem(btn.dataset.id)) {
+      renderizarTabelaMensagens();
+    }
+  });
+  renderizarTabelaMensagens();
 }
+
+/**
+ * Retorna a lista de mensagens de contato salvas no localStorage (Requisito 2.5g).
+ * @returns {Array<Object>}
+ */
+export function obterMensagens() {
+  const mensagens = lerDados(CHAVES_STORAGE.MENSAGENS, []);
+  return Array.isArray(mensagens) ? mensagens : [];
+}
+
+/**
+ * Alterna o estado de leitura (lida / não lida) de uma mensagem de contato (Requisito 2.5g).
+ * @param {string} idMensagem - Código da mensagem (ex: 'M001').
+ * @returns {boolean}
+ */
+export function alternarLeituraMensagem(idMensagem) {
+  const mensagens = obterMensagens();
+  const msg = mensagens.find((m) => m.id === idMensagem);
+  if (!msg) return false;
+  msg.lida = !msg.lida;
+  return salvarDados(CHAVES_STORAGE.MENSAGENS, mensagens);
+}
+
+/**
+ * Renderiza a lista de mensagens de contato em #tabela-mensagens (Requisito 2.5g).
+ */
+export function renderizarTabelaMensagens() {
+  const tbody = document.getElementById('tbody-mensagens');
+  const celulaTotal = document.getElementById('total-mensagens-listadas');
+  if (!tbody) return;
+
+  const mensagens = obterMensagens();
+  tbody.replaceChildren();
+
+  if (mensagens.length === 0) {
+    const trVazia = document.createElement('tr');
+    const tdVazia = document.createElement('td');
+    tdVazia.colSpan = 7;
+    tdVazia.textContent = 'Nenhuma mensagem recebida até o momento.';
+    trVazia.appendChild(tdVazia);
+    tbody.appendChild(trVazia);
+    if (celulaTotal) celulaTotal.textContent = 'Total de mensagens: 0 (0 não lidas)';
+    return;
+  }
+
+  // Não lidas primeiro; dentro de cada grupo, mais recentes primeiro
+  const ordenadas = [...mensagens].sort(
+    (a, b) => Number(Boolean(a.lida)) - Number(Boolean(b.lida)) || new Date(b.data) - new Date(a.data)
+  );
+  const naoLidas = ordenadas.filter((m) => !m.lida).length;
+  const fragmento = document.createDocumentFragment();
+
+  for (const msg of ordenadas) {
+    const tr = document.createElement('tr');
+    if (!msg.lida) tr.className = 'mensagem-nao-lida';
+
+    const thId = document.createElement('th');
+    thId.scope = 'row';
+    thId.textContent = msg.id;
+
+    const tdData = document.createElement('td');
+    const timeEl = document.createElement('time');
+    timeEl.dateTime = String(msg.data || '').slice(0, 10);
+    timeEl.textContent = formatarDataHora(msg.data);
+    tdData.appendChild(timeEl);
+
+    const tdNome = document.createElement('td');
+    tdNome.textContent = msg.nome;
+
+    const tdEmail = document.createElement('td');
+    tdEmail.textContent = msg.email;
+
+    const tdTexto = document.createElement('td');
+    tdTexto.textContent = msg.mensagem;
+
+    const tdStatus = document.createElement('td');
+    tdStatus.textContent = msg.lida ? 'Lida' : 'Não lida';
+
+    const tdAcoes = document.createElement('td');
+    const btnLida = document.createElement('button');
+    btnLida.type = 'button';
+    btnLida.className = msg.lida
+      ? 'botao botao-secundario btn-lida-mensagem'
+      : 'botao botao-primario btn-lida-mensagem';
+    btnLida.dataset.id = msg.id;
+    btnLida.textContent = msg.lida ? 'Marcar não lida' : 'Marcar como lida';
+    btnLida.setAttribute('aria-label', `${btnLida.textContent} a mensagem ${msg.id}`);
+    tdAcoes.appendChild(btnLida);
+
+    tr.append(thId, tdData, tdNome, tdEmail, tdTexto, tdStatus, tdAcoes);
+    fragmento.appendChild(tr);
+  }
+
+  tbody.appendChild(fragmento);
+  if (celulaTotal) {
+    celulaTotal.textContent = `Total de mensagens: ${ordenadas.length} (${naoLidas} não ${naoLidas === 1 ? 'lida' : 'lidas'})`;
+  }
+}
+
 inicializarRelatorios();
 

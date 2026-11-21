@@ -165,3 +165,5 @@
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
+
+.mensagem-nao-lida { font-weight: 600; }  
