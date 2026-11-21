@@ -258,7 +258,34 @@
 
         </section><!-- Encerra a seção relatorio compras -->
 
-                <dialog id="modal-detalhes-compra" class="modal-checkout" aria-labelledby="titulo-modal-compra">
+                <section class="relatorio mensagens" aria-labelledby="titulo-relatorio-mensagens">
+            <h2 id="titulo-relatorio-mensagens">Mensagens de Contato</h2>
+
+            <div class="tabela-container">
+                <table id="tabela-mensagens" class="tabela">
+                    <caption>Mensagens enviadas pelo formulário de contato</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Data</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">E-mail</th>
+                            <th scope="col">Mensagem</th>
+                            <th scope="col">Status</th>
+                            <th scope="col">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-mensagens"></tbody>
+                    <tfoot>
+                        <tr>
+                            <td id="total-mensagens-listadas" colspan="7">Total de mensagens: 0 (0 não lidas)</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </section>
+
+        <dialog id="modal-detalhes-compra" class="modal-checkout" aria-labelledby="titulo-modal-compra">
             <div class="modal-checkout-conteudo">
                 <header class="modal-checkout-cabecalho">
                     <h2 id="titulo-modal-compra">Detalhes do Pedido</h2>
