@@ -417,20 +417,106 @@ export function renderizarIndicadores() {
       const li = document.createElement('li');
       li.textContent = 'Nenhuma venda ativa registrada ainda.';
       listaTop.appendChild(li);
-      return;
+    } else {
+      topProdutos.forEach((prod, indice) => {
+        const li = document.createElement('li');
+        const spanNome = document.createElement('span');
+        spanNome.textContent = `${indice + 1}. ${prod.nome}`;
+        const spanQtd = document.createElement('strong');
+        spanQtd.className = 'top-produto-qtd';
+        spanQtd.textContent = `${prod.quantidade} un. (${formatarMoeda(prod.receita)})`;
+        li.append(spanNome, spanQtd);
+        listaTop.appendChild(li);
+      });
     }
-
-    topProdutos.forEach((prod, indice) => {
-      const li = document.createElement('li');
-      const spanNome = document.createElement('span');
-      spanNome.textContent = `${indice + 1}. ${prod.nome}`;
-      const spanQtd = document.createElement('strong');
-      spanQtd.className = 'top-produto-qtd';
-      spanQtd.textContent = `${prod.quantidade} un. (${formatarMoeda(prod.receita)})`;
-      li.append(spanNome, spanQtd);
-      listaTop.appendChild(li);
-    });
   }
+
+  renderizarGraficoVendas();
+}
+
+/**
+ * Agrupa o faturamento das compras ativas por dia ou por mês em ordem cronológica (Requisito 2.5e).
+ * @param {Array<Object>} compras
+ * @param {'dia'|'mes'} [modo='dia']
+ * @returns {Array<{chave: string, rotulo: string, total: number, pedidos: number}>}
+ */
+export function agruparVendasPorPeriodo(compras, modo = 'dia') {
+  const mapa = new Map();
+
+  for (const compra of compras) {
+    if (compra.status === 'Cancelado') continue;
+    const data = new Date(compra.data);
+    if (Number.isNaN(data.getTime())) continue;
+
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+
+    const chave = modo === 'mes' ? `${ano}-${mes}` : `${ano}-${mes}-${dia}`;
+    const rotulo = modo === 'mes' ? `${mes}/${ano}` : `${dia}/${mes}`;
+
+    const atual = mapa.get(chave) || { chave, rotulo, total: 0, pedidos: 0 };
+    atual.total += Number(compra.total) || 0;
+    atual.pedidos += 1;
+    mapa.set(chave, atual);
+  }
+
+  return Array.from(mapa.values())
+    .sort((a, b) => a.chave.localeCompare(b.chave))
+    .slice(-12);
+}
+
+/**
+ * Desenha o gráfico de barras de vendas por período em #grafico-vendas (Requisito 2.5e).
+ */
+export function renderizarGraficoVendas() {
+  const container = document.getElementById('grafico-vendas');
+  if (!container) return;
+
+  const modo = document.getElementById('filtro-periodo-grafico')?.value || 'dia';
+  const series = agruparVendasPorPeriodo(obterCompras(), modo);
+  container.replaceChildren();
+
+  if (series.length === 0) {
+    const aviso = document.createElement('p');
+    aviso.className = 'grafico-vazio';
+    aviso.textContent = 'Nenhuma venda ativa para exibir no gráfico.';
+    container.appendChild(aviso);
+    return;
+  }
+
+  const maiorValor = Math.max(...series.map((s) => s.total), 1);
+  const fragmento = document.createDocumentFragment();
+
+  for (const ponto of series) {
+    const percentual = Math.max(8, Math.round((ponto.total / maiorValor) * 100));
+
+    const item = document.createElement('div');
+    item.className = 'barra-item';
+
+    const spanValor = document.createElement('span');
+    spanValor.className = 'barra-valor';
+    spanValor.textContent = formatarMoeda(ponto.total);
+
+    const trilha = document.createElement('div');
+    trilha.className = 'barra-trilha';
+
+    const barra = document.createElement('div');
+    barra.className = 'barra-preenchimento';
+    barra.style.height = `${percentual}%`;
+    barra.title = `${ponto.rotulo}: ${formatarMoeda(ponto.total)} (${ponto.pedidos} pedido(s))`;
+    barra.setAttribute('aria-label', `${ponto.rotulo}: ${formatarMoeda(ponto.total)}`);
+
+    const spanRotulo = document.createElement('span');
+    spanRotulo.className = 'barra-rotulo';
+    spanRotulo.textContent = ponto.rotulo;
+
+    trilha.appendChild(barra);
+    item.append(spanValor, trilha, spanRotulo);
+    fragmento.appendChild(item);
+  }
+
+  container.appendChild(fragmento);
 }
 
 /**
@@ -593,6 +679,7 @@ btnSalvarStatus?.addEventListener('click', () => {
     renderizarIndicadores();
   }
 });
+  document.getElementById('filtro-periodo-grafico')?.addEventListener('change', renderizarGraficoVendas);
   atualizarCompras();
   renderizarIndicadores();
 }

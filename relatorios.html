@@ -69,6 +69,21 @@
                 <h3>Top 5 produtos mais vendidos</h3>
                 <ol id="lista-top-produtos" class="lista-top-produtos"></ol>
             </div>
+
+              <div class="bloco-grafico">
+                <div class="grafico-cabecalho">
+                    <h3>Vendas por período</h3>
+                    <div class="grafico-controle">
+                        <label for="filtro-periodo-grafico">Agrupar:</label>
+                        <select id="filtro-periodo-grafico">
+                            <option value="dia">Por dia</option>
+                            <option value="mes">Por mês</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="grafico-vendas" class="grafico-barras" role="region" aria-label="Gráfico de vendas por período"></div>
+            </div>
+            
         </section>
         <section class="relatorio cliente" aria-labelledby="titulo-relatorio-clientes">
             <h2 id="titulo-relatorio-clientes">Relatório de Clientes</h2>

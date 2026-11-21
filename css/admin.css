@@ -69,3 +69,99 @@
   color: var(--text-muted);
   white-space: nowrap;
 }
+
+/* Gráfico de vendas por período (CSS puro) */
+.bloco-grafico {
+  margin-top: 1.5rem;
+  background-color: var(--surface-subtle);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+}
+
+.grafico-cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.grafico-cabecalho h3 {
+  margin: 0;
+}
+
+.grafico-controle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.grafico-controle select {
+  padding: 0.35rem 0.65rem;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: var(--radius);
+  background-color: transparent;
+  font-family: inherit;
+  font-size: var(--text-xs);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.grafico-barras {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  min-height: 13rem;
+  padding-top: 1.5rem;
+  overflow-x: auto;
+}
+
+.barra-item {
+  flex: 1 1 3.5rem;
+  max-width: 5.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.barra-valor {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.barra-trilha {
+  width: 100%;
+  height: 9rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.04);
+  border-radius: var(--radius);
+  padding: 0.25rem;
+}
+
+.barra-preenchimento {
+  width: 100%;
+  border-radius: calc(var(--radius) - 2px);
+  background-color: var(--text-accent);
+  transition: height 0.3s ease;
+}
+
+.barra-rotulo {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.grafico-vazio {
+  margin: auto;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
