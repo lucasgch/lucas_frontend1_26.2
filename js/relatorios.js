@@ -355,6 +355,85 @@ export function filtrarCompras(
 }
 
 /**
+ * Calcula os indicadores gerenciais da loja a partir dos clientes e compras (Requisito 2.5e).
+ * Compras canceladas são desconsideradas no faturamento, ticket médio e ranking de vendas.
+ * @param {Array<Object>} clientes
+ * @param {Array<Object>} compras
+ * @returns {{totalClientes: number, totalCompras: number, faturamento: number, ticketMedio: number, topProdutos: Array}}
+ */
+export function calcularIndicadores(clientes, compras) {
+  // Conta apenas clientes comuns (exclui conta administradora)
+  const totalClientes = clientes.filter((c) => c.perfil !== 'administrador').length;
+  const comprasAtivas = compras.filter((c) => c.status !== 'Cancelado');
+  const totalCompras = comprasAtivas.length;
+  const faturamento = comprasAtivas.reduce((soma, c) => soma + (Number(c.total) || 0), 0);
+  const ticketMedio = totalCompras > 0 ? faturamento / totalCompras : 0;
+
+  // Agrupa quantidades e receita por produto para montar o Top 5
+  const mapaProdutos = new Map();
+  for (const compra of comprasAtivas) {
+    for (const item of compra.itens || []) {
+      const atual = mapaProdutos.get(item.produtoId) || {
+        produtoId: item.produtoId,
+        nome: item.nome,
+        quantidade: 0,
+        receita: 0
+      };
+      atual.quantidade += Number(item.quantidade) || 0;
+      atual.receita += Number(item.subtotal) || 0;
+      mapaProdutos.set(item.produtoId, atual);
+    }
+  }
+
+  const topProdutos = Array.from(mapaProdutos.values())
+    .sort((a, b) => b.quantidade - a.quantidade || b.receita - a.receita)
+    .slice(0, 5);
+
+  return { totalClientes, totalCompras, faturamento, ticketMedio, topProdutos };
+}
+
+/**
+ * Atualiza os cards de KPIs e o ranking Top 5 no DOM (Requisito 2.5e).
+ */
+export function renderizarIndicadores() {
+  const elClientes = document.getElementById('kpi-total-clientes');
+  const elCompras = document.getElementById('kpi-total-compras');
+  const elFaturamento = document.getElementById('kpi-faturamento');
+  const elTicket = document.getElementById('kpi-ticket-medio');
+  const listaTop = document.getElementById('lista-top-produtos');
+  if (!elClientes && !listaTop) return;
+
+  const { totalClientes, totalCompras, faturamento, ticketMedio, topProdutos } =
+    calcularIndicadores(obterClientes(), obterCompras());
+
+  if (elClientes) elClientes.textContent = String(totalClientes);
+  if (elCompras) elCompras.textContent = String(totalCompras);
+  if (elFaturamento) elFaturamento.textContent = formatarMoeda(faturamento);
+  if (elTicket) elTicket.textContent = formatarMoeda(ticketMedio);
+
+  if (listaTop) {
+    listaTop.replaceChildren();
+    if (topProdutos.length === 0) {
+      const li = document.createElement('li');
+      li.textContent = 'Nenhuma venda ativa registrada ainda.';
+      listaTop.appendChild(li);
+      return;
+    }
+
+    topProdutos.forEach((prod, indice) => {
+      const li = document.createElement('li');
+      const spanNome = document.createElement('span');
+      spanNome.textContent = `${indice + 1}. ${prod.nome}`;
+      const spanQtd = document.createElement('strong');
+      spanQtd.className = 'top-produto-qtd';
+      spanQtd.textContent = `${prod.quantidade} un. (${formatarMoeda(prod.receita)})`;
+      li.append(spanNome, spanQtd);
+      listaTop.appendChild(li);
+    });
+  }
+}
+
+/**
  * Inicializa os relatórios da área administrativa.
  */
 export function inicializarRelatorios() {
@@ -511,9 +590,11 @@ btnSalvarStatus?.addEventListener('click', () => {
       btnSalvarStatus.disabled = true;
     }
     atualizarCompras();
+    renderizarIndicadores();
   }
 });
   atualizarCompras();
+  renderizarIndicadores();
 }
 inicializarRelatorios();
 
