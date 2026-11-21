@@ -58,6 +58,62 @@ export function baixarEstoqueItens(itensComprados) {
 }
 
 /**
+ * Devolve ao estoque no localStorage as quantidades de uma compra cancelada (Requisito 2.5d).
+ * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
+ */
+export function devolverEstoqueItens(itensComprados) {
+  const mapaEstoque = lerDados(CHAVES_STORAGE.ESTOQUE, {});
+  const catalogoAtual = obterProdutosComEstoque();
+  for (const item of itensComprados || []) {
+    const produto = catalogoAtual.find((p) => p.id === item.produtoId);
+    if (produto) {
+      mapaEstoque[item.produtoId] = produto.estoque + item.quantidade;
+    }
+  }
+  salvarDados(CHAVES_STORAGE.ESTOQUE, mapaEstoque);
+}
+
+const STATUS_COMPRA_VALIDOS = ['Pago', 'Enviado', 'Entregue', 'Cancelado'];
+/**
+ * Altera o status de uma compra e devolve os itens ao estoque quando cancelada (Requisito 2.5d).
+ * Pedidos já cancelados são tratados como estado final para evitar devolução duplicada de estoque.
+ * @param {string} idCompra - Código da compra (ex: 'CP001').
+ * @param {string} novoStatus - 'Pago' | 'Enviado' | 'Entregue' | 'Cancelado'.
+ * @returns {{sucesso: boolean, mensagem: string, compra?: Object}}
+ */
+export function atualizarStatusCompra(idCompra, novoStatus) {
+  if (!STATUS_COMPRA_VALIDOS.includes(novoStatus)) {
+    return { sucesso: false, mensagem: 'Status inválido.' };
+  }
+  const compras = obterCompras();
+  const compra = compras.find((c) => c.id === idCompra);
+  if (!compra) {
+    return { sucesso: false, mensagem: 'Compra não encontrada.' };
+  }
+  const statusAtual = compra.status || 'Pago';
+  if (statusAtual === novoStatus) {
+    return { sucesso: false, mensagem: `O pedido já está com o status "${statusAtual}".` };
+  }
+  if (statusAtual === 'Cancelado') {
+    return { sucesso: false, mensagem: 'Pedidos cancelados não podem ser reativados.' };
+  }
+  // Se o novo status for Cancelado, devolve os itens ao estoque
+  if (novoStatus === 'Cancelado') {
+    devolverEstoqueItens(compra.itens);
+  }
+  compra.status = novoStatus;
+  salvarDados(CHAVES_STORAGE.COMPRAS, compras);
+  return {
+    sucesso: true,
+    mensagem:
+      novoStatus === 'Cancelado'
+        ? `Pedido ${compra.id} cancelado e itens devolvidos ao estoque.`
+        : `Status do pedido ${compra.id} alterado para "${novoStatus}".`,
+    compra
+  };
+}
+
+/**
  * Registra uma nova compra, revalidando estoque, gerando ID sequencial (CP001...),
  * dando baixa no estoque e esvaziando o carrinho do cliente (Requisitos 2.4c, 2.4d, 2.4e).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
