@@ -1,5 +1,5 @@
 import { aplicarMascaraCPF, avaliarForcaSenha, ofuscarCPF, validarCPF, validarEmail, validarNomeCompleto, validarTelefone, limparNumeros } from './utils.js';
-import { renderizarMenuDinamico } from './ui.js';
+import { alternarCarregamentoBotao, mostrarToast, renderizarMenuDinamico } from './ui.js';
 import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDados, removerDados } from './storage.js';
 import { encerrarSessao, obterSessaoAtiva } from './auth.js';
 
@@ -259,13 +259,20 @@ export function inicializarCadastro() {
       return;
     }
     // Salva o cliente no localStorage com senha protegida por SHA-256
-    const resultado = await cadastrarCliente({
-      nome: campoNome.value,
-      cpf: campoCpf.value,
-      telefone: campoTelefone.value,
-      email: campoEmail.value,
-      senha: campoSenha.value
-    });
+    const btnSubmit = formCadastro.querySelector('button[type="submit"]');
+    alternarCarregamentoBotao(btnSubmit, true, 'Criando conta...');
+    let resultado;
+    try {
+      resultado = await cadastrarCliente({
+        nome: campoNome.value,
+        cpf: campoCpf.value,
+        telefone: campoTelefone.value,
+        email: campoEmail.value,
+        senha: campoSenha.value
+      });
+    } finally {
+      alternarCarregamentoBotao(btnSubmit, false);
+    }
     // Se o CPF ou E-mail já existie, mostra o erro no campo correspondente
     if (!resultado.sucesso) {
       if (resultado.erroCampo === 'cpf') {
@@ -523,14 +530,21 @@ export function inicializarPerfil(){
     }
     
 
-    const resultado = await atualizarCliente(sessao.usuarioId, {
-      nome: campoNome.value,
-      cpf: cpfInformado,
-      telefone: campoTelefone.value,
-      email: campoEmail.value,
-      senhaAtual: campoSenhaAtual.value,
-      novaSenha: campoNovaSenha.value
-    });
+    const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
+    alternarCarregamentoBotao(btnSubmitPerfil, true, 'Salvando...');
+    let resultado;
+    try {
+      resultado = await atualizarCliente(sessao.usuarioId, {
+        nome: campoNome.value,
+        cpf: cpfInformado,
+        telefone: campoTelefone.value,
+        email: campoEmail.value,
+        senhaAtual: campoSenhaAtual.value,
+        novaSenha: campoNovaSenha.value
+      });
+    } finally {
+      alternarCarregamentoBotao(btnSubmitPerfil, false);
+    }
     if (!resultado.sucesso) {
       if (resultado.erroCampo === 'cpf') {
         definirErroCampo(campoCpf, resultado.mensagem);
@@ -553,6 +567,7 @@ export function inicializarPerfil(){
     avisoPerfil.textContent = resultado.mensagem;
     carregarDadosNosCampos();
     renderizarMenuDinamico();
+    mostrarToast(resultado.mensagem, 'sucesso');
   });
 
   const modalExcluir = document.getElementById('modal-excluir-conta');

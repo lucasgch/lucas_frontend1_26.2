@@ -1,6 +1,7 @@
 import { CHAVES_STORAGE, inicializarStorage, lerDados, removerDados, salvarDados } from './storage.js';
 import { gerarHashSenha, gerarSalt, obterClientes } from './clientes.js';
 import { mesclarCarrinhoAoLogar } from './carrinho.js';
+import { alternarCarregamentoBotao } from './ui.js';
 
 const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 minutos em milissegundos
 const TEMPO_BLOQUEIO_MS = 60 * 1000;       // 60 segundos de bloqueio após 3 erros
@@ -213,7 +214,13 @@ export function inicializarLogin() {
       (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
       return;
     }
-    const resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
+    alternarCarregamentoBotao(btnSubmit, true, 'Entrando...');
+    let resultado;
+    try {
+      resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
+    } finally {
+      alternarCarregamentoBotao(btnSubmit, false);
+    }
 
     if (!resultado.sucesso) {
       avisoLogin.textContent = resultado.mensagem;

@@ -3,6 +3,7 @@ import { obterSessaoAtiva } from './auth.js';
 import { obterProdutosComEstoque, aplicarFiltrosLoja } from './produtos.js';
 import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';
 import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
+import { mostrarToast } from './ui.js';
 
 /**
  * Retorna a lista de todas as compras registradas no localStorage.
@@ -450,6 +451,7 @@ export function inicializarCheckout() {
     aplicarFiltrosLoja();
     // Exibe a confirmação com código e resumo completo do pedido (Requisito 2.4f)
     renderizarConfirmacaoCompra(resultado.pedido);
+    mostrarToast(resultado.mensagem, 'sucesso');
   });
 }
 inicializarCheckout();

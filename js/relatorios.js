@@ -12,6 +12,7 @@ import {
   ofuscarCPF
 } from './utils.js';
 import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
+import { mostrarToast } from './ui.js';
 
 // Define a quantidade padrão de itens da paginação
 const ITENS_POR_PAGINA = 10;
@@ -614,6 +615,7 @@ export function inicializarRelatorios() {
     const res = alternarBloqueioCliente(btn.dataset.id);
     if (res.sucesso) {
       atualizarClientes();
+      mostrarToast(res.mensagem, 'info');
     }
   });
   atualizarClientes();
@@ -683,6 +685,7 @@ btnSalvarStatus?.addEventListener('click', () => {
     atualizarCompras();
     renderizarIndicadores();
   }
+  mostrarToast(res.mensagem, res.sucesso ? 'sucesso' : 'erro');
 });
   document.getElementById('filtro-periodo-grafico')?.addEventListener('change', renderizarGraficoVendas);
   atualizarCompras();
@@ -692,6 +695,7 @@ btnSalvarStatus?.addEventListener('click', () => {
     if (!btn) return;
     if (alternarLeituraMensagem(btn.dataset.id)) {
       renderizarTabelaMensagens();
+      mostrarToast('Status da mensagem atualizado.', 'info');
     }
   });
   renderizarTabelaMensagens();
@@ -715,6 +719,7 @@ btnSalvarStatus?.addEventListener('click', () => {
       c.bloqueado ? 'Bloqueado' : 'Ativo'
     ]);
     exportarCSV('relatorio-clientes.csv', cabecalhos, linhas);
+    mostrarToast('Arquivo CSV de clientes exportado!', 'sucesso');
   });
 
   // Exportar Compras filtradas em CSV
@@ -733,6 +738,7 @@ btnSalvarStatus?.addEventListener('click', () => {
       formatarMoeda(c.total)
     ]);
     exportarCSV('relatorio-compras.csv', cabecalhos, linhas);
+    mostrarToast('Arquivo CSV de compras exportado!', 'sucesso');
   });
 }
 

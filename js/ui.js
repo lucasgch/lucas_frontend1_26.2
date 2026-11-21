@@ -93,7 +93,71 @@ export function renderizarMenuDinamico() {
         });
     }
 
-    /**
+ /**
+ * Exibe uma notificação não bloqueante (toast) no canto inferior direito (Requisito 2.6).
+ * @param {string} mensagem - Texto exibido na notificação.
+ * @param {'sucesso'|'erro'|'aviso'|'info'} [tipo='info'] - Estilo visual do toast.
+ * @param {number} [duracaoMs=3500] - Tempo em milissegundos antes de sumir.
+ */
+export function mostrarToast(mensagem, tipo = 'info', duracaoMs = 3500) {
+  let container = document.getElementById('container-toasts');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'container-toasts';
+    container.className = 'container-toasts';
+    container.setAttribute('aria-live', 'polite');
+    container.setAttribute('aria-atomic', 'false');
+    document.body.appendChild(container);
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast toast-${tipo}`;
+  toast.setAttribute('role', tipo === 'erro' ? 'alert' : 'status');
+
+  const spanTexto = document.createElement('span');
+  spanTexto.textContent = mensagem;
+
+  const btnFechar = document.createElement('button');
+  btnFechar.type = 'button';
+  btnFechar.className = 'toast-fechar';
+  btnFechar.textContent = '×';
+  btnFechar.setAttribute('aria-label', 'Fechar notificação');
+
+  const removerToast = () => {
+    toast.classList.add('toast-saindo');
+    setTimeout(() => toast.remove(), 220);
+  };
+
+  btnFechar.addEventListener('click', removerToast);
+  toast.append(spanTexto, btnFechar);
+  container.appendChild(toast);
+
+  setTimeout(removerToast, duracaoMs);
+}
+
+/**
+ * Alterna o estado de carregamento em botões durante operações assíncronas (Requisito 2.6).
+ * @param {HTMLButtonElement|null} botao
+ * @param {boolean} carregando
+ * @param {string} [textoCarregando='Processando...']
+ */
+export function alternarCarregamentoBotao(botao, carregando, textoCarregando = 'Processando...') {
+  if (!botao) return;
+  if (carregando) {
+    botao.dataset.textoOriginal = botao.textContent;
+    botao.textContent = textoCarregando;
+    botao.disabled = true;
+    botao.setAttribute('aria-busy', 'true');
+  } else {
+    if (botao.dataset.textoOriginal) {
+      botao.textContent = botao.dataset.textoOriginal;
+    }
+    botao.disabled = false;
+    botao.removeAttribute('aria-busy');
+  }
+}
+    
+ /**
  * Valida o formulário de contato do rodapé (#form-contato) e salva a mensagem no localStorage (Requisito 2.5g).
  */
 export function inicializarFormularioContato() {
@@ -155,6 +219,7 @@ export function inicializarFormularioContato() {
     });
 
     salvarDados(CHAVES_STORAGE.MENSAGENS, lista);
+    mostrarToast('Mensagem enviada com sucesso!', 'sucesso');
     formContato.reset();
     avisoContato.style.color = '#16a34a';
     avisoContato.textContent = 'Mensagem enviada com sucesso! Obrigado pelo contato.';

@@ -1,6 +1,7 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
 import { obterProdutosComEstoque } from './produtos.js';
 import { aplicarMascaraCEP, formatarMoeda } from './utils.js';
+import { mostrarToast } from './ui.js';
 
 export function obterDonoCarrinhoAtual(){
   
@@ -318,8 +319,9 @@ export function inicializarCarrinho() {
     grade?.addEventListener('click', (evento) => {
         const btnAdicionar = evento.target.closest('.botao-adicionar');
         if (!btnAdicionar) return;
-        adicionarAoCarrinho(btnAdicionar.dataset.id, 1);
-        renderizarCarrinho();
+        const resultado = adicionarAoCarrinho(btnAdicionar.dataset.id, 1);
+        mostrarToast(resultado.mensagem, resultado.sucesso ? 'sucesso' : 'erro');
+        if (resultado.sucesso) renderizarCarrinho();
     });
 
     // Clique em "Adicionar ao carrinho" dentro do Modal de detalhes
@@ -332,6 +334,7 @@ export function inicializarCarrinho() {
     const resultado = adicionarAoCarrinho(btnModalAdicionar.dataset.id, qtd);
     if (resultado.sucesso) {
       renderizarCarrinho();
+      mostrarToast(resultado.mensagem, 'sucesso');
       modal?.close();
     } else {
       const erroQtd = document.getElementById('modal-erro-qtd');
@@ -365,6 +368,7 @@ export function inicializarCarrinho() {
     } else if (btnRemover) {
       removerDoCarrinho(btnRemover.dataset.id);
       renderizarCarrinho();
+      mostrarToast('Item removido do carrinho.', 'info');
     }
   });
 

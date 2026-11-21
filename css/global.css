@@ -106,4 +106,114 @@ h3 {
   text-align: center;
   padding-top: 1rem;
   margin-bottom: 1.5rem;
+}/* Notificações não bloqueantes (Toasts - Requisito 2.6) */
+.container-toasts {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(22rem, calc(100vw - 2.5rem));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #1c1917;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: toast-entrar 0.2s ease-out;
+}
+
+.toast-sucesso { background-color: #15803d; }
+.toast-erro    { background-color: #dc2626; }
+.toast-aviso   { background-color: #b45309; }
+.toast-info    { background-color: #0369a1; }
+
+.toast-fechar {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  opacity: 0.85;
+}
+
+.toast-fechar:hover { opacity: 1; }
+
+.toast-saindo {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+@keyframes toast-entrar {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Notificações não bloqueantes (Toasts - Requisito 2.6) */
+.container-toasts {
+  position: fixed;
+  right: 1.25rem;
+  bottom: 1.25rem;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: min(22rem, calc(100vw - 2.5rem));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: #ffffff;
+  background-color: #1c1917;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  animation: toast-entrar 0.2s ease-out;
+}
+
+.toast-sucesso { background-color: #15803d; }
+.toast-erro    { background-color: #dc2626; }
+.toast-aviso   { background-color: #b45309; }
+.toast-info    { background-color: #0369a1; }
+
+.toast-fechar {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.15rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.2rem;
+  opacity: 0.85;
+}
+
+.toast-fechar:hover { opacity: 1; }
+
+.toast-saindo {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+@keyframes toast-entrar {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
