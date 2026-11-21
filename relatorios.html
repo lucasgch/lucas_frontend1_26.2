@@ -43,7 +43,18 @@
 
     <main class="container">
         <h1 id="titulo-relatorios" class="intern-pages-title">Relatórios</h1>
-                <section class="painel-indicadores" aria-labelledby="titulo-indicadores">
+        
+        <div class="acoes-relatorio">
+            <button type="button" id="btn-imprimir-relatorio" class="botao botao-primario">Imprimir / salvar em PDF</button>
+            <button type="button" id="btn-csv-clientes" class="botao botao-secundario">Exportar Clientes (CSV)</button>
+            <button type="button" id="btn-csv-compras" class="botao botao-secundario">Exportar Compras (CSV)</button>
+        </div>
+        <header class="cabecalho-impressao" aria-hidden="true">
+            <h2>&lt;//&gt; Livros — Relatório Administrativo</h2>
+            <p id="meta-impressao-cabecalho"></p>
+        </header>
+        
+        <section class="painel-indicadores" aria-labelledby="titulo-indicadores">
             <h2 id="titulo-indicadores">Painel de Indicadores</h2>
 
             <div class="grade-kpis">
@@ -313,6 +324,9 @@
             </div>
         </dialog>
 
+        <footer class="rodape-impressao" aria-hidden="true">
+            <p id="meta-impressao-rodape"></p>
+        </footer>
     </main>
 
     <footer class="container footer-container">
