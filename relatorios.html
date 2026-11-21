@@ -216,6 +216,34 @@
 
         </section><!-- Encerra a seção relatorio compras -->
 
+                <dialog id="modal-detalhes-compra" class="modal-checkout" aria-labelledby="titulo-modal-compra">
+            <div class="modal-checkout-conteudo">
+                <header class="modal-checkout-cabecalho">
+                    <h2 id="titulo-modal-compra">Detalhes do Pedido</h2>
+                    <p id="detalhe-compra-subtitulo" class="indicador-etapa"></p>
+                </header>
+
+                <div id="conteudo-detalhes-compra" class="lista-resumo-checkout"></div>
+
+                <div class="grupo-filtro">
+                    <label for="select-status-detalhe-compra">Alterar status:</label>
+                    <select id="select-status-detalhe-compra">
+                        <option value="Pago">Pago</option>
+                        <option value="Enviado">Enviado</option>
+                        <option value="Entregue">Entregue</option>
+                        <option value="Cancelado">Cancelado</option>
+                    </select>
+                </div>
+
+                <p id="msg-status-compra" class="mensagem-erro-campo" role="status" aria-live="polite"></p>
+
+                <div class="acoes-checkout">
+                    <button type="button" id="btn-fechar-modal-compra" class="botao botao-secundario">Fechar</button>
+                    <button type="button" id="btn-salvar-status-compra" class="botao botao-primario">Salvar status</button>
+                </div>
+            </div>
+        </dialog>
+
     </main>
 
     <footer class="container footer-container">
