@@ -92,9 +92,6 @@ export function renderizarMenuDinamico() {
             window.location.href = 'login.html';
         });
     }
-    
-    // Protege a página e renderiza o menu ao carregar
-    renderizarMenuDinamico();
 
     /**
  * Valida o formulário de contato do rodapé (#form-contato) e salva a mensagem no localStorage (Requisito 2.5g).
