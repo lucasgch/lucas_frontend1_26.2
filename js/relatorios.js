@@ -1,5 +1,5 @@
 import { obterClientes } from './clientes.js';
-import { obterCompras } from './compras.js';
+import { atualizarStatusCompra, obterCompras } from './compras.js';
 import {
   aplicarMascaraCPF,
   criarConteudoDestacado,
@@ -216,7 +216,13 @@ export function renderizarTabelaCompras(listaCompras) {
     tdValor.textContent = formatarMoeda(compra.total);
     // 7. Ações (no passo 5.2.3 entrará o botão "Ver detalhes" que abre o modal)
     const tdAcoes = document.createElement('td');
-    tdAcoes.textContent = '—';
+    const btnDetalhes = document.createElement('button');
+    btnDetalhes.type = 'button';
+    btnDetalhes.className = 'botao botao-secundario btn-detalhes-compra';
+    btnDetalhes.dataset.id = compra.id;
+    btnDetalhes.textContent = 'Ver detalhes';
+    btnDetalhes.setAttribute('aria-label', `Ver detalhes da compra ${compra.id}`);
+    tdAcoes.appendChild(btnDetalhes);
     tr.append(thId, tdData, tdCliente, tdProdutos, tdStatus, tdValor, tdAcoes);
     fragmento.appendChild(tr);
   }
@@ -227,6 +233,77 @@ export function renderizarTabelaCompras(listaCompras) {
   if (celulaSoma) {
     celulaSoma.textContent = `Total: ${formatarMoeda(somaValores)}`;
   }
+}
+
+/**
+ * Preenche e abre o modal <dialog> com os detalhes completos de uma compra (Requisito 2.5d).
+ * @param {string} idCompra - Código da compra (ex: 'CP001').
+ */
+function abrirModalDetalhesCompra(idCompra) {
+  const modal = document.getElementById('modal-detalhes-compra');
+  const conteudo = document.getElementById('conteudo-detalhes-compra');
+  const titulo = document.getElementById('titulo-modal-compra');
+  const subtitulo = document.getElementById('detalhe-compra-subtitulo');
+  const selectStatus = document.getElementById('select-status-detalhe-compra');
+  const btnSalvar = document.getElementById('btn-salvar-status-compra');
+  const msgStatus = document.getElementById('msg-status-compra');
+  if (!modal || !conteudo) return;
+  const compra = obterCompras().find((c) => c.id === idCompra);
+  if (!compra) return;
+  modal.dataset.compraId = compra.id;
+  if (titulo) titulo.textContent = `Pedido ${compra.id}`;
+  if (subtitulo) subtitulo.textContent = `Realizado em ${formatarDataHora(compra.data)}`;
+  if (msgStatus) msgStatus.textContent = '';
+  conteudo.replaceChildren();
+  const criarLinha = (rotulo, valor) => {
+    const linha = document.createElement('div');
+    linha.className = 'linha-resumo-checkout';
+    const span = document.createElement('span');
+    span.textContent = rotulo;
+    const strong = document.createElement('strong');
+    strong.textContent = valor;
+    linha.append(span, strong);
+    conteudo.appendChild(linha);
+  };
+  // Cliente
+  criarLinha('Cliente:', `${compra.clienteNome} (${compra.clienteId})`);
+  criarLinha('E-mail:', compra.clienteEmail || '—');
+  // Endereço
+  if (compra.enderecoEntrega) {
+    const e = compra.enderecoEntrega;
+    const comp = e.complemento ? `, ${e.complemento}` : '';
+    criarLinha('Entrega:', `${e.logradouro}, ${e.numero}${comp} - ${e.bairro}, ${e.cidade}/${e.uf} (${e.cep})`);
+  }
+  // Pagamento
+  let textoPag = 'Pix';
+  if (compra.pagamento?.metodo === 'cartao') {
+    textoPag = `Cartão de Crédito (final ${compra.pagamento.ultimos4Digitos})`;
+  } else if (compra.pagamento?.metodo === 'boleto') {
+    textoPag = 'Boleto Bancário';
+  }
+  criarLinha('Pagamento:', textoPag);
+  // Itens
+  for (const item of compra.itens || []) {
+    criarLinha(
+      `${item.quantidade}x ${item.nome} (${formatarMoeda(item.precoUnitario)} un.)`,
+      formatarMoeda(item.subtotal)
+    );
+  }
+  // Valores
+  criarLinha('Subtotal:', formatarMoeda(compra.subtotal));
+  if (compra.desconto > 0) {
+    criarLinha(compra.cupom ? `Desconto (${compra.cupom}):` : 'Desconto:', `- ${formatarMoeda(compra.desconto)}`);
+  }
+  criarLinha('Frete:', compra.frete === 0 ? 'Grátis' : formatarMoeda(compra.frete));
+  criarLinha('Total:', formatarMoeda(compra.total));
+  // Status atual (desabilita edição se já estiver Cancelado)
+  const statusAtual = compra.status || 'Pago';
+  if (selectStatus) {
+    selectStatus.value = statusAtual;
+    selectStatus.disabled = statusAtual === 'Cancelado';
+  }
+  if (btnSalvar) btnSalvar.disabled = statusAtual === 'Cancelado';
+  modal.showModal();
 }
 
 /**
@@ -407,6 +484,35 @@ export function inicializarRelatorios() {
   selectStatusCompra?.addEventListener('change', atualizarCompras);
   formCompras?.addEventListener('reset', () => setTimeout(atualizarCompras, 0));
 
+  const modalCompra = document.getElementById('modal-detalhes-compra');
+const btnFecharModalCompra = document.getElementById('btn-fechar-modal-compra');
+const btnSalvarStatus = document.getElementById('btn-salvar-status-compra');
+const selectStatusDetalhe = document.getElementById('select-status-detalhe-compra');
+const msgStatusCompra = document.getElementById('msg-status-compra');
+document.getElementById('tbody-compras')?.addEventListener('click', (evento) => {
+  const btn = evento.target.closest('.btn-detalhes-compra');
+  if (btn) abrirModalDetalhesCompra(btn.dataset.id);
+});
+btnFecharModalCompra?.addEventListener('click', () => modalCompra?.close());
+modalCompra?.addEventListener('click', (evento) => {
+  if (evento.target === modalCompra) modalCompra.close();
+});
+btnSalvarStatus?.addEventListener('click', () => {
+  const idCompra = modalCompra?.dataset.compraId;
+  if (!idCompra || !selectStatusDetalhe) return;
+  const res = atualizarStatusCompra(idCompra, selectStatusDetalhe.value);
+  if (msgStatusCompra) {
+    msgStatusCompra.style.color = res.sucesso ? '#16a34a' : '#dc2626';
+    msgStatusCompra.textContent = res.mensagem;
+  }
+  if (res.sucesso) {
+    if (selectStatusDetalhe.value === 'Cancelado') {
+      selectStatusDetalhe.disabled = true;
+      btnSalvarStatus.disabled = true;
+    }
+    atualizarCompras();
+  }
+});
   atualizarCompras();
 }
 inicializarRelatorios();
