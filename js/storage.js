@@ -114,4 +114,8 @@ export function inicializarStorage() {
   if (lerDados(CHAVES_STORAGE.COMPRAS) === null) {
     salvarDados(CHAVES_STORAGE.COMPRAS, []);
   }
+  // Lista de mensagens começa como array vazio [] se não existir
+  if (lerDados(CHAVES_STORAGE.MENSAGENS) === null) {
+    salvarDados(CHAVES_STORAGE.MENSAGENS, []);
+  }
 }
