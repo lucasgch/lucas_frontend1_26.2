@@ -91,6 +91,7 @@ export function renderizarMenuDinamico() {
             encerrarSessao();
             window.location.href = 'login.html';
         });
+        inicializarTema();
     }
 
  /**
@@ -226,6 +227,67 @@ export function inicializarFormularioContato() {
   });
 }
 
+/**
+ * Retorna o tema salvo no localStorage ou detecta prefers-color-scheme na primeira visita (Requisito 2.6).
+ * @returns {'claro'|'escuro'}
+ */
+export function obterTemaAtual() {
+  const salvo = lerDados(CHAVES_STORAGE.TEMA, null);
+  if (salvo === 'claro' || salvo === 'escuro') return salvo;
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'escuro' : 'claro';
+}
+
+/**
+ * Aplica o tema no elemento <html> e atualiza o botão de alternância no menu.
+ * @param {'claro'|'escuro'} tema
+ */
+export function aplicarTema(tema) {
+  const temaValido = tema === 'escuro' ? 'escuro' : 'claro';
+  document.documentElement.dataset.tema = temaValido;
+
+  const btnTema = document.getElementById('btn-alternar-tema');
+  if (btnTema) {
+    const ehEscuro = temaValido === 'escuro';
+    btnTema.textContent = ehEscuro ? '☀️' : '🌙';
+    btnTema.setAttribute('aria-pressed', String(ehEscuro));
+    btnTema.setAttribute('aria-label', ehEscuro ? 'Ativar tema claro' : 'Ativar tema escuro');
+    btnTema.title = ehEscuro ? 'Mudar para tema claro' : 'Mudar para tema escuro';
+  }
+}
+
+/**
+ * Insere o botão de alternância de tema no menu principal e conecta o clique (Requisito 2.6).
+ */
+export function inicializarTema() {
+  const temaInicial = obterTemaAtual();
+  aplicarTema(temaInicial);
+
+  const listaMenu = document.querySelector('#menu-principal ul');
+  if (!listaMenu || document.getElementById('btn-alternar-tema')) return;
+
+  const li = document.createElement('li');
+  li.className = 'item-menu-tema';
+
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.id = 'btn-alternar-tema';
+  btn.className = 'btn-tema';
+
+  btn.addEventListener('click', () => {
+    const atual = document.documentElement.dataset.tema === 'escuro' ? 'escuro' : 'claro';
+    const proximo = atual === 'escuro' ? 'claro' : 'escuro';
+    salvarDados(CHAVES_STORAGE.TEMA, proximo);
+    aplicarTema(proximo);
+    mostrarToast(`Tema ${proximo} ativado.`, 'info', 2000);
+  });
+
+  li.appendChild(btn);
+  listaMenu.appendChild(li);
+  aplicarTema(temaInicial);
+}
+
 // Renderiza o menu e inicializa o formulário de contato ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();
+inicializarTema();
+

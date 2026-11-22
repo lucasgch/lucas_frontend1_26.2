@@ -240,4 +240,11 @@
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }
+
+  html[data-tema="escuro"] {
+    --color-bg: #ffffff;
+    --cor-superficie: #ffffff;
+    --text-primary: #1c1917;
+    --text-muted: #57534e;
+  }
 }
