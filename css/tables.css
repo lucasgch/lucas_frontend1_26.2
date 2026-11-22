@@ -1,6 +1,5 @@
 .tabela-container {
   min-width: 0;
-  max-width: 100%;
   width: 100%;
   max-width: 48rem;   /* Evita que a tabela estique demais em telas muito largas */
   margin-inline: auto; /* Garante a centralização horizontal */

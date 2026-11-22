@@ -86,7 +86,6 @@ export function obterSegundosRestantesBloqueio() {
  * @returns {Promise<{sucesso: boolean, mensagem: string, bloqueadoSegundos?: number, sessao?: Object}>}
  */
 export async function autenticarUsuario(email, senha) {
-    //** TODO */
     await garantirContaAdmin();
 
     // Verifica se está bloqueado temporariamente por excesso de tentativas
