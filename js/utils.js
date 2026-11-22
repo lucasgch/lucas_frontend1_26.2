@@ -3,10 +3,20 @@ const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
   currency: 'BRL'
 });
 
+/**
+ * Formata um número em moeda brasileira (BRL) usando Intl.NumberFormat.
+ * @param {number|string} valor - Valor numérico a formatar.
+ * @returns {string} Valor formatado (ex: 'R$ 59,90').
+ */
 export function formatarMoeda(valor) {
   return formatadorMoeda.format(Number(valor) || 0);
 }
 
+/**
+ * Normaliza um texto para comparação (minúsculas, sem espaços nas pontas e sem acentos).
+ * @param {string} [texto=''] - Texto de entrada.
+ * @returns {string} Texto normalizado.
+ */
 export function normalizarTexto(texto = ''){
   let textoNormalizado = texto.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   return textoNormalizado;
@@ -18,6 +28,11 @@ const formatadorData = new Intl.DateTimeFormat('pt-BR', {
   year: 'numeric'
 });
 
+/**
+ * Formata uma data ISO no padrão brasileiro (DD/MM/AAAA) usando Intl.DateTimeFormat.
+ * @param {string} dataIso - Data em formato ISO.
+ * @returns {string} Data formatada ou string vazia se inválida.
+ */
 export function formatarData(dataIso) {
   const data = new Date(dataIso);
   return Number.isNaN(data.getTime()) ? '' : formatadorData.format(data);
@@ -31,6 +46,11 @@ const formatadorDataHora = new Intl.DateTimeFormat('pt-BR', {
   minute: '2-digit'
 });
 
+/**
+ * Formata uma data ISO com horário no padrão brasileiro (DD/MM/AAAA, HH:MM).
+ * @param {string} dataIso - Data e hora em formato ISO.
+ * @returns {string} Data e hora formatadas ou string vazia se inválida.
+ */
 export function formatarDataHora(dataIso) {
   const data = new Date(dataIso);
   return Number.isNaN(data.getTime()) ? '' : formatadorDataHora.format(data);
@@ -63,6 +83,11 @@ export function limparNumeros(valor = '') {
   return String(valor).replace(/\D/g, '');
 }
 
+/**
+ * Aplica a máscara padrão de CPF (000.000.000-00) enquanto o usuário digita.
+ * @param {string} valor - Texto digitado no campo de CPF.
+ * @returns {string} CPF formatado.
+ */
 export function aplicarMascaraCPF(valor){
   const apenasDigitos = limparNumeros(valor).slice(0, 11);
   return apenasDigitos.replace(/(\d{3})(\d)/, '$1.$2')

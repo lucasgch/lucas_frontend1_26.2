@@ -3,6 +3,10 @@ import { obterProdutosComEstoque } from './produtos.js';
 import { aplicarMascaraCEP, formatarMoeda } from './utils.js';
 import { mostrarToast } from './ui.js';
 
+/**
+ * Retorna o identificador do dono do carrinho atual (ID do cliente logado ou 'visitante').
+ * @returns {string}
+ */
 export function obterDonoCarrinhoAtual(){
   
   const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
@@ -441,6 +445,10 @@ export function inicializarCarrinho() {
   }
 }
 
+/**
+ * Mescla os itens, cupom e CEP do carrinho do visitante ao carrinho do cliente ao efetuar login (Requisito 2.3d).
+ * @param {string} usuarioId - ID do cliente autenticado.
+ */
 export function mesclarCarrinhoAoLogar(usuarioId) {
   const itensVisitante = obterCarrinho('visitante');
   const extrasVisitante = obterExtrasCarrinho('visitante');
@@ -493,7 +501,12 @@ export const CUPONS_DISPONIVEIS = {
   EXPIRADO20: { codigo: 'EXPIRADO20', tipo: 'percentual', valor: 20, minimo: 30, validade: '2025-01-01', descricao: 'Cupom vencido' }
 };
 
-// Função para calcular CEP
+/**
+ * Simula o valor do frete com base na faixa de CEP e aplica frete grátis acima de R$ 200,00 (Requisito 2.3f).
+ * @param {string} cep - CEP informado com ou sem máscara.
+ * @param {number} subtotal - Subtotal atual do carrinho.
+ * @returns {{valido: boolean, valor: number, regiao?: string, mensagem?: string}}
+ */
 export function calcularFretePorCep(cep, subtotal){
   const cepLimpo = String(cep).replace(/\D/g, '');
   if (cepLimpo.length !== 8){
@@ -513,6 +526,12 @@ export function calcularFretePorCep(cep, subtotal){
   }
 }
 
+/**
+ * Valida um código de cupom verificando existência, data de validade e valor mínimo (Requisito 2.3e).
+ * @param {string} codigo - Código do cupom digitado.
+ * @param {number} subtotal - Subtotal atual do carrinho.
+ * @returns {{valido: boolean, cupom?: Object, mensagem: string}}
+ */
 export function validarCupom(codigo, subtotal){
   const chave = String(codigo).trim().toUpperCase();
   const cupom = CUPONS_DISPONIVEIS[chave];
@@ -555,6 +574,11 @@ export function salvarExtrasCarrinho(novosExtras, donoId = obterDonoCarrinhoAtua
   salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
 
+/**
+ * Consolida subtotal, desconto do cupom ativo, frete calculado e total final do carrinho.
+ * @param {string} [cepAlternativo=''] - CEP opcional (ex: endereço do checkout) para cálculo do frete.
+ * @returns {{subtotal: number, desconto: number, frete: number|null, total: number, codigoCupom: string, cep: string}}
+ */
 export function obterResumoCarrinho(cepAlternativo = '') {
   const itens = obterCarrinho();
   const catalogo = obterProdutosComEstoque();

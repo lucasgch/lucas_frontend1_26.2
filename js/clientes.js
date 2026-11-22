@@ -291,6 +291,12 @@ export function inicializarCadastro() {
 } // <-- Fecha a função inicializarCadastro()
 inicializarCadastro();
 
+/**
+ * Atualiza os dados cadastrais e/ou a senha de um cliente, validando unicidade de CPF/e-mail e senha atual (Requisito 2.1e).
+ * @param {string} idCliente - ID do cliente logado.
+ * @param {{nome: string, cpf: string, telefone: string, email: string, senhaAtual?: string, novaSenha?: string}} dados
+ * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem: string, cliente?: Object}>}
+ */
 export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, senhaAtual, novaSenha }) {
   const clientes = obterClientes();
   const indice = clientes.findIndex((c) => c.id === idCliente);
@@ -367,6 +373,10 @@ export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, 
 
 }
 
+/**
+ * Exclui a conta e o carrinho do cliente mantendo o histórico de compras preservado (Requisito 2.1f).
+ * @param {string} idCliente - ID do cliente a ser excluído.
+ */
 export function excluirContaCliente(idCliente){
   
   // Apaga o carrinho do cliente
@@ -385,6 +395,9 @@ export function excluirContaCliente(idCliente){
   removerDados(CHAVES_STORAGE.SESSAO);
 }
 
+/**
+ * Inicializa o formulário de edição de perfil e o modal de exclusão de conta em perfil.html.
+ */
 export function inicializarPerfil(){
 
   const formPerfil = document.getElementById('form-perfil');
