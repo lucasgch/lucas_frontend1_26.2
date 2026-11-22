@@ -286,8 +286,61 @@ export function inicializarTema() {
   aplicarTema(temaInicial);
 }
 
+/**
+ * Gerencia automaticamente o foco ao abrir e fechar todos os modais <dialog> da página (Requisito 2.6).
+ */
+export function inicializarAcessibilidadeModais() {
+  const modais = document.querySelectorAll('dialog');
+  if (modais.length === 0) return;
+
+  let ultimoElementoForaModal = null;
+
+  // Registra o elemento que tinha foco/clique antes de abrir o modal
+  const registrarOrigem = (alvo) => {
+    if (!(alvo instanceof HTMLElement)) return;
+    if (alvo.closest('dialog[open]')) return;
+    ultimoElementoForaModal = alvo.closest('button, a, input, select, textarea, summary, [tabindex]') || alvo;
+  };
+
+  document.addEventListener('focusin', (evento) => registrarOrigem(evento.target));
+  document.addEventListener('click', (evento) => registrarOrigem(evento.target), true);
+
+  const seletorFocaveis =
+    'button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
+  modais.forEach((modal) => {
+    let elementoRetorno = null;
+
+    // Detecta quando o modal abre via showModal()
+    const observador = new MutationObserver(() => {
+      if (modal.open) {
+        elementoRetorno = ultimoElementoForaModal;
+        const primeiroFocavel = Array.from(modal.querySelectorAll(seletorFocaveis)).find(
+          (el) => el.offsetParent !== null
+        );
+        primeiroFocavel?.focus();
+      }
+    });
+    observador.observe(modal, { attributes: true, attributeFilter: ['open'] });
+
+    // Fecha ao clicar no fundo escuro (padroniza todos os modais, inclusive #modal-excluir-conta)
+    modal.addEventListener('click', (evento) => {
+      if (evento.target === modal) modal.close();
+    });
+
+    // Devolve o foco ao elemento original ao fechar (botão, clique fora ou Esc)
+    modal.addEventListener('close', () => {
+      if (elementoRetorno && elementoRetorno.isConnected) {
+        elementoRetorno.focus();
+      }
+      elementoRetorno = null;
+    });
+  });
+}
+
 // Renderiza o menu e inicializa o formulário de contato ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();
 inicializarTema();
+inicializarAcessibilidadeModais();
 

@@ -46,9 +46,9 @@ html {
 body {
   margin: 0;
   background: var(--color-bg);
-  color: var(--color-text-body);
+  color: var(--text-primary);
   font-family: var(--font-inter);
-  font-size: var(--text-primary);
+  font-size: var(--text-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -111,7 +111,20 @@ h3 {
   text-align: center;
   padding-top: 1rem;
   margin-bottom: 1.5rem;
-}/* Notificações não bloqueantes (Toasts - Requisito 2.6) */
+}
+
+/* Foco visível para navegação por teclado (Requisito 2.6) */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid var(--text-accent);
+  outline-offset: 2px;
+}
+
+/* Notificações não bloqueantes (Toasts - Requisito 2.6) */
 .container-toasts {
   position: fixed;
   right: 1.25rem;
@@ -165,18 +178,6 @@ h3 {
 @keyframes toast-entrar {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-/* Notificações não bloqueantes (Toasts - Requisito 2.6) */
-.container-toasts {
-  position: fixed;
-  right: 1.25rem;
-  bottom: 1.25rem;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-  max-width: min(22rem, calc(100vw - 2.5rem));
 }
 
 /* Tema escuro (Requisito 2.6) */
