@@ -45,7 +45,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 - [X] - (c) **Proteção de páginas:** `perfil.html` exige login; finalizar compra exige login; `relatorios.html` exige perfil de administrador. Ao ser barrado, o usuário é enviado para `login.html` com mensagem e, após entrar, retorna à página que tentava acessar (parâmetro na URL).
 - [X] - (d) **Menu dinâmico:** visitante vê “Entrar” e “Cadastrar”; cliente logado vê “Olá, [nome]”, “Meu perfil” e “Sair”; administrador vê também “Relatórios”. Sair encerra a sessão, mas mantém o carrinho salvo.
 - [X] - (e) **Conta administradora:** criada automaticamente na primeira execução (seed), com credenciais documentadas no `README`.
-- [ ] - (f) **Bloqueio de cliente:** clientes bloqueados pelo administrador não conseguem entrar (ver 2.5).
+- [X] - (f) **Bloqueio de cliente:** clientes bloqueados pelo administrador não conseguem entrar (ver 2.5).
 
 ### 2.3 Catálogo e carrinho
 
@@ -60,7 +60,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 ### 2.4 Compras e checkout
 
 - [X] - (a) **Acesso:** finalizar compra apenas para clientes logados; visitantes são redirecionados ao login e retornam ao carrinho intacto.
-- [ ] - (b) **Etapas:** resumo do pedido → endereço/entrega → pagamento → confirmação, com validação em cada etapa e possibilidade de voltar.
+- [X] - (b) **Etapas:** resumo do pedido → endereço/entrega → pagamento → confirmação, com validação em cada etapa e possibilidade de voltar.
 - [X] - (c) **Pagamento simulado:** Pix, cartão e boleto. No cartão, validar número com o algoritmo de Luhn, validade e CVV. Armazenar apenas os 4 últimos dígitos.
 - [X] - (d) **Registro da compra:** ID automático (`CP001`, `CP002`...), cliente (guardar cópia de ID, nome e e-mail no momento da compra), itens (ID, nome, preço unitário no momento da compra e quantidade), subtotal, desconto, frete, valor total, forma de pagamento, data e hora, e status.
 - [X] - (e) **Estoque:** dar baixa automática após a compra e revalidar o estoque no momento da finalização, impedindo a venda de itens indisponíveis.
@@ -68,18 +68,18 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 ### 2.5 Área administrativa
 
-- [ ] - (a) **Relatório de clientes:** listar todos os clientes, com ordenação por coluna (clicando no cabeçalho) e paginação (10 registros por página), exibindo o total de registros.
-- [ ] - (b) **Busca de clientes:** por nome, ID, e-mail ou CPF, de forma parcial, sem diferenciar maiúsculas/minúsculas ou acentos, aceitando CPF com ou sem máscara. O resultado é atualizado sem recarregar a página e o termo encontrado é destacado (elemento `<mark>`).
-- [ ] - (c) **Busca de compras:** por ID, cliente, intervalo de datas, intervalo de valores ou produto, com combinação de filtros, botão “Limpar filtros” e somatório dos valores do resultado. Disponível somente na área administrativa.
-- [ ] - (d) **Gestão:** ver os detalhes de uma compra em modal e alterar seu status (Pago, Enviado, Entregue, Cancelado); bloquear e desbloquear clientes. O cancelamento de uma compra devolve os itens ao estoque.
-- [ ] - (e) **Painel de indicadores:** total de clientes, total de compras, faturamento, ticket médio, 5 produtos mais vendidos e gráfico de vendas por período, desenhado com `<canvas>`, `<svg>` ou CSS (sem bibliotecas de gráficos).
-- [ ] - (f) **Impressão e exportação:** relatórios apresentados em nova página/visão com cabeçalho e rodapé personalizados (data e hora de emissão e administrador responsável), botão “Imprimir / salvar em PDF” (`window.print` com CSS de impressão) e exportação CSV do resultado filtrado, gerada com `Blob`, com escape correto de campos e codificação UTF-8 com BOM.
-- [ ] - (g) **Mensagens de contato:** o formulário de contato da página inicial deve ser validado e salvo no `localStorage`; o administrador vê a lista de mensagens e pode marcá-las como lidas.
+- [X] - (a) **Relatório de clientes:** listar todos os clientes, com ordenação por coluna (clicando no cabeçalho) e paginação (10 registros por página), exibindo o total de registros.
+- [X] - (b) **Busca de clientes:** por nome, ID, e-mail ou CPF, de forma parcial, sem diferenciar maiúsculas/minúsculas ou acentos, aceitando CPF com ou sem máscara. O resultado é atualizado sem recarregar a página e o termo encontrado é destacado (elemento `<mark>`).
+- [X] - (c) **Busca de compras:** por ID, cliente, intervalo de datas, intervalo de valores ou produto, com combinação de filtros, botão “Limpar filtros” e somatório dos valores do resultado. Disponível somente na área administrativa.
+- [X] - (d) **Gestão:** ver os detalhes de uma compra em modal e alterar seu status (Pago, Enviado, Entregue, Cancelado); bloquear e desbloquear clientes. O cancelamento de uma compra devolve os itens ao estoque.
+- [X] - (e) **Painel de indicadores:** total de clientes, total de compras, faturamento, ticket médio, 5 produtos mais vendidos e gráfico de vendas por período, desenhado com `<canvas>`, `<svg>` ou CSS (sem bibliotecas de gráficos).
+- [X] - (f) **Impressão e exportação:** relatórios apresentados em nova página/visão com cabeçalho e rodapé personalizados (data e hora de emissão e administrador responsável), botão “Imprimir / salvar em PDF” (`window.print` com CSS de impressão) e exportação CSV do resultado filtrado, gerada com `Blob`, com escape correto de campos e codificação UTF-8 com BOM.
+- [X] - (g) **Mensagens de contato:** o formulário de contato da página inicial deve ser validado e salvo no `localStorage`; o administrador vê a lista de mensagens e pode marcá-las como lidas.
 
 ### 2.6 Experiência do usuário
 
-- [ ] - Feedback por notificações não bloqueantes (*toasts*) e estados de carregamento; nenhum uso de `alert()`, `confirm()` ou `prompt()`.
-- [ ] - **Acessibilidade:** mensagens dinâmicas com `aria-live`, foco gerenciado ao abrir e fechar modais e navegação completa pelo teclado.
+- [X] - Feedback por notificações não bloqueantes (*toasts*) e estados de carregamento; nenhum uso de `alert()`, `confirm()` ou `prompt()`.
+- [X] - **Acessibilidade:** mensagens dinâmicas com `aria-live`, foco gerenciado ao abrir e fechar modais e navegação completa pelo teclado.
 - [ ] - Tema claro/escuro com botão de alternância, persistido no `localStorage` e respeitando `prefers-color-scheme` na primeira visita.
 - [ ] - A responsividade da Parte 1 (desktop, tablet e smartphone) deve ser mantida em todas as novas telas e componentes.
 
