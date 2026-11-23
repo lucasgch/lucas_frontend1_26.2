@@ -67,10 +67,13 @@
 /* Botão de Envio */
 .acoes-form {
   display: flex;
+  flex-wrap: wrap;
   justify-content: center;
 }
 .acoes-form .botao {
   width: 10rem;
+  max-width: 100%;
+  margin: 0;
   padding: 0.75rem 1.25rem;
   border: none;
   border-radius: var(--radius);
@@ -204,4 +207,21 @@
   margin-block: 0.75rem 1.5rem;
   color: var(--text-muted);
   font-size: var(--text-sm);
+}
+
+@media (max-width: 480px) {
+  .campo-form input,
+  .campo-form textarea,
+  .indicador-forca {
+    width: 100%;
+  }
+
+  .acoes-form .botao {
+    flex: 1 1 100%;
+    width: 100%;
+  }
+
+  .modal-confirmacao {
+    padding: 1.25rem 1rem;
+  }
 }

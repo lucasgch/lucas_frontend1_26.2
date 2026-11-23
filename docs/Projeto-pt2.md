@@ -80,7 +80,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 
 - [X] - Feedback por notificações não bloqueantes (*toasts*) e estados de carregamento; nenhum uso de `alert()`, `confirm()` ou `prompt()`.
 - [X] - **Acessibilidade:** mensagens dinâmicas com `aria-live`, foco gerenciado ao abrir e fechar modais e navegação completa pelo teclado.
-- [ ] - Tema claro/escuro com botão de alternância, persistido no `localStorage` e respeitando `prefers-color-scheme` na primeira visita.
+- [X] - Tema claro/escuro com botão de alternância, persistido no `localStorage` e respeitando `prefers-color-scheme` na primeira visita.
 - [ ] - A responsividade da Parte 1 (desktop, tablet e smartphone) deve ser mantida em todas as novas telas e componentes.
 
 ## 3 Requisitos técnicos
