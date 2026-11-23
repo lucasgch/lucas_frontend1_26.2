@@ -158,7 +158,7 @@
   margin-inline: auto;   /* Centraliza na tela igual à tabela */
   box-sizing: border-box; /* Garante que o padding de 1.25rem não passe dos 48rem */
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
   gap: 1.5rem;
   margin-top: 1.5rem;
   padding: 1.25rem;
@@ -169,6 +169,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  min-width: 0;
 }
 .box-extra-carrinho label {
   font-size: var(--text-sm);
@@ -177,10 +178,12 @@
 }
 .grupo-input-inline {
   display: flex;
+  flex-wrap: wrap;
   gap: 0.5rem;
 }
 .grupo-input-inline input {
-  flex: 1;
+  flex: 1 1 9rem;
+  min-width: 0;
   padding: 0.6rem 0.85rem;
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: var(--radius);
@@ -188,8 +191,10 @@
   font-size: var(--text-sm);
 }
 .grupo-input-inline .botao {
+  flex: 1 0 auto;
   margin: 0;
   padding: 0.6rem 1.1rem;
+  text-align: center;
   white-space: nowrap;
 }
 
