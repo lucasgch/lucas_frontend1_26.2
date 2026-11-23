@@ -15,6 +15,7 @@ export function definirErroCampo(campo, mensagem = '') {
     msgErro = document.createElement('p');
     msgErro.className = 'mensagem-erro-campo';
     msgErro.setAttribute('role', 'alert');
+    msgErro.setAttribute('aria-live', 'polite');
     campo.parentElement.appendChild(msgErro);
   }
   campo.setCustomValidity(mensagem);
@@ -422,6 +423,7 @@ export function inicializarPerfil(){
   const avisoPerfil = document.createElement('p');
   avisoPerfil.className = 'mensagem-erro-campo';
   avisoPerfil.setAttribute('role', 'alert');
+  avisoPerfil.setAttribute('aria-live', 'polite');
   formPerfil.querySelector('.acoes-form')?.insertAdjacentElement('beforebegin', avisoPerfil);
 
   function carregarDadosNosCampos(){

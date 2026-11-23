@@ -167,6 +167,7 @@ export function inicializarLogin() {
     const avisoLogin = document.createElement('p');
     avisoLogin.className = 'mensagem-erro-campo';
     avisoLogin.setAttribute('role', 'alert');
+    avisoLogin.setAttribute('aria-live', 'polite');
     formLogin.querySelector('.acoes-form')?.insertAdjacentElement('beforebegin', avisoLogin);
 
     // via redirecionamento
