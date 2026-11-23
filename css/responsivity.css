@@ -53,11 +53,18 @@
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
+    padding: 0;
   }
   #menu-principal a {
     display: block;
     text-align: center;
     padding: 0.75rem;
+  }
+  /* Centraliza o ícone do carrinho (com badge) e o botão de tema no menu mobile */
+  #menu-principal .item-menu-carrinho,
+  #menu-principal .item-menu-tema {
+    display: flex;
+    justify-content: center;
   }
   /* Exibe menu ao clicar */
   .menu-toggle:checked ~ #menu-principal {
