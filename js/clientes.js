@@ -56,14 +56,54 @@ export function obterClientes() {
 }
 
 /**
- * Cadastra um novo cliente após validar unicidade de e-mail e CPF.
+ * Cadastra um novo cliente após validar todos os campos e a unicidade de e-mail e CPF.
  * @param {{nome: string, cpf: string, telefone: string, email: string, senha: string}} dados
  * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem: string, cliente?: Object}>}
  */
-export async function cadastrarCliente({ nome, cpf, telefone, email, senha }) {
+export async function cadastrarCliente({ nome = '', cpf = '', telefone = '', email = '', senha = '' } = {}) {
+  const nomeLimpo = String(nome ?? '').trim();
+  const emailNormalizado = String(email ?? '').trim().toLowerCase();
+  const telefoneLimpo = String(telefone ?? '').trim();
+  const senhaTexto = String(senha ?? '');
+
+  if (!validarNomeCompleto(nomeLimpo)) {
+    return {
+      sucesso: false,
+      erroCampo: 'nome',
+      mensagem: 'Informe seu nome e sobrenome (mínimo de 3 caracteres).'
+    };
+  }
+  if (!validarCPF(cpf)) {
+    return {
+      sucesso: false,
+      erroCampo: 'cpf',
+      mensagem: 'CPF inválido. Digite os 11 números corretamente.'
+    };
+  }
+  if (!validarTelefone(telefoneLimpo)) {
+    return {
+      sucesso: false,
+      erroCampo: 'telefone',
+      mensagem: 'Informe um telefone válido com DDD (10 ou 11 números).'
+    };
+  }
+  if (!validarEmail(emailNormalizado)) {
+    return {
+      sucesso: false,
+      erroCampo: 'email',
+      mensagem: 'Informe um endereço de e-mail válido (ex: nome@dominio.com).'
+    };
+  }
+  if (!avaliarForcaSenha(senhaTexto).valida) {
+    return {
+      sucesso: false,
+      erroCampo: 'senha',
+      mensagem: 'A senha deve ter no mínimo 8 caracteres, com letras e números.'
+    };
+  }
+
   inicializarStorage();
   const clientes = obterClientes();
-  const emailNormalizado = String(email).trim().toLowerCase();
   const cpfLimpo = limparNumeros(cpf);
   // Verifica se CPF existe
   if (clientes.some((c) => limparNumeros(c.cpf) === cpfLimpo)) {
@@ -75,12 +115,12 @@ export async function cadastrarCliente({ nome, cpf, telefone, email, senha }) {
   }
   // Gera salt + hash SHA-256 da senha e ID sequencial (C001, C002...)
   const salt = gerarSalt();
-  const senhaHash = await gerarHashSenha(senha, salt);
+  const senhaHash = await gerarHashSenha(senhaTexto, salt);
   const novoCliente = {
     id: gerarProximoId('cliente', 'C'),
-    nome: String(nome).trim(),
+    nome: nomeLimpo,
     cpf: aplicarMascaraCPF(cpfLimpo),
-    telefone: limparNumeros(telefone),
+    telefone: limparNumeros(telefoneLimpo),
     email: emailNormalizado,
     salt,
     senhaHash,
