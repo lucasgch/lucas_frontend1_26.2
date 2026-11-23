@@ -1,5 +1,9 @@
 # Projeto 1  - Loja Virtual: Estrutura e Interface (HTML e CSS)
 
+![GitHub License](https://img.shields.io/github/license/lucasgch/lucas_frontend1_26.2)
+![GitHub repo size](https://img.shields.io/github/repo-size/lucasgch/lucas_frontend1_26.2)
+![GitHub top language](https://img.shields.io/github/languages/top/lucasgch/lucas_frontend1_26.2)
+
 > Disciplina: FEI786202 - PROGRAMAÇÃO FRONTEND I (2026 .2 - T01)
 > Curso: Análise e Desenvolvimento de Sistemas - IFSC - Campus São José
 > Docentes responsáveis:
