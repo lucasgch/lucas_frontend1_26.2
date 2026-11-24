@@ -103,16 +103,6 @@ export function inicializarCatalogo({ apenasDestaques = false } = {}) {
   renderizarGradeProdutos(lista, grade);
 }
 
-// Executa automaticamente ao carregar o módulo na página
-const gradePagina = document.querySelector('.grade-produtos');
-if (gradePagina) {
-  const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
-  inicializarCatalogo({ apenasDestaques });
-  inicializarFiltrosLoja();
-  inicializarModalProduto();
-}
-
-
 /**
  * Retorna a lista de produtos sincronizada com o estoque atual do localStorage.
  * Na primeira execução, inicializa a chave de estoque no localStorage.
@@ -364,4 +354,13 @@ export function inicializarModalProduto() {
       validarQuantidadeModal();
     }
   });
+}
+
+// Executa automaticamente ao carregar o módulo na página
+const gradePagina = document.querySelector('.grade-produtos');
+if (gradePagina) {
+  const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
+  inicializarCatalogo({ apenasDestaques });
+  inicializarFiltrosLoja();
+  inicializarModalProduto();
 }
