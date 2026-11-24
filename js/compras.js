@@ -2,7 +2,7 @@ import { CHAVES_STORAGE, gerarProximoId, inicializarStorage, lerDados, salvarDad
 import { obterSessaoAtiva } from './auth.js';
 import { obterProdutosComEstoque, aplicarFiltrosLoja } from './produtos.js';
 import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';
-import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn } from './utils.js';
+import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn, validarUF } from './utils.js';
 import { mostrarToast } from './ui.js';
 
 /**
@@ -341,6 +341,9 @@ export function inicializarCheckout() {
   inputCep?.addEventListener('input', () => {
     inputCep.value = aplicarMascaraCEP(inputCep.value);
   });
+    inputUf?.addEventListener('input', () => {
+    inputUf.value = inputUf.value.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 2);
+  });
   inputCartaoNumero?.addEventListener('input', () => {
     inputCartaoNumero.value = limparNumeros(inputCartaoNumero.value).slice(0, 19);
   });
@@ -367,9 +370,9 @@ export function inicializarCheckout() {
       !inputNumero?.value.trim() ||
       !inputBairro?.value.trim() ||
       !inputCidade?.value.trim() ||
-      inputUf?.value.trim().length !== 2
+      !validarUF(inputUf?.value)
     ) {
-      erroEtapa2.textContent = 'Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF com 2 letras).';
+      erroEtapa2.textContent = 'Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF válida, ex: SC).';
       return;
     }
     salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep.value) });
