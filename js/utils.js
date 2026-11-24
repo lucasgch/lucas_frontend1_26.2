@@ -56,6 +56,20 @@ export function formatarDataHora(dataIso) {
   return Number.isNaN(data.getTime()) ? '' : formatadorDataHora.format(data);
 }
 
+const UFS_BRASIL = new Set([
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
+  'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
+  'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+]);
+/**
+ * Valida se a sigla informada corresponde a uma UF brasileira válida.
+ * @param {string} [uf='']
+ * @returns {boolean}
+ */
+export function validarUF(uf = '') {
+  return UFS_BRASIL.has(String(uf ?? '').trim().toUpperCase());
+}
+
 /**
  * Atrasa a execução de uma função até que se passem 'atraso' ms sem novas chamadas.
  * @param {Function} funcao - Função que será executada após o tempo de espera.
