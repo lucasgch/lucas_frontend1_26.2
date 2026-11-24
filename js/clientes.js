@@ -333,12 +333,16 @@ export function inicializarCadastro() {
 inicializarCadastro();
 
 /**
- * Atualiza os dados cadastrais e/ou a senha de um cliente, validando unicidade de CPF/e-mail e senha atual (Requisito 2.1e).
+ * Atualiza os dados cadastrais e/ou a senha de um cliente, validando todos os campos,
+ * unicidade de CPF/e-mail e senha atual (Requisito 2.1e).
  * @param {string} idCliente - ID do cliente logado.
  * @param {{nome: string, cpf: string, telefone: string, email: string, senhaAtual?: string, novaSenha?: string}} dados
  * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem: string, cliente?: Object}>}
  */
-export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, senhaAtual, novaSenha }) {
+export async function atualizarCliente(
+  idCliente,
+  { nome = '', cpf = '', telefone = '', email = '', senhaAtual = '', novaSenha = '' } = {}
+) {
   const clientes = obterClientes();
   const indice = clientes.findIndex((c) => c.id === idCliente);
   if (indice === -1) {
@@ -346,53 +350,91 @@ export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, 
   }
   const clienteAtual = clientes[indice];
   // Padroniza campos recebidos (sempre com const!)
-  const nomeLimpo = String(nome).trim();
-  const cpfMascarado = aplicarMascaraCPF(cpf);
-  const cpfNumeros = limparNumeros(cpf);
-  const telefoneLimpo = limparNumeros(telefone);
-  const emailNormalizado = String(email).trim().toLowerCase();
-  
+  const nomeLimpo = String(nome ?? '').trim();
+  const cpfTexto = String(cpf ?? '').trim();
+  const cpfMascarado = aplicarMascaraCPF(cpfTexto);
+  const cpfNumeros = limparNumeros(cpfTexto);
+  const telefoneTexto = String(telefone ?? '').trim();
+  const emailNormalizado = String(email ?? '').trim().toLowerCase();
+  const senhaAtualTexto = String(senhaAtual ?? '');
+  const novaSenhaTexto = String(novaSenha ?? '');
+
+  // Valida formato de todas as entradas antes de qualquer gravação
+  if (!validarNomeCompleto(nomeLimpo)) {
+    return {
+      sucesso: false,
+      erroCampo: 'nome',
+      mensagem: 'Informe seu nome e sobrenome (mínimo de 3 caracteres).'
+    };
+  }
+  if (!validarCPF(cpfTexto)) {
+    return {
+      sucesso: false,
+      erroCampo: 'cpf',
+      mensagem: 'CPF inválido. Digite os 11 números corretamente.'
+    };
+  }
+  if (!validarTelefone(telefoneTexto)) {
+    return {
+      sucesso: false,
+      erroCampo: 'telefone',
+      mensagem: 'Informe um telefone válido com DDD (10 ou 11 números).'
+    };
+  }
+  if (!validarEmail(emailNormalizado)) {
+    return {
+      sucesso: false,
+      erroCampo: 'email',
+      mensagem: 'Informe um endereço de e-mail válido.'
+    };
+  }
+  if (novaSenhaTexto && !avaliarForcaSenha(novaSenhaTexto).valida) {
+    return {
+      sucesso: false,
+      erroCampo: 'novaSenha',
+      mensagem: 'A nova senha deve ter no mínimo 8 caracteres, com letras e números.'
+    };
+  }
+
+  const telefoneLimpo = limparNumeros(telefoneTexto);
+
   // atualizar apenas se houver alteração
   if (
     nomeLimpo === clienteAtual.nome &&
     limparNumeros(clienteAtual.cpf) === cpfNumeros &&
     telefoneLimpo === clienteAtual.telefone &&
     emailNormalizado === clienteAtual.email.toLowerCase() &&
-    !novaSenha
+    !novaSenhaTexto
   ) {
-
     return { sucesso: false, erroCampo: 'nenhum', mensagem: 'Nenhuma alteração foi feita nos dados.' };
-  
   }
-  
+
   // Percorre a lista de clientes
   for (const c of clientes) {
-  
     // Verifica cadastro com o mesmo CPF
-    if (c.id !== idCliente && limparNumeros(c.cpf) === cpfNumeros){
+    if (c.id !== idCliente && limparNumeros(c.cpf) === cpfNumeros) {
       return { sucesso: false, erroCampo: 'cpf', mensagem: 'Este CPF já está cadastrado em outra conta.' };
     }
 
     // Verifica cadastro com o mesmo E-mail
-    if (c.id !== idCliente && c.email.toLowerCase() === emailNormalizado){
-      return { sucesso: false, erroCampo: 'email', mensagem: 'Este e-mail já está cadastrado em outra conta.' }
+    if (c.id !== idCliente && c.email.toLowerCase() === emailNormalizado) {
+      return { sucesso: false, erroCampo: 'email', mensagem: 'Este e-mail já está cadastrado em outra conta.' };
     }
-
   }
-  
+
   // Se o usuário preencheu uma nova senha, exige e confere a senha atual
-  if (novaSenha) {
-    if (!senhaAtual) {
+  if (novaSenhaTexto) {
+    if (!senhaAtualTexto) {
       return { sucesso: false, erroCampo: 'senhaAtual', mensagem: 'Informe sua senha atual para alterar a senha.' };
     }
-    const hashDigitado = await gerarHashSenha(String(senhaAtual), clienteAtual.salt);
+    const hashDigitado = await gerarHashSenha(senhaAtualTexto, clienteAtual.salt);
     if (hashDigitado !== clienteAtual.senhaHash) {
       return { sucesso: false, erroCampo: 'senhaAtual', mensagem: 'A senha atual está incorreta.' };
     }
     // Senha atual confere! Gera novo salt e novo hash para a nova senha
     const novoSalt = gerarSalt();
     clienteAtual.salt = novoSalt;
-    clienteAtual.senhaHash = await gerarHashSenha(String(novaSenha), novoSalt);
+    clienteAtual.senhaHash = await gerarHashSenha(novaSenhaTexto, novoSalt);
   }
 
   // Atualiza os campos cadastrais no objeto do cliente
@@ -411,7 +453,6 @@ export async function atualizarCliente(idCliente, { nome, cpf, telefone, email, 
   }
 
   return { sucesso: true, mensagem: 'Dados atualizados com sucesso!', cliente: clienteAtual };
-
 }
 
 /**
@@ -601,15 +642,18 @@ export function inicializarPerfil(){
       alternarCarregamentoBotao(btnSubmitPerfil, false);
     }
     if (!resultado.sucesso) {
-      if (resultado.erroCampo === 'cpf') {
-        definirErroCampo(campoCpf, resultado.mensagem);
-        campoCpf.focus();
-      } else if (resultado.erroCampo === 'email') {
-        definirErroCampo(campoEmail, resultado.mensagem);
-        campoEmail.focus();
-      } else if (resultado.erroCampo === 'senhaAtual') {
-        definirErroCampo(campoSenhaAtual, resultado.mensagem);
-        campoSenhaAtual.focus();
+      const mapaCamposErro = {
+        nome: campoNome,
+        cpf: campoCpf,
+        telefone: campoTelefone,
+        email: campoEmail,
+        senhaAtual: campoSenhaAtual,
+        novaSenha: campoNovaSenha
+      };
+      const campoErro = mapaCamposErro[resultado.erroCampo];
+      if (campoErro) {
+        definirErroCampo(campoErro, resultado.mensagem);
+        campoErro.focus();
       } else {
         avisoPerfil.style.color = '#d97706';
         avisoPerfil.textContent = resultado.mensagem;
