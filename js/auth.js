@@ -6,6 +6,31 @@ import { alternarCarregamentoBotao } from './ui.js';
 const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 minutos em milissegundos
 const TEMPO_BLOQUEIO_MS = 60 * 1000;       // 60 segundos de bloqueio após 3 erros
 const MAX_TENTATIVAS = 3;
+const DESTINOS_REDIRECIONAMENTO_PERMITIDOS = Object.freeze([
+  'index.html',
+  'loja.html',
+  'loja.html#carrinho',
+  'perfil.html',
+  'relatorios.html'
+]);
+
+/**
+ * Valida o parâmetro redirect contra uma lista fechada de páginas internas permitidas,
+ * prevenindo XSS (esquemas como javascript:) e Open Redirect após o login.
+ * @param {string|null} redirectParam - Valor bruto recebido na query string.
+ * @param {string} [perfil='cliente'] - Perfil do usuário autenticado.
+ * @returns {string} Caminho interno seguro para redirecionamento.
+ */
+export function obterDestinoSeguro(redirectParam, perfil = 'cliente') {
+  const destinoSolicitado = String(redirectParam ?? '').trim();
+  if (!DESTINOS_REDIRECIONAMENTO_PERMITIDOS.includes(destinoSolicitado)) {
+    return 'loja.html';
+  }
+  if (destinoSolicitado === 'relatorios.html' && perfil !== 'administrador') {
+    return 'loja.html';
+  }
+  return destinoSolicitado;
+}
 
 /**
  * Cria conta administradora (Requisito 2.2e).
@@ -230,11 +255,8 @@ export function inicializarLogin() {
       return;
     }
 
-        // Volta para a página de origem ou loja (evita loop se cliente comum veio de relatorios.html)
-    let destino = params.get('redirect') || 'loja.html';
-    if (destino === 'relatorios.html' && resultado.sessao?.perfil !== 'administrador') {
-      destino = 'loja.html';
-    }
+    // Volta para uma página interna permitida (previne XSS, Open Redirect e loop de permissão)
+    const destino = obterDestinoSeguro(params.get('redirect'), resultado.sessao?.perfil);
     window.location.replace(destino);
   });
 }
