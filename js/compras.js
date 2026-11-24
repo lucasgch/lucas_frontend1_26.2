@@ -75,6 +75,7 @@ export function devolverEstoqueItens(itensComprados) {
 }
 
 const STATUS_COMPRA_VALIDOS = ['Pago', 'Enviado', 'Entregue', 'Cancelado'];
+const METODOS_PAGAMENTO_VALIDOS = ['pix', 'cartao', 'boleto'];
 /**
  * Altera o status de uma compra e devolve os itens ao estoque quando cancelada (Requisito 2.5d).
  * Pedidos já cancelados são tratados como estado final para evitar devolução duplicada de estoque.
@@ -115,33 +116,95 @@ export function atualizarStatusCompra(idCompra, novoStatus) {
 }
 
 /**
- * Registra uma nova compra, revalidando estoque, gerando ID sequencial (CP001...),
- * dando baixa no estoque e esvaziando o carrinho do cliente (Requisitos 2.4c, 2.4d, 2.4e).
+ * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
+ * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
  * @returns {{sucesso: boolean, mensagem: string, pedido?: Object}}
  */
-export function registrarCompra({ enderecoEntrega, pagamento }) {
-    inicializarStorage();
+export function registrarCompra({ enderecoEntrega = null, pagamento = null } = {}) {
+  inicializarStorage();
 
-    // Exige cliente logado (Requisito 2.4a)
-    const sessao = obterSessaoAtiva();
-    if (!sessao) {
-        return { sucesso: false, mensagem: 'Sessão expirada. Faça login novamente.' };
+  // Exige cliente logado (Requisito 2.4a)
+  const sessao = obterSessaoAtiva();
+  if (!sessao) {
+    return { sucesso: false, mensagem: 'Sessão expirada. Faça login novamente.' };
+  }
+
+  // Valida endereço de entrega antes de gravar
+  const cepLimpo = limparNumeros(enderecoEntrega?.cep);
+  const logradouro = String(enderecoEntrega?.logradouro ?? '').trim();
+  const numero = String(enderecoEntrega?.numero ?? '').trim();
+  const complemento = String(enderecoEntrega?.complemento ?? '').trim();
+  const bairro = String(enderecoEntrega?.bairro ?? '').trim();
+  const cidade = String(enderecoEntrega?.cidade ?? '').trim();
+  const uf = String(enderecoEntrega?.uf ?? '').trim().toUpperCase();
+
+  if (
+    cepLimpo.length !== 8 ||
+    !logradouro ||
+    !numero ||
+    !bairro ||
+    !cidade ||
+    !validarUF(uf)
+  ) {
+    return {
+      sucesso: false,
+      mensagem: 'Endereço de entrega inválido. Verifique CEP, campos obrigatórios e UF.'
+    };
+  }
+
+  const enderecoValidado = {
+    cep: aplicarMascaraCEP(cepLimpo),
+    logradouro,
+    numero,
+    complemento,
+    bairro,
+    cidade,
+    uf
+  };
+
+  // Valida dados de pagamento antes de gravar (garantindo que nunca salva número completo/CVV do cartão)
+  const metodo = String(pagamento?.metodo ?? '').trim();
+  if (!METODOS_PAGAMENTO_VALIDOS.includes(metodo)) {
+    return { sucesso: false, mensagem: 'Forma de pagamento inválida.' };
+  }
+
+  let pagamentoValidado;
+  if (metodo === 'cartao') {
+    const ultimos4Digitos = String(pagamento?.ultimos4Digitos ?? '').trim();
+    const titular = String(pagamento?.titular ?? '').trim();
+    if (!/^\d{4}$/.test(ultimos4Digitos) || titular.length < 3) {
+      return { sucesso: false, mensagem: 'Dados do cartão inválidos.' };
     }
+    pagamentoValidado = { metodo: 'cartao', ultimos4Digitos, titular };
+  } else if (metodo === 'pix') {
+    pagamentoValidado = { metodo: 'pix', codigo: String(pagamento?.codigo ?? '').trim() };
+  } else {
+    pagamentoValidado = {
+      metodo: 'boleto',
+      linhaDigitavel: String(pagamento?.linhaDigitavel ?? '').trim()
+    };
+  }
 
-    // Verifica itens do carrinho e revalida estoque antes de concluir (Requisito 2.4d)
-    const itensCarrinho = obterCarrinho(sessao.usuarioId);
-    if (itensCarrinho.length === 0) {
-        return { sucesso: false, mensagem: 'Seu carrinho está vazio.' };
-    }
-      
-    const catalogo = obterProdutosComEstoque();
-    const itensPedido = [];
+  // Verifica itens do carrinho e revalida quantidades e estoque antes de concluir (Requisito 2.4e)
+  const itensCarrinho = obterCarrinho(sessao.usuarioId);
+  if (itensCarrinho.length === 0) {
+    return { sucesso: false, mensagem: 'Seu carrinho está vazio.' };
+  }
 
-    for (const item of itensCarrinho) {
-    const produto = catalogo.find((p) => p.id === item.produtoId);
+  const catalogo = obterProdutosComEstoque();
+  const itensPedido = [];
+
+  for (const item of itensCarrinho) {
+    const produto = catalogo.find((p) => p.id === item?.produtoId);
     if (!produto) {
-      return { sucesso: false, mensagem: `Produto ${item.produtoId} não encontrado.` };
+      return { sucesso: false, mensagem: `Produto ${item?.produtoId} não encontrado.` };
+    }
+    if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+      return {
+        sucesso: false,
+        mensagem: `Quantidade inválida para "${produto.nome}".`
+      };
     }
     if (item.quantidade > produto.estoque) {
       return {
@@ -149,7 +212,7 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
         mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`
       };
     }
-    // Registra valor unitário praticado no momento da compra (Requisito 2.4c)
+    // Registra valor unitário praticado no momento da compra (Requisito 2.4d)
     itensPedido.push({
       produtoId: produto.id,
       nome: produto.nome,
@@ -160,7 +223,7 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
   }
 
   // Obtém valores consolidados (subtotal, desconto, frete, total)
-  const resumo = obterResumoCarrinho(enderecoEntrega?.cep);
+  const resumo = obterResumoCarrinho(enderecoValidado.cep);
   const freteFinal = resumo.frete ?? 0;
   const totalFinal = resumo.total;
 
@@ -177,14 +240,14 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
     cupom: resumo.codigoCupom || null,
     frete: freteFinal,
     total: totalFinal,
-    enderecoEntrega,
-    pagamento,
+    enderecoEntrega: enderecoValidado,
+    pagamento: pagamentoValidado,
     status: 'Pago'
   };
 
-  //  Baixa no estoque
-  baixarEstoqueItens(itensCarrinho);
-  
+  // Baixa no estoque usando apenas os itens já validados
+  baixarEstoqueItens(itensPedido);
+
   // Salva a compra
   const compras = obterCompras();
   compras.push(novoPedido);
@@ -192,7 +255,7 @@ export function registrarCompra({ enderecoEntrega, pagamento }) {
 
   // Limpa o carrinho do cliente
   limparCarrinhoAtual();
-  
+
   return {
     sucesso: true,
     mensagem: `Compra ${novoPedido.id} realizada com sucesso!`,
@@ -341,7 +404,7 @@ export function inicializarCheckout() {
   inputCep?.addEventListener('input', () => {
     inputCep.value = aplicarMascaraCEP(inputCep.value);
   });
-    inputUf?.addEventListener('input', () => {
+  inputUf?.addEventListener('input', () => {
     inputUf.value = inputUf.value.replace(/[^A-Za-z]/g, '').toUpperCase().slice(0, 2);
   });
   inputCartaoNumero?.addEventListener('input', () => {
