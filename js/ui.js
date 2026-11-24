@@ -16,11 +16,13 @@ export function renderizarMenuDinamico() {
     const paginaAtual = window.location.pathname.split('/').pop() || 'index.html';
 
     document.getElementById('saudacao-header')?.remove();
+    
     // Se for visitante, o HTML já nasce com o menu de visitante pronto! Só garante o badge do carrinho:
     if (!sessao) {
         atualizarBadgeCarrinho();
         return;
     }
+    
     // Se logado, substitui pelos links da conta logada:
     ulMenu.replaceChildren();
 
@@ -40,59 +42,47 @@ export function renderizarMenuDinamico() {
     // Links comuns
     adicionarLink('index.html', 'Início');
     adicionarLink('loja.html', 'Loja');
-
-    document.getElementById('saudacao-header')?.remove();
     
-    if (!sessao) {
-        // Visitante vê "Entrar" e "Cadastrar"
-        adicionarLink('login.html', 'Entrar');
-        adicionarLink('cadastro.html', 'Cadastrar');
-     } else {
-        // Administrador vê também "Relatórios"
-        if (sessao.perfil === 'administrador') {
-            adicionarLink('relatorios.html', 'Relatórios');
-        }
-        // Saudação "Olá, [primeiro nome]" centralizada entre a logo e o menu
-        const logo = document.querySelector('.site-header .site-logo');
-        if (logo) {
-            const primeiroNome = sessao.nome.split(' ')[0];
-            const spanOla = document.createElement('span');
-            spanOla.id = 'saudacao-header';
-            spanOla.className = 'saudacao-usuario';
-            spanOla.textContent = `Olá, ${primeiroNome}`;
-            logo.insertAdjacentElement('afterend', spanOla);
-        }
-
-        // "Meu perfil"
-        adicionarLink('perfil.html', 'Meu perfil');
-
-        // Botão "Sair"
-        const liSair = document.createElement('li');
-        const linkSair = document.createElement('a');
-        linkSair.href = '#sair';
-        linkSair.id = 'link-sair-menu';
-        linkSair.textContent = 'Sair';
-        linkSair.addEventListener('click', (evento) => {
-            evento.preventDefault();
-            encerrarSessao();
-            window.location.href = 'login.html';
-            });
-            liSair.appendChild(linkSair);
-            ulMenu.appendChild(liSair);
-        }
-
-        // Ícone e contador do carrinho no final do menu
-        atualizarBadgeCarrinho();
-
-        // Conecta também o botão de logout do rodapé de relatorios.html
-        const btnLogoutRodape = document.getElementById('btn-logout');
-        btnLogoutRodape?.addEventListener('click', (evento) => {
-            evento.preventDefault();
-            encerrarSessao();
-            window.location.href = 'login.html';
-        });
-        inicializarTema();
+    // Administrador vê também "Relatórios"
+    if (sessao.perfil === 'administrador') {
+        adicionarLink('relatorios.html', 'Relatórios');
     }
+    // Saudação "Olá, [primeiro nome]" centralizada entre a logo e o menu
+    const logo = document.querySelector('.site-header .site-logo');
+    if (logo) {
+        const primeiroNome = sessao.nome.split(' ')[0];
+        const spanOla = document.createElement('span');
+        spanOla.id = 'saudacao-header';
+        spanOla.className = 'saudacao-usuario';
+        spanOla.textContent = `Olá, ${primeiroNome}`;
+        logo.insertAdjacentElement('afterend', spanOla);
+    }
+    // "Meu perfil"
+    adicionarLink('perfil.html', 'Meu perfil');
+    // Botão "Sair"
+    const liSair = document.createElement('li');
+    const linkSair = document.createElement('a');
+    linkSair.href = '#sair';
+    linkSair.id = 'link-sair-menu';
+    linkSair.textContent = 'Sair';
+    linkSair.addEventListener('click', (evento) => {
+        evento.preventDefault();
+        encerrarSessao();
+        window.location.href = 'login.html';
+    });
+    liSair.appendChild(linkSair);
+    ulMenu.appendChild(liSair);
+    // Ícone e contador do carrinho no final do menu
+    atualizarBadgeCarrinho();
+    // Conecta também o botão de logout do rodapé de relatorios.html
+    const btnLogoutRodape = document.getElementById('btn-logout');
+    btnLogoutRodape?.addEventListener('click', (evento) => {
+        evento.preventDefault();
+        encerrarSessao();
+        window.location.href = 'login.html';
+    });
+    inicializarTema();
+}
 
  /**
  * Exibe uma notificação não bloqueante (toast) no canto inferior direito (Requisito 2.6).
