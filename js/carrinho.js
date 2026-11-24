@@ -215,7 +215,6 @@ export function renderizarCarrinho() {
 
      if (btnFinalizar) btnFinalizar.removeAttribute('aria-disabled');
      
-     let totalGeral = 0;
      const fragmento = document.createDocumentFragment();
 
      itensCarrinho.forEach((item) => {
@@ -223,7 +222,6 @@ export function renderizarCarrinho() {
         if (!produto) return;
 
         const subtotal = produto.preco * item.quantidade;
-        totalGeral += subtotal;
 
         const tr = document.createElement('tr');
         tr.dataset.produtoId = produto.id;
