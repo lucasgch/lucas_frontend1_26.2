@@ -19,11 +19,12 @@ const ITENS_POR_PAGINA = 10;
 
 /**
  * Renderiza a lista de clientes na tabela #tabela-clientes (Requisito 2.5a e 2.5b).
- * @param {Array<Object>} listaClientes - Clientes a exibir na tabela.
+ * @param {Array<Object>} listaClientes - Clientes a exibir na tabela (página atual).
  * @param {string} [termoBusca=''] - Termo pesquisado para destacar com <mark>.
  * @param {string} [campoBusca=''] - Campo selecionado no filtro ('', 'id', 'nome', 'email' ou 'cpf').
+ * @param {number} [totalRegistros=listaClientes.length] - Total geral de clientes filtrados (exibido no rodapé).
  */
-export function renderizarTabelaClientes(listaClientes, termoBusca = '', campoBusca = '', totalRegistros = listaClientes.length ) {
+export function renderizarTabelaClientes(listaClientes, termoBusca = '', campoBusca = '', totalRegistros = listaClientes.length) {
   const tbody = document.getElementById('tbody-clientes');
   const celulaTotal = document.getElementById('total-clientes-listados');
   if (!tbody) return;
@@ -312,8 +313,15 @@ function abrirModalDetalhesCompra(idCompra) {
  * Filtra compras combinando texto (ID, cliente ou produto), intervalo de datas,
  * intervalo de valores e status (Requisito 2.5c).
  * @param {Array<Object>} compras - Lista completa de compras.
- * @param {Object} [filtros]
- * @returns {Array<Object>}
+ * @param {Object} [filtros={}] - Critérios combináveis de filtragem.
+ * @param {string} [filtros.termo=''] - Termo de busca textual (ID, cliente ou produto).
+ * @param {string} [filtros.campo=''] - Campo alvo ('', 'id', 'cliente' ou 'produto').
+ * @param {string} [filtros.dataInicio=''] - Data inicial no formato YYYY-MM-DD.
+ * @param {string} [filtros.dataFim=''] - Data final no formato YYYY-MM-DD.
+ * @param {string|number} [filtros.valorMin=''] - Valor total mínimo do pedido.
+ * @param {string|number} [filtros.valorMax=''] - Valor total máximo do pedido.
+ * @param {string} [filtros.status=''] - Status do pedido ('', 'Pago', 'Enviado', 'Entregue' ou 'Cancelado').
+ * @returns {Array<Object>} Lista de compras filtradas.
  */
 export function filtrarCompras(
   compras,

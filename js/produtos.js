@@ -143,7 +143,11 @@ function verificarFaixaPreco(preco, faixa) {
 /**
  * Filtra e ordena uma lista de produtos com base nos critérios informados.
  * @param {Array<Object>} produtos - Lista completa de produtos.
- * @param {Object} filtros - Critérios de filtragem e ordenação.
+ * @param {Object} [filtros={}] - Critérios de filtragem e ordenação.
+ * @param {string} [filtros.termo=''] - Termo de busca (nome, autor ou descrição).
+ * @param {string} [filtros.categoria=''] - Categoria selecionada (ex: 'ficcao', 'fantasia', 'terror', 'nao-ficcao', 'desenvolvimento').
+ * @param {string} [filtros.faixaPreco=''] - Faixa de preço ('', '0-50', '50-100', '100-200' ou '200+').
+ * @param {string} [filtros.ordem='destaque'] - Ordenação ('destaque', 'menor-preco', 'maior-preco' ou 'titulo-az').
  * @returns {Array<Object>} Lista filtrada e ordenada.
  */
 export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', faixaPreco = '', ordem = 'destaque' } = {}) {
