@@ -235,6 +235,52 @@ function validarPagamentoCheckout(pagamento) {
 }
 
 /**
+ * Revalida os itens do carrinho contra o catálogo e o estoque atual e monta o snapshot dos itens do pedido (Requisitos 2.4d e 2.4e).
+ * @param {string} usuarioId - ID do cliente autenticado.
+ * @returns {{valido: boolean, mensagem?: string, itens?: Array<Object>}}
+ */
+function montarItensPedidoValidados(usuarioId) {
+  const itensCarrinho = obterCarrinho(usuarioId);
+  if (itensCarrinho.length === 0) {
+    return { valido: false, mensagem: "Seu carrinho está vazio." };
+  }
+
+  const catalogo = obterProdutosComEstoque();
+  const itensPedido = [];
+
+  for (const item of itensCarrinho) {
+    const produto = catalogo.find((p) => p.id === item?.produtoId);
+    if (!produto) {
+      return {
+        valido: false,
+        mensagem: `Produto ${item?.produtoId} não encontrado.`,
+      };
+    }
+    if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+      return {
+        valido: false,
+        mensagem: `Quantidade inválida para "${produto.nome}".`,
+      };
+    }
+    if (item.quantidade > produto.estoque) {
+      return {
+        valido: false,
+        mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`,
+      };
+    }
+    itensPedido.push({
+      produtoId: produto.id,
+      nome: produto.nome,
+      precoUnitario: produto.preco,
+      quantidade: item.quantidade,
+      subtotal: produto.preco * item.quantidade,
+    });
+  }
+
+  return { valido: true, itens: itensPedido };
+}
+
+/**
  * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
  * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e, 2.4f).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
@@ -270,43 +316,11 @@ export function registrarCompra({
   const pagamentoValidado = resPagamento.pagamento;
 
   // Verifica itens do carrinho e revalida quantidades e estoque antes de concluir (Requisito 2.4e)
-  const itensCarrinho = obterCarrinho(sessao.usuarioId);
-  if (itensCarrinho.length === 0) {
-    return { sucesso: false, mensagem: "Seu carrinho está vazio." };
+  const resItens = montarItensPedidoValidados(sessao.usuarioId);
+  if (!resItens.valido) {
+    return { sucesso: false, mensagem: resItens.mensagem };
   }
-
-  const catalogo = obterProdutosComEstoque();
-  const itensPedido = [];
-
-  for (const item of itensCarrinho) {
-    const produto = catalogo.find((p) => p.id === item?.produtoId);
-    if (!produto) {
-      return {
-        sucesso: false,
-        mensagem: `Produto ${item?.produtoId} não encontrado.`,
-      };
-    }
-    if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
-      return {
-        sucesso: false,
-        mensagem: `Quantidade inválida para "${produto.nome}".`,
-      };
-    }
-    if (item.quantidade > produto.estoque) {
-      return {
-        sucesso: false,
-        mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`,
-      };
-    }
-    // Registra valor unitário praticado no momento da compra (Requisito 2.4d)
-    itensPedido.push({
-      produtoId: produto.id,
-      nome: produto.nome,
-      precoUnitario: produto.preco,
-      quantidade: item.quantidade,
-      subtotal: produto.preco * item.quantidade,
-    });
-  }
+  const itensPedido = resItens.itens;
 
   // Obtém valores consolidados (subtotal, desconto, frete, total)
   const resumo = obterResumoCarrinho(enderecoValidado.cep);
