@@ -46,10 +46,10 @@ export function salvarCarrinho(itens, donoId = obterDonoCarrinhoAtual()) {
 
     // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
     const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-    // Busca o array de itens do donoId ('visitante' por padrão)
+    // Atualiza a lista de itens do donoId ('visitante' por padrão)
     todosOsCarrinhos[donoId] = itens;
-  
-    // Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
+
+    // Persiste o dicionário atualizado e retorna true em caso de sucesso
     return salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
 
