@@ -231,7 +231,7 @@ export function aplicarMascaraCEP(valor = '') {
 }
 
 /**
- * Valida o número de um cartão de crédito (13 a 19 dígitos) usando o algoritmo de Luhn (Requisito 2.4b).
+ * Valida o número de um cartão de crédito (13 a 19 dígitos) usando o algoritmo de Luhn (Requisito 2.4c).
  * @param {string} [numero=''] - Número do cartão com ou sem espaços.
  * @returns {boolean} true se passar na verificação de Luhn.
  */

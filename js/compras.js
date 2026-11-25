@@ -39,7 +39,7 @@ export function validarValidadeCartao(validade = '') {
 }
 
 /**
- * Subtrai do estoque no localStorage as quantidades compradas (Requisito 2.4d).
+ * Subtrai do estoque no localStorage as quantidades compradas (Requisito 2.4e).
  * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
  */
 export function baixarEstoqueItens(itensComprados) {
@@ -117,7 +117,7 @@ export function atualizarStatusCompra(idCompra, novoStatus) {
 
 /**
  * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
- * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e).
+ * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e, 2.4f).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
  * @returns {{sucesso: boolean, mensagem: string, pedido?: Object}}
  */
@@ -312,7 +312,7 @@ function renderizarConfirmacaoCompra(pedido) {
 }
 
 /**
- * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisito 2.4a, 2.4b, 2.4e).
+ * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisitos 2.4a, 2.4b, 2.4c, 2.4f).
  */
 export function inicializarCheckout() {
   const btnFinalizar = document.getElementById('btn-finalizar-compra');
@@ -481,7 +481,7 @@ export function inicializarCheckout() {
         erroEtapa3.textContent = 'Informe um CVV válido de 3 ou 4 dígitos.';
         return;
       }
-      // Requisito 2.4b: armazena apenas os 4 últimos dígitos do cartão!
+      // Requisito 2.4c: armazena apenas os 4 últimos dígitos do cartão!
       dadosPagamento = {
         metodo: 'cartao',
         ultimos4Digitos: numCartao.slice(-4),
