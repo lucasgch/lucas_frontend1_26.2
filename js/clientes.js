@@ -194,21 +194,12 @@ export async function cadastrarCliente({
   inicializarStorage();
   const clientes = obterClientes();
   const cpfLimpo = limparNumeros(cpf);
-  // Verifica se CPF existe
-  if (clientes.some((c) => limparNumeros(c.cpf) === cpfLimpo)) {
-    return {
-      sucesso: false,
-      erroCampo: "cpf",
-      mensagem: "Este CPF já está cadastrado.",
-    };
-  }
-  // Verifica se E-mail existe
-  if (clientes.some((c) => c.email.toLowerCase() === emailNormalizado)) {
-    return {
-      sucesso: false,
-      erroCampo: "email",
-      mensagem: "Este e-mail já está cadastrado.",
-    };
+  const conflito = verificarConflitoUnicidade(clientes, {
+    cpfNumeros: cpfLimpo,
+    emailNormalizado,
+  });
+  if (conflito) {
+    return { sucesso: false, ...conflito };
   }
   // Gera salt + hash SHA-256 da senha e ID sequencial (C001, C002...)
   const salt = gerarSalt();
@@ -440,6 +431,100 @@ export function inicializarCadastro() {
 inicializarCadastro();
 
 /**
+ * Verifica se algum dado cadastral ou senha foi efetivamente modificado pelo cliente.
+ * @param {Object} clienteAtual
+ * @param {{nomeLimpo: string, cpfNumeros: string, telefoneLimpo: string, emailNormalizado: string, novaSenhaTexto: string}} novosDados
+ * @returns {boolean}
+ */
+function houveAlteracaoCliente(
+  clienteAtual,
+  { nomeLimpo, cpfNumeros, telefoneLimpo, emailNormalizado, novaSenhaTexto },
+) {
+  return (
+    nomeLimpo !== clienteAtual.nome ||
+    limparNumeros(clienteAtual.cpf) !== cpfNumeros ||
+    telefoneLimpo !== clienteAtual.telefone ||
+    emailNormalizado !== clienteAtual.email.toLowerCase() ||
+    Boolean(novaSenhaTexto)
+  );
+}
+
+/**
+ * Verifica se já existe outro cliente com o mesmo CPF ou e-mail cadastrado.
+ * @param {Array<Object>} clientes
+ * @param {{cpfNumeros: string, emailNormalizado: string, ignorarId?: string}} criterio
+ * @returns {{erroCampo: string, mensagem: string}|null}
+ */
+function verificarConflitoUnicidade(
+  clientes,
+  { cpfNumeros, emailNormalizado, ignorarId = "" },
+) {
+  const sufixo = ignorarId ? " em outra conta." : ".";
+  for (const c of clientes) {
+    if (c.id === ignorarId) continue;
+    if (limparNumeros(c.cpf) === cpfNumeros) {
+      return {
+        erroCampo: "cpf",
+        mensagem: `Este CPF já está cadastrado${sufixo}`,
+      };
+    }
+    if (c.email.toLowerCase() === emailNormalizado) {
+      return {
+        erroCampo: "email",
+        mensagem: `Este e-mail já está cadastrado${sufixo}`,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Valida a senha atual do cliente e gera um novo par { salt, senhaHash } para a nova senha.
+ * @param {Object} clienteAtual
+ * @param {string} senhaAtualTexto
+ * @param {string} novaSenhaTexto
+ * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem?: string, salt?: string, senhaHash?: string}>}
+ */
+async function processarTrocaSenha(
+  clienteAtual,
+  senhaAtualTexto,
+  novaSenhaTexto,
+) {
+  if (!senhaAtualTexto) {
+    return {
+      sucesso: false,
+      erroCampo: "senhaAtual",
+      mensagem: MENSAGENS_ERRO_CLIENTE.senhaAtual,
+    };
+  }
+  const hashDigitado = await gerarHashSenha(senhaAtualTexto, clienteAtual.salt);
+  if (hashDigitado !== clienteAtual.senhaHash) {
+    return {
+      sucesso: false,
+      erroCampo: "senhaAtual",
+      mensagem: "A senha atual está incorreta.",
+    };
+  }
+  const novoSalt = gerarSalt();
+  const novaSenhaHash = await gerarHashSenha(novaSenhaTexto, novoSalt);
+  return { sucesso: true, salt: novoSalt, senhaHash: novaSenhaHash };
+}
+
+/**
+ * Sincroniza nome e e-mail na sessão ativa caso pertença ao cliente atualizado.
+ * @param {string} idCliente
+ * @param {{nome: string, email: string}} dadosSessao
+ */
+function sincronizarSessaoCliente(idCliente, { nome, email }) {
+  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
+  if (sessao && sessao.usuarioId === idCliente) {
+    sessao.nome = nome;
+    sessao.email = email;
+    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
+  }
+}
+
+/**
  * Atualiza os dados cadastrais e/ou a senha de um cliente, validando todos os campos,
  * unicidade de CPF/e-mail e senha atual (Requisito 2.1e).
  * @param {string} idCliente - ID do cliente logado.
@@ -458,24 +543,20 @@ export async function atualizarCliente(
   } = {},
 ) {
   const clientes = obterClientes();
-  const indice = clientes.findIndex((c) => c.id === idCliente);
-  if (indice === -1) {
+  const clienteAtual = clientes.find((c) => c.id === idCliente);
+  if (!clienteAtual) {
     return { sucesso: false, mensagem: "Cliente não encontrado." };
   }
-  const clienteAtual = clientes[indice];
-  // Padroniza campos recebidos (sempre com const!)
+
   const nomeLimpo = String(nome ?? "").trim();
   const cpfTexto = String(cpf ?? "").trim();
-  const cpfMascarado = aplicarMascaraCPF(cpfTexto);
   const cpfNumeros = limparNumeros(cpfTexto);
   const telefoneTexto = String(telefone ?? "").trim();
-  const emailNormalizado = String(email ?? "")
-    .trim()
-    .toLowerCase();
+  const telefoneLimpo = limparNumeros(telefoneTexto);
+  const emailNormalizado = String(email ?? "").trim().toLowerCase();
   const senhaAtualTexto = String(senhaAtual ?? "");
   const novaSenhaTexto = String(novaSenha ?? "");
 
-  // Valida formato de todas as entradas antes de qualquer gravação
   const erros = validarDadosCliente(
     {
       nome: nomeLimpo,
@@ -488,23 +569,19 @@ export async function atualizarCliente(
   );
   const primeiroErro = Object.entries(erros)[0];
   if (primeiroErro) {
-    const campoErro = primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
-    return {
-      sucesso: false,
-      erroCampo: campoErro,
-      mensagem: primeiroErro[1],
-    };
+    const campoErro =
+      primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
+    return { sucesso: false, erroCampo: campoErro, mensagem: primeiroErro[1] };
   }
 
-  const telefoneLimpo = limparNumeros(telefoneTexto);
-
-  // atualizar apenas se houver alteração
   if (
-    nomeLimpo === clienteAtual.nome &&
-    limparNumeros(clienteAtual.cpf) === cpfNumeros &&
-    telefoneLimpo === clienteAtual.telefone &&
-    emailNormalizado === clienteAtual.email.toLowerCase() &&
-    !novaSenhaTexto
+    !houveAlteracaoCliente(clienteAtual, {
+      nomeLimpo,
+      cpfNumeros,
+      telefoneLimpo,
+      emailNormalizado,
+      novaSenhaTexto,
+    })
   ) {
     return {
       sucesso: false,
@@ -513,67 +590,35 @@ export async function atualizarCliente(
     };
   }
 
-  // Percorre a lista de clientes
-  for (const c of clientes) {
-    // Verifica cadastro com o mesmo CPF
-    if (c.id !== idCliente && limparNumeros(c.cpf) === cpfNumeros) {
-      return {
-        sucesso: false,
-        erroCampo: "cpf",
-        mensagem: "Este CPF já está cadastrado em outra conta.",
-      };
-    }
-
-    // Verifica cadastro com o mesmo E-mail
-    if (c.id !== idCliente && c.email.toLowerCase() === emailNormalizado) {
-      return {
-        sucesso: false,
-        erroCampo: "email",
-        mensagem: "Este e-mail já está cadastrado em outra conta.",
-      };
-    }
+  const conflito = verificarConflitoUnicidade(clientes, {
+    cpfNumeros,
+    emailNormalizado,
+    ignorarId: idCliente,
+  });
+  if (conflito) {
+    return { sucesso: false, ...conflito };
   }
 
-  // Se o usuário preencheu uma nova senha, exige e confere a senha atual
   if (novaSenhaTexto) {
-    if (!senhaAtualTexto) {
-      return {
-        sucesso: false,
-        erroCampo: "senhaAtual",
-        mensagem: "Informe sua senha atual para alterar a senha.",
-      };
-    }
-    const hashDigitado = await gerarHashSenha(
+    const resSenha = await processarTrocaSenha(
+      clienteAtual,
       senhaAtualTexto,
-      clienteAtual.salt,
+      novaSenhaTexto,
     );
-    if (hashDigitado !== clienteAtual.senhaHash) {
-      return {
-        sucesso: false,
-        erroCampo: "senhaAtual",
-        mensagem: "A senha atual está incorreta.",
-      };
-    }
-    // Senha atual confere! Gera novo salt e novo hash para a nova senha
-    const novoSalt = gerarSalt();
-    clienteAtual.salt = novoSalt;
-    clienteAtual.senhaHash = await gerarHashSenha(novaSenhaTexto, novoSalt);
+    if (!resSenha.sucesso) return resSenha;
+    clienteAtual.salt = resSenha.salt;
+    clienteAtual.senhaHash = resSenha.senhaHash;
   }
 
-  // Atualiza os campos cadastrais no objeto do cliente
   clienteAtual.nome = nomeLimpo;
-  clienteAtual.cpf = cpfMascarado;
+  clienteAtual.cpf = aplicarMascaraCPF(cpfTexto);
   clienteAtual.telefone = telefoneLimpo;
   clienteAtual.email = emailNormalizado;
   salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
-
-  // Atualiza também o nome e e-mail na sessão ativa (para refletir no header "Olá, ...")
-  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
-  if (sessao && sessao.usuarioId === idCliente) {
-    sessao.nome = nomeLimpo;
-    sessao.email = emailNormalizado;
-    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
-  }
+  sincronizarSessaoCliente(idCliente, {
+    nome: nomeLimpo,
+    email: emailNormalizado,
+  });
 
   return {
     sucesso: true,
