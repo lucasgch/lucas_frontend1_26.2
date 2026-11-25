@@ -1,14 +1,14 @@
 // js/produtos.js
-import { PRODUTOS_INICIAIS } from './data/produtos.js';
-import { formatarMoeda, normalizarTexto, debounce } from './utils.js';
-import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
+import { PRODUTOS_INICIAIS } from "./data/produtos.js";
+import { formatarMoeda, normalizarTexto, debounce } from "./utils.js";
+import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 
 const ROTULOS_CATEGORIA = {
-  'ficcao': 'Ficção Científica',
-  'fantasia': 'Fantasia',
-  'terror': 'Terror',
-  'nao-ficcao': 'Não Ficção',
-  'desenvolvimento': 'Desenvolvimento Pessoal'
+  ficcao: "Ficção Científica",
+  fantasia: "Fantasia",
+  terror: "Terror",
+  "nao-ficcao": "Não Ficção",
+  desenvolvimento: "Desenvolvimento Pessoal",
 };
 
 /**
@@ -17,49 +17,50 @@ const ROTULOS_CATEGORIA = {
  * @returns {HTMLLIElement}
  */
 export function criarCardProduto(produto) {
-  const template = document.getElementById('template-card-produto');
+  const template = document.getElementById("template-card-produto");
   const clone = template.content.cloneNode(true);
-  const li = clone.querySelector('.item-produto');
-  const card = clone.querySelector('.card-produto');
+  const li = clone.querySelector(".item-produto");
+  const card = clone.querySelector(".card-produto");
   card.dataset.produtoId = produto.id; // guarda o ID (ex: "P001") no elemento
   // 1. Imagem
-  const img = clone.querySelector('img');
+  const img = clone.querySelector("img");
   img.src = produto.imagem;
   img.alt = produto.alt || `Livro ${produto.nome}`;
   // 2. Textos principais (usando textContent por segurança)
-  clone.querySelector('.titulo-livro').textContent = produto.nome;
-  clone.querySelector('.autor-livro').textContent = produto.autor;
-  clone.querySelector('.descricao').textContent = produto.descricao;
-  clone.querySelector('.preco').textContent = formatarMoeda(produto.preco);
+  clone.querySelector(".titulo-livro").textContent = produto.nome;
+  clone.querySelector(".autor-livro").textContent = produto.autor;
+  clone.querySelector(".descricao").textContent = produto.descricao;
+  clone.querySelector(".preco").textContent = formatarMoeda(produto.preco);
   // 3. Categoria principal + Tags
-  const ulTags = clone.querySelector('.tags-categoria');
-  const nomeCategoria = ROTULOS_CATEGORIA[produto.categoria] || produto.categoria;
+  const ulTags = clone.querySelector(".tags-categoria");
+  const nomeCategoria =
+    ROTULOS_CATEGORIA[produto.categoria] || produto.categoria;
   if (nomeCategoria) {
-    const liCategoria = document.createElement('li');
-    liCategoria.className = 'tag tag-categoria';
+    const liCategoria = document.createElement("li");
+    liCategoria.className = "tag tag-categoria";
     liCategoria.textContent = nomeCategoria;
     ulTags.appendChild(liCategoria);
   }
   produto.tags.forEach((textoTag) => {
     // Evita exibir tag duplicada se for igual ao nome da categoria
     if (textoTag.toLowerCase() === nomeCategoria?.toLowerCase()) return;
-    const liTag = document.createElement('li');
-    liTag.className = 'tag';
+    const liTag = document.createElement("li");
+    liTag.className = "tag";
     liTag.textContent = textoTag;
     ulTags.appendChild(liTag);
   });
-  
+
   // Botão de adicionar ao carrinho (desabilita se estoque for 0)
-  const btnAdicionar = clone.querySelector('.botao-adicionar');
-  
-  // Botão de ver detalhes ao carrinho (desabilita se estoque for 0)
-  const btnDetalhes = clone.querySelector('.botao-detalhes');
-  
+  const btnAdicionar = clone.querySelector(".botao-adicionar");
+
+  // Botão de ver detalhes ao carrinho
+  const btnDetalhes = clone.querySelector(".botao-detalhes");
+
   btnDetalhes.dataset.id = produto.id;
   btnAdicionar.dataset.id = produto.id;
   if (produto.estoque <= 0) {
     btnAdicionar.disabled = true;
-    btnAdicionar.textContent = 'Esgotado';
+    btnAdicionar.textContent = "Esgotado";
   }
   return li;
 }
@@ -74,9 +75,9 @@ export function renderizarGradeProdutos(produtos, container) {
   container.replaceChildren();
   // Requisito 2.3(b): mensagem quando nada for encontrado
   if (produtos.length === 0) {
-    const aviso = document.createElement('li');
-    aviso.className = 'mensagem-vazia';
-    aviso.textContent = 'Nenhum livro encontrado para os filtros selecionados.';
+    const aviso = document.createElement("li");
+    aviso.className = "mensagem-vazia";
+    aviso.textContent = "Nenhum livro encontrado para os filtros selecionados.";
     container.appendChild(aviso);
     return;
   }
@@ -94,7 +95,7 @@ export function renderizarGradeProdutos(produtos, container) {
  * @param {boolean} [opcoes.apenasDestaques=false]
  */
 export function inicializarCatalogo({ apenasDestaques = false } = {}) {
-  const grade = document.querySelector('.grade-produtos');
+  const grade = document.querySelector(".grade-produtos");
   if (!grade) return;
   const todosProdutos = obterProdutosComEstoque();
   const lista = apenasDestaques
@@ -121,7 +122,7 @@ export function obterProdutosComEstoque() {
   // Retorna uma cópia dos produtos substituindo o estoque pelo valor salvo no localStorage
   return PRODUTOS_INICIAIS.map((produto) => ({
     ...produto,
-    estoque: mapaEstoque[produto.id] ?? produto.estoque
+    estoque: mapaEstoque[produto.id] ?? produto.estoque,
   }));
 }
 
@@ -133,10 +134,10 @@ export function obterProdutosComEstoque() {
  */
 function verificarFaixaPreco(preco, faixa) {
   if (!faixa) return true;
-  if (faixa === '0-50') return preco <= 50;
-  if (faixa === '50-100') return preco >= 50 && preco <= 100;
-  if (faixa === '100-200') return preco >= 100 && preco <= 200;
-  if (faixa === '200+') return preco >= 200;
+  if (faixa === "0-50") return preco <= 50;
+  if (faixa === "50-100") return preco >= 50 && preco <= 100;
+  if (faixa === "100-200") return preco >= 100 && preco <= 200;
+  if (faixa === "200+") return preco >= 200;
   return true;
 }
 
@@ -150,7 +151,10 @@ function verificarFaixaPreco(preco, faixa) {
  * @param {string} [filtros.ordem='destaque'] - Ordenação ('destaque', 'menor-preco', 'maior-preco' ou 'titulo-az').
  * @returns {Array<Object>} Lista filtrada e ordenada.
  */
-export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', faixaPreco = '', ordem = 'destaque' } = {}) {
+export function filtrarEOrdenarProdutos(
+  produtos,
+  { termo = "", categoria = "", faixaPreco = "", ordem = "destaque" } = {},
+) {
   const termoNormalizado = normalizarTexto(termo);
   // 1. Filtra os produtos que atendem a todos os critérios
   const filtrados = produtos.filter((produto) => {
@@ -164,12 +168,12 @@ export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', 
     return bateTexto && bateCategoria && batePreco;
   });
   // 2. Ordena a lista filtrada conforme a opção escolhida
-  if (ordem === 'menor-preco') {
+  if (ordem === "menor-preco") {
     filtrados.sort((a, b) => a.preco - b.preco);
-  } else if (ordem === 'maior-preco') {
+  } else if (ordem === "maior-preco") {
     filtrados.sort((a, b) => b.preco - a.preco);
-  } else if (ordem === 'titulo-az') {
-    filtrados.sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  } else if (ordem === "titulo-az") {
+    filtrados.sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
   }
   return filtrados;
 }
@@ -178,18 +182,19 @@ export function filtrarEOrdenarProdutos(produtos, { termo = '', categoria = '', 
  * Lê os filtros ativos da loja, consulta o estoque atualizado e re-renderiza a grade de produtos.
  */
 export function aplicarFiltrosLoja() {
-  const grade = document.querySelector('.grade-produtos');
-  const campoBusca = document.getElementById('campo-busca-livros');
-  const selectCategoria = document.getElementById('filtro-categoria');
-  const selectPreco = document.getElementById('filtro-preco');
-  const selectOrdem = document.getElementById('filtro-ordem');
-  if (!grade || !campoBusca || !selectCategoria || !selectPreco || !selectOrdem) return;
+  const grade = document.querySelector(".grade-produtos");
+  const campoBusca = document.getElementById("campo-busca-livros");
+  const selectCategoria = document.getElementById("filtro-categoria");
+  const selectPreco = document.getElementById("filtro-preco");
+  const selectOrdem = document.getElementById("filtro-ordem");
+  if (!grade || !campoBusca || !selectCategoria || !selectPreco || !selectOrdem)
+    return;
   const todosProdutos = obterProdutosComEstoque();
   const resultado = filtrarEOrdenarProdutos(todosProdutos, {
     termo: campoBusca.value,
     categoria: selectCategoria.value,
     faixaPreco: selectPreco.value,
-    ordem: selectOrdem.value
+    ordem: selectOrdem.value,
   });
   renderizarGradeProdutos(resultado, grade);
 }
@@ -198,21 +203,21 @@ export function aplicarFiltrosLoja() {
  * Registra os eventos do formulário de busca, filtros e ordenação da loja (executar uma única vez).
  */
 export function inicializarFiltrosLoja() {
-  const formFiltros = document.getElementById('form-filtros');
-  const campoBusca = document.getElementById('campo-busca-livros');
-  const selectCategoria = document.getElementById('filtro-categoria');
-  const selectPreco = document.getElementById('filtro-preco');
-  const selectOrdem = document.getElementById('filtro-ordem');
+  const formFiltros = document.getElementById("form-filtros");
+  const campoBusca = document.getElementById("campo-busca-livros");
+  const selectCategoria = document.getElementById("filtro-categoria");
+  const selectPreco = document.getElementById("filtro-preco");
+  const selectOrdem = document.getElementById("filtro-ordem");
   if (!formFiltros) return;
-  formFiltros.addEventListener('submit', (evento) => {
+  formFiltros.addEventListener("submit", (evento) => {
     evento.preventDefault();
     aplicarFiltrosLoja();
   });
-  campoBusca?.addEventListener('input', debounce(aplicarFiltrosLoja, 300));
-  selectCategoria?.addEventListener('change', aplicarFiltrosLoja);
-  selectPreco?.addEventListener('change', aplicarFiltrosLoja);
-  selectOrdem?.addEventListener('change', aplicarFiltrosLoja);
-  formFiltros.addEventListener('reset', () => {
+  campoBusca?.addEventListener("input", debounce(aplicarFiltrosLoja, 300));
+  selectCategoria?.addEventListener("change", aplicarFiltrosLoja);
+  selectPreco?.addEventListener("change", aplicarFiltrosLoja);
+  selectOrdem?.addEventListener("change", aplicarFiltrosLoja);
+  formFiltros.addEventListener("reset", () => {
     setTimeout(aplicarFiltrosLoja, 0);
   });
 }
@@ -222,7 +227,7 @@ export function inicializarFiltrosLoja() {
  * @param {string} produtoId - ID do produto (ex: 'P001').
  */
 export function abrirModalProduto(produtoId) {
-  const modal = document.getElementById('modal-produto');
+  const modal = document.getElementById("modal-produto");
   if (!modal) return;
 
   // 1. Busca o produto pelo ID na lista atualizada com estoque
@@ -230,25 +235,29 @@ export function abrirModalProduto(produtoId) {
   if (!produto) return;
 
   // 2. Preenche imagem e textos no modal
-  const img = document.getElementById('modal-img');
+  const img = document.getElementById("modal-img");
   img.src = produto.imagem;
   img.alt = produto.alt || `Livro ${produto.nome}`;
 
-  document.getElementById('modal-titulo-livro').textContent = produto.nome;
-  document.getElementById('modal-autor').textContent = produto.autor;
-  document.getElementById('modal-descricao').textContent = produto.descricao;
-  document.getElementById('modal-preco').textContent = formatarMoeda(produto.preco);
-  document.getElementById('modal-estoque').textContent =
-    produto.estoque > 0 ? `Estoque disponível: ${produto.estoque} un.` : 'Produto esgotado';
+  document.getElementById("modal-titulo-livro").textContent = produto.nome;
+  document.getElementById("modal-autor").textContent = produto.autor;
+  document.getElementById("modal-descricao").textContent = produto.descricao;
+  document.getElementById("modal-preco").textContent = formatarMoeda(
+    produto.preco,
+  );
+  document.getElementById("modal-estoque").textContent =
+    produto.estoque > 0
+      ? `Estoque disponível: ${produto.estoque} un.`
+      : "Produto esgotado";
 
   // 3. Configura o seletor de quantidade e o botão de adicionar
-  const inputQtd = document.getElementById('modal-quantidade');
-  const btnMenos = document.getElementById('modal-qtd-menos');
-  const btnMais = document.getElementById('modal-qtd-mais');
-  const btnAdicionar = document.getElementById('modal-btn-adicionar');
-  const erroQtd = document.getElementById('modal-erro-qtd');
+  const inputQtd = document.getElementById("modal-quantidade");
+  const btnMenos = document.getElementById("modal-qtd-menos");
+  const btnMais = document.getElementById("modal-qtd-mais");
+  const btnAdicionar = document.getElementById("modal-btn-adicionar");
+  const erroQtd = document.getElementById("modal-erro-qtd");
   if (erroQtd) {
-    erroQtd.textContent = '';
+    erroQtd.textContent = "";
   }
   btnAdicionar.dataset.id = produto.id;
   if (produto.estoque > 0) {
@@ -258,14 +267,14 @@ export function abrirModalProduto(produtoId) {
     if (btnMenos) btnMenos.disabled = true; // começa em 1, então '-' começa travado
     if (btnMais) btnMais.disabled = produto.estoque <= 1; // destrava o '+' se estoque for > 1!
     btnAdicionar.disabled = false;
-    btnAdicionar.textContent = 'Adicionar ao carrinho';
+    btnAdicionar.textContent = "Adicionar ao carrinho";
   } else {
     inputQtd.value = 0;
     inputQtd.disabled = true;
     if (btnMenos) btnMenos.disabled = true;
     if (btnMais) btnMais.disabled = true;
     btnAdicionar.disabled = true;
-    btnAdicionar.textContent = 'Esgotado';
+    btnAdicionar.textContent = "Esgotado";
   }
 
   // 4. Abre o <dialog> nativo na tela
@@ -276,41 +285,41 @@ export function abrirModalProduto(produtoId) {
  * Configura os cliques para abrir e fechar o modal de detalhes do produto.
  */
 export function inicializarModalProduto() {
-  const modal = document.getElementById('modal-produto');
-  const grade = document.querySelector('.grade-produtos');
-  const btnFechar = document.getElementById('btn-fechar-modal');
+  const modal = document.getElementById("modal-produto");
+  const grade = document.querySelector(".grade-produtos");
+  const btnFechar = document.getElementById("btn-fechar-modal");
   if (!modal || !grade) return;
 
   // Delegação de evento: escuta cliques nos botões "Ver detalhes" dentro da grade
-  grade.addEventListener('click', (evento) => {
-    const btnDetalhes = evento.target.closest('.botao-detalhes');
+  grade.addEventListener("click", (evento) => {
+    const btnDetalhes = evento.target.closest(".botao-detalhes");
     if (btnDetalhes) {
       abrirModalProduto(btnDetalhes.dataset.id);
     }
   });
 
   // Fecha ao clicar no botão X
-  btnFechar?.addEventListener('click', () => {
+  btnFechar?.addEventListener("click", () => {
     modal.close();
   });
 
   // Fecha ao clicar no fundo escuro fora da caixa do modal
-  modal.addEventListener('click', (evento) => {
+  modal.addEventListener("click", (evento) => {
     if (evento.target === modal) {
       modal.close();
     }
   });
 
-    const inputQtd = document.getElementById('modal-quantidade');
-  const btnMenos = document.getElementById('modal-qtd-menos');
-  const btnMais = document.getElementById('modal-qtd-mais');
-  const btnAdicionar = document.getElementById('modal-btn-adicionar');
-  const erroQtd = document.getElementById('modal-erro-qtd');
+  const inputQtd = document.getElementById("modal-quantidade");
+  const btnMenos = document.getElementById("modal-qtd-menos");
+  const btnMais = document.getElementById("modal-qtd-mais");
+  const btnAdicionar = document.getElementById("modal-btn-adicionar");
+  const erroQtd = document.getElementById("modal-erro-qtd");
 
   // Função que valida o valor atual e atualiza os botões (-, + e Adicionar)
   function validarQuantidadeModal() {
     // Remove qualquer sinal de '-' ou caractere que não seja número (0-9)
-    inputQtd.value = inputQtd.value.replace(/\D/g, '');
+    inputQtd.value = inputQtd.value.replace(/\D/g, "");
     const qtd = Number(inputQtd.value);
     const maxEstoque = Number(inputQtd.max);
 
@@ -324,24 +333,24 @@ export function inicializarModalProduto() {
       erroQtd.hidden = false;
     } else if (!Number.isInteger(qtd) || qtd <= 0) {
       btnAdicionar.disabled = true;
-      erroQtd.textContent = '';
+      erroQtd.textContent = "";
     } else {
       btnAdicionar.disabled = false;
-      erroQtd.textContent = '';
+      erroQtd.textContent = "";
     }
   }
 
   // 1. Chama a validação toda vez que o valor do campo mudar (digitação ou Ctrl+V)
-  inputQtd?.addEventListener('input', validarQuantidadeModal);
+  inputQtd?.addEventListener("input", validarQuantidadeModal);
   // 2. Impede digitar sinal negativo (-), ponto, vírgula ou 'e' no teclado
-  inputQtd?.addEventListener('keydown', (evento) => {
-    if (['-', '+', 'e', 'E', '.', ','].includes(evento.key)) {
+  inputQtd?.addEventListener("keydown", (evento) => {
+    if (["-", "+", "e", "E", ".", ","].includes(evento.key)) {
       evento.preventDefault();
     }
   });
 
   // Diminui 1 ao clicar no botão '-'
-  btnMenos?.addEventListener('click', () => {
+  btnMenos?.addEventListener("click", () => {
     const atual = Number(inputQtd.value) || 1;
     if (atual > 1) {
       inputQtd.value = atual - 1;
@@ -350,7 +359,7 @@ export function inicializarModalProduto() {
   });
 
   // Aumenta 1 ao clicar no botão '+'
-  btnMais?.addEventListener('click', () => {
+  btnMais?.addEventListener("click", () => {
     const atual = Number(inputQtd.value) || 0;
     const maxEstoque = Number(inputQtd.max);
     if (atual < maxEstoque) {
@@ -361,9 +370,9 @@ export function inicializarModalProduto() {
 }
 
 // Executa automaticamente ao carregar o módulo na página
-const gradePagina = document.querySelector('.grade-produtos');
+const gradePagina = document.querySelector(".grade-produtos");
 if (gradePagina) {
-  const apenasDestaques = gradePagina.dataset.apenasDestaques === 'true';
+  const apenasDestaques = gradePagina.dataset.apenasDestaques === "true";
   inicializarCatalogo({ apenasDestaques });
   inicializarFiltrosLoja();
   inicializarModalProduto();
