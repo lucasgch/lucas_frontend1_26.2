@@ -17,9 +17,12 @@ export function formatarMoeda(valor) {
  * @param {string} [texto=''] - Texto de entrada.
  * @returns {string} Texto normalizado.
  */
-export function normalizarTexto(texto = ''){
-  const textoNormalizado = texto.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  return textoNormalizado;
+export function normalizarTexto(texto = '') {
+  return String(texto ?? '') // ?? => Se texto null ou undefined retorna vazio
+    .toLowerCase()
+    .trim()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
 }
 
 const formatadorData = new Intl.DateTimeFormat('pt-BR', {
