@@ -1,17 +1,23 @@
-import { CHAVES_STORAGE, inicializarStorage, lerDados, removerDados, salvarDados } from './storage.js';
-import { gerarHashSenha, gerarSalt, obterClientes } from './clientes.js';
-import { mesclarCarrinhoAoLogar } from './carrinho.js';
-import { alternarCarregamentoBotao } from './ui.js';
+import {
+  CHAVES_STORAGE,
+  inicializarStorage,
+  lerDados,
+  removerDados,
+  salvarDados,
+} from "./storage.js";
+import { gerarHashSenha, gerarSalt, obterClientes } from "./clientes.js";
+import { mesclarCarrinhoAoLogar } from "./carrinho.js";
+import { alternarCarregamentoBotao } from "./ui.js";
 
 const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 minutos em milissegundos
-const TEMPO_BLOQUEIO_MS = 60 * 1000;       // 60 segundos de bloqueio após 3 erros
+const TEMPO_BLOQUEIO_MS = 60 * 1000; // 60 segundos de bloqueio após 3 erros
 const MAX_TENTATIVAS = 3;
 const DESTINOS_REDIRECIONAMENTO_PERMITIDOS = Object.freeze([
-  'index.html',
-  'loja.html',
-  'loja.html#carrinho',
-  'perfil.html',
-  'relatorios.html'
+  "index.html",
+  "loja.html",
+  "loja.html#carrinho",
+  "perfil.html",
+  "relatorios.html",
 ]);
 
 /**
@@ -21,13 +27,13 @@ const DESTINOS_REDIRECIONAMENTO_PERMITIDOS = Object.freeze([
  * @param {string} [perfil='cliente'] - Perfil do usuário autenticado.
  * @returns {string} Caminho interno seguro para redirecionamento.
  */
-export function obterDestinoSeguro(redirectParam, perfil = 'cliente') {
-  const destinoSolicitado = String(redirectParam ?? '').trim();
+export function obterDestinoSeguro(redirectParam, perfil = "cliente") {
+  const destinoSolicitado = String(redirectParam ?? "").trim();
   if (!DESTINOS_REDIRECIONAMENTO_PERMITIDOS.includes(destinoSolicitado)) {
-    return 'loja.html';
+    return "loja.html";
   }
-  if (destinoSolicitado === 'relatorios.html' && perfil !== 'administrador') {
-    return 'loja.html';
+  if (destinoSolicitado === "relatorios.html" && perfil !== "administrador") {
+    return "loja.html";
   }
   return destinoSolicitado;
 }
@@ -39,21 +45,21 @@ export function obterDestinoSeguro(redirectParam, perfil = 'cliente') {
 export async function garantirContaAdmin() {
   inicializarStorage();
   const clientes = obterClientes();
-  const jaTemAdmin = clientes.some((c) => c.perfil === 'administrador');
+  const jaTemAdmin = clientes.some((c) => c.perfil === "administrador");
   if (jaTemAdmin) return;
   const salt = gerarSalt();
-  const senhaHash = await gerarHashSenha('Admin1234', salt);
+  const senhaHash = await gerarHashSenha("Admin1234", salt);
   const admin = {
-    id: 'ADM01',
-    nome: 'Administrador Loja',
-    cpf: '666.666.666-66',
-    telefone: '48999999999',
-    email: 'admin@livros.com',
+    id: "ADM01",
+    nome: "Administrador Loja",
+    cpf: "666.666.666-66",
+    telefone: "48999999999",
+    email: "admin@livros.com",
     salt,
     senhaHash,
-    perfil: 'administrador',
+    perfil: "administrador",
     bloqueado: false,
-    criadoEm: new Date().toISOString()
+    criadoEm: new Date().toISOString(),
   };
   clientes.push(admin);
   salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
@@ -94,7 +100,10 @@ export function obterSessaoAtiva() {
  * @returns {number} Segundos restantes de bloqueio.
  */
 export function obterSegundosRestantesBloqueio() {
-  const tentativas = lerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, { falhas: 0, bloqueadoAte: 0 });
+  const tentativas = lerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, {
+    falhas: 0,
+    bloqueadoAte: 0,
+  });
   if (!tentativas.bloqueadoAte) return 0;
   const restanteMs = tentativas.bloqueadoAte - Date.now();
   if (restanteMs <= 0) {
@@ -111,135 +120,147 @@ export function obterSegundosRestantesBloqueio() {
  * @returns {Promise<{sucesso: boolean, mensagem: string, bloqueadoSegundos?: number, sessao?: Object}>}
  */
 export async function autenticarUsuario(email, senha) {
-    await garantirContaAdmin();
+  await garantirContaAdmin();
 
-    // Verifica se está bloqueado temporariamente por excesso de tentativas
-    const segundosBloqueio = obterSegundosRestantesBloqueio();
-    if (segundosBloqueio > 0) {
-        return {
-        sucesso: false,
-        bloqueadoSegundos: segundosBloqueio,
-        mensagem: `Muitas tentativas falhas. Tente novamente em ${segundosBloqueio}s.`
-        };
-    }
+  // Verifica se está bloqueado temporariamente por excesso de tentativas
+  const segundosBloqueio = obterSegundosRestantesBloqueio();
+  if (segundosBloqueio > 0) {
+    return {
+      sucesso: false,
+      bloqueadoSegundos: segundosBloqueio,
+      mensagem: `Muitas tentativas falhas. Tente novamente em ${segundosBloqueio}s.`,
+    };
+  }
 
-    const emailLimpo = String(email).trim().toLowerCase();
-    const clientes = obterClientes();
-    const usuario = clientes.find((c) => c.email.toLowerCase() === emailLimpo);
+  const emailLimpo = String(email).trim().toLowerCase();
+  const clientes = obterClientes();
+  const usuario = clientes.find((c) => c.email.toLowerCase() === emailLimpo);
 
-    // Se o usuário existir, calcula o hash da senha digitada usando o salt dele
-    let senhaCorreta = false;
-    if (usuario) {
-        const hashDigitado = await gerarHashSenha(String(senha), usuario.salt);
-        senhaCorreta = hashDigitado === usuario.senhaHash;
-    }
+  // Se o usuário existir, calcula o hash da senha digitada usando o salt dele
+  let senhaCorreta = false;
+  if (usuario) {
+    const hashDigitado = await gerarHashSenha(String(senha), usuario.salt);
+    senhaCorreta = hashDigitado === usuario.senhaHash;
+  }
 
-    // Se e-mail não existe ou senha incorreta -> incrementa falhas e retorna mensagem genérica
-    if (!usuario || !senhaCorreta) {
-       const tentativas = lerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, { falhas: 0, bloqueadoAte: 0 });
-       const novasFalhas = (tentativas.falhas || 0) + 1;
+  // Se e-mail não existe ou senha incorreta -> incrementa falhas e retorna mensagem genérica
+  if (!usuario || !senhaCorreta) {
+    const tentativas = lerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, {
+      falhas: 0,
+      bloqueadoAte: 0,
+    });
+    const novasFalhas = (tentativas.falhas || 0) + 1;
 
     if (novasFalhas >= MAX_TENTATIVAS) {
-        const bloqueadoAte = Date.now() + TEMPO_BLOQUEIO_MS;
-        salvarDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, { falhas: 0, bloqueadoAte });
-        return {
-            sucesso: false,
-            bloqueadoSegundos: 60,
-            mensagem: 'E-mail ou senha inválidos. Muitas tentativas: aguarde 60s.'
-        };
+      const bloqueadoAte = Date.now() + TEMPO_BLOQUEIO_MS;
+      salvarDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, { falhas: 0, bloqueadoAte });
+      return {
+        sucesso: false,
+        bloqueadoSegundos: 60,
+        mensagem: "E-mail ou senha inválidos. Muitas tentativas: aguarde 60s.",
+      };
     }
 
-    salvarDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, { falhas: novasFalhas, bloqueadoAte: 0 });
-    return { sucesso: false, mensagem: 'E-mail ou senha inválidos.' };
-    }
-    // Requisito 2.2(f): verifica se o cliente foi bloqueado pelo administrador
-    if (usuario.bloqueado) {
-        return {
-        sucesso: false,
-        mensagem: 'Sua conta está bloqueada pelo administrador.'
-        };
-    }
-    // Login com sucesso! Limpa tentativas e cria a sessão de 30 minutos
-    removerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN);
-    const agora = Date.now();
-    const sessao = {
-        usuarioId: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        perfil: usuario.perfil || 'cliente',
-        inicioEm: agora,
-        expiraEm: agora + TEMPO_EXPIRACAO_MS
+    salvarDados(CHAVES_STORAGE.TENTATIVAS_LOGIN, {
+      falhas: novasFalhas,
+      bloqueadoAte: 0,
+    });
+    return { sucesso: false, mensagem: "E-mail ou senha inválidos." };
+  }
+  // Requisito 2.2(f): verifica se o cliente foi bloqueado pelo administrador
+  if (usuario.bloqueado) {
+    return {
+      sucesso: false,
+      mensagem: "Sua conta está bloqueada pelo administrador.",
     };
-    mesclarCarrinhoAoLogar(usuario.id);
-    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
-    return { sucesso: true, mensagem: `Bem-vindo(a), ${usuario.nome}!`, sessao };
+  }
+  // Login com sucesso! Limpa tentativas e cria a sessão de 30 minutos
+  removerDados(CHAVES_STORAGE.TENTATIVAS_LOGIN);
+  const agora = Date.now();
+  const sessao = {
+    usuarioId: usuario.id,
+    nome: usuario.nome,
+    email: usuario.email,
+    perfil: usuario.perfil || "cliente",
+    inicioEm: agora,
+    expiraEm: agora + TEMPO_EXPIRACAO_MS,
+  };
+  mesclarCarrinhoAoLogar(usuario.id);
+  salvarDados(CHAVES_STORAGE.SESSAO, sessao);
+  return { sucesso: true, mensagem: `Bem-vindo(a), ${usuario.nome}!`, sessao };
 }
 
 /**
  * Inicializa o formulário de login (#form-login) e o cronômetro de bloqueio de 60s.
  */
 export function inicializarLogin() {
-    garantirContaAdmin();
+  garantirContaAdmin().catch((erro) => {
+    console.error("Erro ao inicializar conta administradora:", erro);
+  });
 
-    const formLogin = document.getElementById('form-login');
-    if (!formLogin) return;
-    formLogin.noValidate = true;
+  const formLogin = document.getElementById("form-login");
+  if (!formLogin) return;
+  formLogin.noValidate = true;
 
-    const campoEmail = document.getElementById('login-email');
-    const campoSenha = document.getElementById('login-password');
-    const btnSubmit = formLogin.querySelector('button[type="submit"]');
+  const campoEmail = document.getElementById("login-email");
+  const campoSenha = document.getElementById("login-password");
+  const btnSubmit = formLogin.querySelector('button[type="submit"]');
 
-    const avisoLogin = document.createElement('p');
-    avisoLogin.className = 'mensagem-erro-campo';
-    avisoLogin.setAttribute('role', 'alert');
-    avisoLogin.setAttribute('aria-live', 'polite');
-    formLogin.querySelector('.acoes-form')?.insertAdjacentElement('beforebegin', avisoLogin);
+  const avisoLogin = document.createElement("p");
+  avisoLogin.className = "mensagem-erro-campo";
+  avisoLogin.setAttribute("role", "alert");
+  avisoLogin.setAttribute("aria-live", "polite");
+  formLogin
+    .querySelector(".acoes-form")
+    ?.insertAdjacentElement("beforebegin", avisoLogin);
 
-    // via redirecionamento
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('cadastro') === 'sucesso') {
-      avisoLogin.style.color = '#16a34a';
-      avisoLogin.textContent = 'Cadastro realizado com sucesso! Faça seu login abaixo.';
-    } else if (params.get('motivo') === 'login_necessario') {
-      avisoLogin.textContent = 'Faça login para acessar a página solicitada.'
-    } else if (params.get('motivo') === 'sessao_expirada') {
-      avisoLogin.textContent = 'Sua sessão expirou por inatividade. Faça login novamente.'
-    }
+  // via redirecionamento
+  const params = new URLSearchParams(window.location.search);
+  if (params.get("cadastro") === "sucesso") {
+    avisoLogin.style.color = "#16a34a";
+    avisoLogin.textContent =
+      "Cadastro realizado com sucesso! Faça seu login abaixo.";
+  } else if (params.get("motivo") === "login_necessario") {
+    avisoLogin.textContent = "Faça login para acessar a página solicitada.";
+  } else if (params.get("motivo") === "sessao_expirada") {
+    avisoLogin.textContent =
+      "Sua sessão expirou por inatividade. Faça login novamente.";
+  }
 
-    let timerBloqueio = null;
+  let timerBloqueio = null;
 
-    function iniciarContagemBloqueio() {
-      clearInterval(timerBloqueio);
-      const atualizar = () => {
-        const seg = obterSegundosRestantesBloqueio();
-        if ( seg > 0 ) {
-          if (btnSubmit) btnSubmit.disabled = true;
-          avisoLogin.style.color = '#dc2626';
-          avisoLogin.textContent = `Login bloqueado temporariamente. Tente novamente em ${seg}s.`;
-        } else {
-          clearInterval(timerBloqueio);
-          if (btnSubmit) btnSubmit.disabled = false;
-          avisoLogin.textContent = '';
-        }
-      };
-      atualizar();
-      if ( obterSegundosRestantesBloqueio() > 0 ){
-        timerBloqueio = setInterval(atualizar, 1000);
+  function iniciarContagemBloqueio() {
+    clearInterval(timerBloqueio);
+    const atualizar = () => {
+      const seg = obterSegundosRestantesBloqueio();
+      if (seg > 0) {
+        if (btnSubmit) btnSubmit.disabled = true;
+        avisoLogin.style.color = "#dc2626";
+        avisoLogin.textContent = `Login bloqueado temporariamente. Tente novamente em ${seg}s.`;
+      } else {
+        clearInterval(timerBloqueio);
+        if (btnSubmit) btnSubmit.disabled = false;
+        avisoLogin.textContent = "";
       }
+    };
+    atualizar();
+    if (obterSegundosRestantesBloqueio() > 0) {
+      timerBloqueio = setInterval(atualizar, 1000);
     }
+  }
 
-    // Verificar se há bloqueio ao abrir a página
-    iniciarContagemBloqueio();
+  // Verificar se há bloqueio ao abrir a página
+  iniciarContagemBloqueio();
 
-    formLogin.addEventListener('submit', async (evento) => {
+  formLogin.addEventListener("submit", async (evento) => {
     evento.preventDefault();
-    avisoLogin.style.color = '#dc2626';
+    avisoLogin.style.color = "#dc2626";
     if (!campoEmail?.value.trim() || !campoSenha?.value) {
-      avisoLogin.textContent = 'Preencha seu e-mail e a sua senha.';
+      avisoLogin.textContent = "Preencha seu e-mail e a sua senha.";
       (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
       return;
     }
-    alternarCarregamentoBotao(btnSubmit, true, 'Entrando...');
+    alternarCarregamentoBotao(btnSubmit, true, "Entrando...");
     let resultado;
     try {
       resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
@@ -249,14 +270,17 @@ export function inicializarLogin() {
 
     if (!resultado.sucesso) {
       avisoLogin.textContent = resultado.mensagem;
-      if (resultado.bloqueadoSegundos){
+      if (resultado.bloqueadoSegundos) {
         iniciarContagemBloqueio();
       }
       return;
     }
 
     // Volta para uma página interna permitida (previne XSS, Open Redirect e loop de permissão)
-    const destino = obterDestinoSeguro(params.get('redirect'), resultado.sessao?.perfil);
+    const destino = obterDestinoSeguro(
+      params.get("redirect"),
+      resultado.sessao?.perfil,
+    );
     window.location.replace(destino);
   });
 }
@@ -267,46 +291,58 @@ inicializarLogin();
  */
 export function verificarAcessoPagina() {
   const caminho = window.location.pathname;
-  const paginaAtual = caminho.split('/').pop() || 'index.html';
+  const paginaAtual = caminho.split("/").pop() || "index.html";
   //  Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
   const sessaoBruta = lerDados(CHAVES_STORAGE.SESSAO, null);
   if (sessaoBruta && Date.now() > sessaoBruta.expiraEm) {
     removerDados(CHAVES_STORAGE.SESSAO);
-    window.location.replace(`login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`);
+    window.location.replace(
+      `login.html?motivo=sessao_expirada&redirect=${encodeURIComponent(paginaAtual)}`,
+    );
     return;
   }
 
-    const sessao = obterSessaoAtiva();
+  const sessao = obterSessaoAtiva();
 
-    // Garantir que perfil seja exibida apenas para usuários logados
-    if (paginaAtual === 'perfil.html' && !sessao) {
-      window.location.replace('login.html?motivo=login_necessario&redirect=perfil.html');
-      return;
+  // Garantir que perfil seja exibida apenas para usuários logados
+  if (paginaAtual === "perfil.html" && !sessao) {
+    window.location.replace(
+      "login.html?motivo=login_necessario&redirect=perfil.html",
+    );
+    return;
   }
 
-    // Garantir que admin seja exibida apenas para usuários logados
-    if (paginaAtual === 'relatorios.html' && (!sessao || sessao.perfil !== 'administrador')) {
-      window.location.replace('login.html?motivo=login_necessario&redirect=relatorios.html');
-      return;
-    }
+  // Garantir que admin seja exibida apenas para usuários logados
+  if (
+    paginaAtual === "relatorios.html" &&
+    (!sessao || sessao.perfil !== "administrador")
+  ) {
+    window.location.replace(
+      "login.html?motivo=login_necessario&redirect=relatorios.html",
+    );
+    return;
+  }
 
-    // Garantir que login e cadastro não sejam exibidos para usuários já logados
-    if ((paginaAtual === 'cadastro.html' || paginaAtual === 'login.html') && sessao) {
-      window.location.replace('perfil.html');
-      return;
-    }
+  // Garantir que login e cadastro não sejam exibidos para usuários já logados
+  if (
+    (paginaAtual === "cadastro.html" || paginaAtual === "login.html") &&
+    sessao
+  ) {
+    window.location.replace("perfil.html");
+    return;
+  }
 
-    // Se logado: renova os 30 min a cada clique ou tecla relevante
+  // Se logado: renova os 30 min a cada clique ou tecla relevante
   if (sessao) {
     renovarSessao();
-    document.addEventListener('click', renovarSessao);
-    document.addEventListener('keydown', renovarSessao);
+    document.addEventListener("click", renovarSessao);
+    document.addEventListener("keydown", renovarSessao);
   }
   // Se passou pelas verificações de acesso, exibe a página
   document.body.hidden = false;
 }
 
-window.addEventListener('pageshow', (evento) => {
+window.addEventListener("pageshow", (evento) => {
   if (evento.persisted) {
     document.body.hidden = true;
     verificarAcessoPagina();
@@ -314,4 +350,3 @@ window.addEventListener('pageshow', (evento) => {
 });
 
 verificarAcessoPagina();
-
