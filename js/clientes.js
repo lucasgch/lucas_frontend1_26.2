@@ -22,6 +22,83 @@ import {
 } from "./storage.js";
 import { encerrarSessao, obterSessaoAtiva } from "./auth.js";
 
+const MENSAGENS_ERRO_CLIENTE = Object.freeze({
+  nome: "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
+  cpf: "CPF inválido. Digite os 11 números corretamente.",
+  telefone: "Informe um telefone válido com DDD (10 ou 11 números).",
+  email: "Informe um endereço de e-mail válido (ex: nome@dominio.com).",
+  senhaAtual: "Informe sua senha atual para alterar a senha.",
+  senha: "A senha deve ter no mínimo 8 caracteres, com letras e números.",
+  confirmaSenha: "As senhas não coincidem.",
+});
+
+/**
+ * Valida os dados cadastrais de um cliente e retorna um mapa { campo: mensagemErro }.
+ * @param {{nome?: string, cpf?: string, telefone?: string, email?: string, senhaAtual?: string, senha?: string, confirmaSenha?: string}} dados
+ * @param {{exigirSenha?: boolean, validarConfirmacao?: boolean, exigirSenhaAtual?: boolean}} [opcoes]
+ * @returns {Record<string, string>} Objeto vazio se todos os dados forem válidos.
+ */
+function validarDadosCliente(
+  {
+    nome = "",
+    cpf = "",
+    telefone = "",
+    email = "",
+    senhaAtual = "",
+    senha = "",
+    confirmaSenha = "",
+  } = {},
+  {
+    exigirSenha = false,
+    validarConfirmacao = false,
+    exigirSenhaAtual = false,
+  } = {},
+) {
+  const erros = {};
+  if (!validarNomeCompleto(nome)) erros.nome = MENSAGENS_ERRO_CLIENTE.nome;
+  if (!validarCPF(cpf)) erros.cpf = MENSAGENS_ERRO_CLIENTE.cpf;
+  if (!validarTelefone(String(telefone ?? "").trim()))
+    erros.telefone = MENSAGENS_ERRO_CLIENTE.telefone;
+  if (!validarEmail(email)) erros.email = MENSAGENS_ERRO_CLIENTE.email;
+  const precisaValidarSenha =
+    exigirSenha ||
+    Boolean(senha) ||
+    (validarConfirmacao && Boolean(confirmaSenha));
+  if (precisaValidarSenha) {
+    if (exigirSenhaAtual && !senhaAtual) {
+      erros.senhaAtual = MENSAGENS_ERRO_CLIENTE.senhaAtual;
+    }
+    if (!avaliarForcaSenha(senha).valida) {
+      erros.senha = MENSAGENS_ERRO_CLIENTE.senha;
+    }
+    if (validarConfirmacao && (!confirmaSenha || confirmaSenha !== senha)) {
+      erros.confirmaSenha = MENSAGENS_ERRO_CLIENTE.confirmaSenha;
+    }
+  }
+  return erros;
+}
+/**
+ * Aplica os erros de validação aos inputs do formulário, limpa os válidos e foca o primeiro inválido.
+ * @param {Record<string, HTMLInputElement|null>} mapaCampos
+ * @param {Record<string, string>} erros
+ * @returns {boolean} true se não houver erros; false caso contrário.
+ */
+function aplicarErrosFormulario(mapaCampos, erros) {
+  let primeiroInvalido = null;
+  for (const [chave, campo] of Object.entries(mapaCampos)) {
+    const mensagem = erros[chave] || "";
+    definirErroCampo(campo, mensagem);
+    if (mensagem && campo && !primeiroInvalido) {
+      primeiroInvalido = campo;
+    }
+  }
+  if (primeiroInvalido) {
+    primeiroInvalido.focus();
+    return false;
+  }
+  return true;
+}
+
 /**
  * Exibe ou limpa a mensagem de erro logo abaixo de um campo de formulário.
  * @param {HTMLInputElement} campo - Elemento input do formulário.
@@ -93,40 +170,22 @@ export async function cadastrarCliente({
   const telefoneLimpo = String(telefone ?? "").trim();
   const senhaTexto = String(senha ?? "");
 
-  if (!validarNomeCompleto(nomeLimpo)) {
+  const erros = validarDadosCliente(
+    {
+      nome: nomeLimpo,
+      cpf,
+      telefone: telefoneLimpo,
+      email: emailNormalizado,
+      senha: senhaTexto,
+    },
+    { exigirSenha: true },
+  );
+  const primeiroErro = Object.entries(erros)[0];
+  if (primeiroErro) {
     return {
       sucesso: false,
-      erroCampo: "nome",
-      mensagem: "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-    };
-  }
-  if (!validarCPF(cpf)) {
-    return {
-      sucesso: false,
-      erroCampo: "cpf",
-      mensagem: "CPF inválido. Digite os 11 números corretamente.",
-    };
-  }
-  if (!validarTelefone(telefoneLimpo)) {
-    return {
-      sucesso: false,
-      erroCampo: "telefone",
-      mensagem: "Informe um telefone válido com DDD (10 ou 11 números).",
-    };
-  }
-  if (!validarEmail(emailNormalizado)) {
-    return {
-      sucesso: false,
-      erroCampo: "email",
-      mensagem: "Informe um endereço de e-mail válido (ex: nome@dominio.com).",
-    };
-  }
-  if (!avaliarForcaSenha(senhaTexto).valida) {
-    return {
-      sucesso: false,
-      erroCampo: "senha",
-      mensagem:
-        "A senha deve ter no mínimo 8 caracteres, com letras e números.",
+      erroCampo: primeiroErro[0],
+      mensagem: primeiroErro[1],
     };
   }
 
@@ -323,64 +382,29 @@ export function inicializarCadastro() {
   formCadastro.addEventListener("submit", async (evento) => {
     // Impede a página de recarregar
     evento.preventDefault();
-    let primeiroInvalido = null;
-    const marcarInvalido = (campo, mensagem) => {
-      definirErroCampo(campo, mensagem);
-      if (!primeiroInvalido) primeiroInvalido = campo;
-    };
-    // Confere os 6 campos
-    if (!validarNomeCompleto(campoNome?.value)) {
-      marcarInvalido(
-        campoNome,
-        "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-      );
-    } else {
-      definirErroCampo(campoNome, "");
-    }
-    if (!validarCPF(campoCpf?.value)) {
-      marcarInvalido(
-        campoCpf,
-        "CPF inválido. Digite os 11 números corretamente.",
-      );
-    } else {
-      definirErroCampo(campoCpf, "");
-    }
-    if (!validarTelefone(campoTelefone?.value)) {
-      marcarInvalido(
-        campoTelefone,
-        "Informe um telefone válido com DDD (10 ou 11 números).",
-      );
-    } else {
-      definirErroCampo(campoTelefone, "");
-    }
-    if (!validarEmail(campoEmail?.value)) {
-      marcarInvalido(
-        campoEmail,
-        "Informe um endereço de e-mail válido (ex: nome@dominio.com).",
-      );
-    } else {
-      definirErroCampo(campoEmail, "");
-    }
-    const avaliacaoSenha = avaliarForcaSenha(campoSenha?.value);
-    if (!avaliacaoSenha.valida) {
-      marcarInvalido(
-        campoSenha,
-        "A senha deve ter no mínimo 8 caracteres, com letras e números.",
-      );
-    }
-    if (
-      !campoConfirmaSenha?.value ||
-      campoConfirmaSenha.value !== campoSenha?.value
-    ) {
-      marcarInvalido(campoConfirmaSenha, "As senhas não coincidem.");
-    } else {
-      definirErroCampo(campoConfirmaSenha, "");
-    }
-    // Se algum campo estiver inválido, coloca o cursor no primeiro erro e para
-    if (primeiroInvalido) {
-      primeiroInvalido.focus();
-      return;
-    }
+    const erros = validarDadosCliente(
+      {
+        nome: campoNome?.value,
+        cpf: campoCpf?.value,
+        telefone: campoTelefone?.value,
+        email: campoEmail?.value,
+        senha: campoSenha?.value,
+        confirmaSenha: campoConfirmaSenha?.value,
+      },
+      { exigirSenha: true, validarConfirmacao: true },
+    );
+    const valido = aplicarErrosFormulario(
+      {
+        nome: campoNome,
+        cpf: campoCpf,
+        telefone: campoTelefone,
+        email: campoEmail,
+        senha: campoSenha,
+        confirmaSenha: campoConfirmaSenha,
+      },
+      erros,
+    );
+    if (!valido) return;
     // Salva o cliente no localStorage com senha protegida por SHA-256
     const btnSubmit = formCadastro.querySelector('button[type="submit"]');
     alternarCarregamentoBotao(btnSubmit, true, "Criando conta...");
@@ -450,40 +474,23 @@ export async function atualizarCliente(
   const novaSenhaTexto = String(novaSenha ?? "");
 
   // Valida formato de todas as entradas antes de qualquer gravação
-  if (!validarNomeCompleto(nomeLimpo)) {
+  const erros = validarDadosCliente(
+    {
+      nome: nomeLimpo,
+      cpf: cpfTexto,
+      telefone: telefoneTexto,
+      email: emailNormalizado,
+      senha: novaSenhaTexto,
+    },
+    { exigirSenha: false },
+  );
+  const primeiroErro = Object.entries(erros)[0];
+  if (primeiroErro) {
+    const campoErro = primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
     return {
       sucesso: false,
-      erroCampo: "nome",
-      mensagem: "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-    };
-  }
-  if (!validarCPF(cpfTexto)) {
-    return {
-      sucesso: false,
-      erroCampo: "cpf",
-      mensagem: "CPF inválido. Digite os 11 números corretamente.",
-    };
-  }
-  if (!validarTelefone(telefoneTexto)) {
-    return {
-      sucesso: false,
-      erroCampo: "telefone",
-      mensagem: "Informe um telefone válido com DDD (10 ou 11 números).",
-    };
-  }
-  if (!validarEmail(emailNormalizado)) {
-    return {
-      sucesso: false,
-      erroCampo: "email",
-      mensagem: "Informe um endereço de e-mail válido.",
-    };
-  }
-  if (novaSenhaTexto && !avaliarForcaSenha(novaSenhaTexto).valida) {
-    return {
-      sucesso: false,
-      erroCampo: "novaSenha",
-      mensagem:
-        "A nova senha deve ter no mínimo 8 caracteres, com letras e números.",
+      erroCampo: campoErro,
+      mensagem: primeiroErro[1],
     };
   }
 
@@ -709,61 +716,37 @@ export function inicializarPerfil() {
   formPerfil.addEventListener("submit", async (evento) => {
     evento.preventDefault();
     avisoPerfil.textContent = "";
-    let primeiroInvalido = null;
-    const marcarInvalido = (campo, mensagem) => {
-      definirErroCampo(campo, mensagem);
-      if (!primeiroInvalido) primeiroInvalido = campo;
-    };
     // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
     const cpfInformado =
       campoCpf?.dataset.ofuscado === "true"
         ? campoCpf.dataset.cpfReal
         : campoCpf?.value;
 
-    // Valida dados pessoais obrigatórios
-    if (!validarNomeCompleto(campoNome?.value)) {
-      marcarInvalido(
-        campoNome,
-        "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-      );
-    }
-    if (!validarCPF(cpfInformado)) {
-      marcarInvalido(
-        campoCpf,
-        "CPF inválido. Digite os 11 números corretamente.",
-      );
-    }
-    if (!validarTelefone(campoTelefone?.value)) {
-      marcarInvalido(
-        campoTelefone,
-        "Informe um telefone válido com DDD (10 ou 11 números).",
-      );
-    }
-    if (!validarEmail(campoEmail?.value)) {
-      marcarInvalido(campoEmail, "Informe um endereço de e-mail válido.");
-    }
-    // Valida campos de senha APENAS se o usuário tentou preencher nova senha
-    if (campoNovaSenha?.value || campoConfirmaSenha?.value) {
-      if (!campoSenhaAtual?.value) {
-        marcarInvalido(
-          campoSenhaAtual,
-          "Informe sua senha atual para alterar a senha.",
-        );
-      }
-      if (!avaliarForcaSenha(campoNovaSenha?.value).valida) {
-        marcarInvalido(
-          campoNovaSenha,
-          "A nova senha deve ter no mínimo 8 caracteres, com letras e números.",
-        );
-      }
-      if (campoConfirmaSenha?.value !== campoNovaSenha?.value) {
-        marcarInvalido(campoConfirmaSenha, "As senhas não coincidem.");
-      }
-    }
-    if (primeiroInvalido) {
-      primeiroInvalido.focus();
-      return;
-    }
+    const erros = validarDadosCliente(
+      {
+        nome: campoNome?.value,
+        cpf: cpfInformado,
+        telefone: campoTelefone?.value,
+        email: campoEmail?.value,
+        senhaAtual: campoSenhaAtual?.value,
+        senha: campoNovaSenha?.value,
+        confirmaSenha: campoConfirmaSenha?.value,
+      },
+      { exigirSenha: false, validarConfirmacao: true, exigirSenhaAtual: true },
+    );
+    const valido = aplicarErrosFormulario(
+      {
+        nome: campoNome,
+        cpf: campoCpf,
+        telefone: campoTelefone,
+        email: campoEmail,
+        senhaAtual: campoSenhaAtual,
+        senha: campoNovaSenha,
+        confirmaSenha: campoConfirmaSenha,
+      },
+      erros,
+    );
+    if (!valido) return;
 
     const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
     alternarCarregamentoBotao(btnSubmitPerfil, true, "Salvando...");
