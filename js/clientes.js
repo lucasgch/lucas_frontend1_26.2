@@ -241,10 +241,86 @@ function obterCamposCadastro() {
 }
 
 /**
+ * Vincula validação não intrusiva (valida no blur, limpa no input) e formatação opcional a um input.
+ * @param {HTMLInputElement|null} campo
+ * @param {{validar: (valor: string) => boolean, mensagemErro: string, formatar?: (valor: string) => string}} config
+ */
+function vincularValidacaoCampo(campo, { validar, mensagemErro, formatar }) {
+  if (!campo) return;
+
+  campo.addEventListener("input", () => {
+    if (formatar) {
+      campo.value = formatar(campo.value);
+    }
+    if (validar(campo.value)) {
+      definirErroCampo(campo, "");
+    }
+  });
+
+  campo.addEventListener("blur", () => {
+    if (campo.value && !validar(campo.value)) {
+      definirErroCampo(campo, mensagemErro);
+    } else {
+      definirErroCampo(campo, "");
+    }
+  });
+}
+
+/**
+ * Configura máscara e validação do campo de CPF no cadastro.
+ * @param {HTMLInputElement|null} campoCpf
+ */
+function configurarCampoCpfCadastro(campoCpf) {
+  if (!campoCpf) return;
+
+  campoCpf.addEventListener("input", () => {
+    campoCpf.value = aplicarMascaraCPF(campoCpf.value);
+    if (campoCpf.value.length === 14 && !validarCPF(campoCpf.value)) {
+      definirErroCampo(
+        campoCpf,
+        "CPF inválido. Verifique os dígitos informados.",
+      );
+    } else {
+      definirErroCampo(campoCpf, "");
+    }
+  });
+
+  campoCpf.addEventListener("blur", () => {
+    if (campoCpf.value && !validarCPF(campoCpf.value)) {
+      definirErroCampo(campoCpf, MENSAGENS_ERRO_CLIENTE.cpf);
+    }
+  });
+}
+
+/**
+ * Configura máscaras e validações em tempo real dos campos básicos do cadastro.
+ * @param {ReturnType<typeof obterCamposCadastro>} campos
+ */
+function configurarCamposDadosCadastro(campos) {
+  vincularValidacaoCampo(campos.nome, {
+    validar: validarNomeCompleto,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.nome,
+  });
+
+  configurarCampoCpfCadastro(campos.cpf);
+
+  vincularValidacaoCampo(campos.telefone, {
+    validar: validarTelefone,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.telefone,
+    formatar: (valor) => limparNumeros(valor).slice(0, 11),
+  });
+
+  vincularValidacaoCampo(campos.email, {
+    validar: validarEmail,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.email,
+  });
+}
+
+/**
  * Inicializa as máscaras e validações do formulário de cadastro.
  */
-export function inicializarCadastro(){  
-  const formCadastro = document.getElementById("form-cadastro");                        
+export function inicializarCadastro() {
+  const formCadastro = document.getElementById("form-cadastro");
   if (!formCadastro) return;
   formCadastro.noValidate = true;
   // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
@@ -262,66 +338,7 @@ export function inicializarCadastro(){
     confirmaSenha: campoConfirmaSenha,
   } = campos;
 
-  // Validação do Nome Completo (#cad-nome)
-  campoNome?.addEventListener("blur", () => {
-    if (campoNome.value && !validarNomeCompleto(campoNome.value)) {
-      definirErroCampo(campoNome, MENSAGENS_ERRO_CLIENTE.nome);
-    } else {
-      definirErroCampo(campoNome, "");
-    }
-  });
-  campoNome?.addEventListener("input", () => {
-    if (validarNomeCompleto(campoNome.value)) {
-      definirErroCampo(campoNome, "");
-    }
-  });
-  // Máscara e Validação do CPF (#cad-cpf)
-  campoCpf?.addEventListener("input", () => {
-    campoCpf.value = aplicarMascaraCPF(campoCpf.value);
-    if (campoCpf.value.length === 14 && !validarCPF(campoCpf.value)) {
-      definirErroCampo(
-        campoCpf,
-        "CPF inválido. Verifique os dígitos informados.",
-      );
-    } else {
-      definirErroCampo(campoCpf, "");
-    }
-  });
-  campoCpf?.addEventListener("blur", () => {
-    if (campoCpf.value && !validarCPF(campoCpf.value)) {
-      definirErroCampo(campoCpf , MENSAGENS_ERRO_CLIENTE.cpf);
-    }
-  });
-
-  // Validação do Telefone (#cad-telefone — somente números, 10 ou 11 dígitos)
-  campoTelefone?.addEventListener("input", () => {
-    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
-    if (validarTelefone(campoTelefone.value)) {
-      definirErroCampo(campoTelefone, "");
-    }
-  });
-  campoTelefone?.addEventListener("blur", () => 
-    {
-      if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
-          definirErroCampo(campoTelefone, MENSAGENS_ERRO_CLIENTE.telefone);             
-        } else { 
-          definirErroCampo(campoTelefone, "");
-        }                                                                  
-      });
-
-  // Validação do E-mail (#cad-email)
-  campoEmail?.addEventListener("blur", () => {
-    if (campoEmail.value && !validarEmail(campoEmail.value)) {
-      definirErroCampo(campoEmail, MENSAGENS_ERRO_CLIENTE.email);
-    } else { 
-      definirErroCampo(campoEmail,"");                                       
-    }                                                                    
-  });
-  campoEmail?.addEventListener("input", () => {
-    if (validarEmail(campoEmail.value)) {
-      definirErroCampo(campoEmail, "");
-    }
-  });
+  configurarCamposDadosCadastro(campos);
 
   // Validação da senha
   if (campoSenha) {
