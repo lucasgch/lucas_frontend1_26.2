@@ -10,6 +10,16 @@ import {
 import { validarEmail } from "./utils.js";
 
 /**
+ * Encerra a sessão ativa e redireciona para a tela de login.
+ * @param {Event} evento
+ */
+function realizarLogout(evento) {
+  evento.preventDefault();
+  encerrarSessao();
+  window.location.href = "login.html";
+}
+
+/**
  * Monta os itens do menu principal dinamicamente conforme o estado da sessão (Requisito 2.2d)
  */
 export function renderizarMenuDinamico() {
@@ -68,28 +78,17 @@ export function renderizarMenuDinamico() {
   }
   // "Meu perfil"
   adicionarLink("perfil.html", "Meu perfil");
-  // Botão "Sair"
+ // Botão "Sair"
   const liSair = document.createElement("li");
   const linkSair = document.createElement("a");
   linkSair.href = "#sair";
   linkSair.id = "link-sair-menu";
   linkSair.textContent = "Sair";
-  linkSair.addEventListener("click", (evento) => {
-    evento.preventDefault();
-    encerrarSessao();
-    window.location.href = "login.html";
-  });
+  linkSair.addEventListener("click", realizarLogout);
   liSair.appendChild(linkSair);
   ulMenu.appendChild(liSair);
   // Ícone e contador do carrinho no final do menu
   atualizarBadgeCarrinho();
-  // Conecta também o botão de logout do rodapé de relatorios.html
-  const btnLogoutRodape = document.getElementById("btn-logout");
-  btnLogoutRodape?.addEventListener("click", (evento) => {
-    evento.preventDefault();
-    encerrarSessao();
-    window.location.href = "login.html";
-  });
   inicializarTema();
 }
 
@@ -428,7 +427,8 @@ export function definirMensagemEstado(elemento, texto, tipo = "") {
   elemento.textContent = texto;
 }
 
-// Renderiza o menu (incluindo botão de tema) e inicializa contato e acessibilidade ao carregar
+// Renderiza o menu (incluindo botão de tema) e inicializa contato, logout do rodapé e acessibilidade ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();
 inicializarAcessibilidadeModais();
+document.getElementById("btn-logout")?.addEventListener("click", realizarLogout);
