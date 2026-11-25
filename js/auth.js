@@ -312,7 +312,7 @@ export function verificarAcessoPagina() {
     return;
   }
 
-  // Garantir que admin seja exibida apenas para usuários logados
+  // Garantir que admin seja exibida apenas para administradores
   if (
     paginaAtual === "relatorios.html" &&
     (!sessao || sessao.perfil !== "administrador")
