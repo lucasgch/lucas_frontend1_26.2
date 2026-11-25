@@ -123,6 +123,21 @@ export function aplicarMascaraCPF(valor){
 }
 
 /**
+ * Calcula um dígito verificador do CPF a partir dos primeiros (pesoInicial - 1) dígitos.
+ * @param {string} digitos - String com os 11 dígitos numéricos do CPF.
+ * @param {number} pesoInicial - 10 para o 1º dígito verificador ou 11 para o 2º.
+ * @returns {number} Dígito verificador calculado (0 a 9).
+ */
+function calcularDigitoCPF(digitos, pesoInicial) {
+  let soma = 0;
+  for (let i = 0; i < pesoInicial - 1; i++) {
+    soma += Number(digitos[i]) * (pesoInicial - i);
+  }
+  const resto = (soma * 10) % 11;
+  return resto >= 10 ? 0 : resto;
+}
+
+/**
  * Valida um CPF verificando formato, dígitos repetidos e os 2 dígitos verificadores.
  * @param {string} [cpf=''] - CPF com ou sem máscara.
  * @returns {boolean} true se o CPF for válido, false caso contrário.
@@ -133,29 +148,10 @@ export function validarCPF(cpf = '') {
   if (digitos.length !== 11 || /^(\d)\1{10}$/.test(digitos)) {
     return false;
   }
-
-  // Cálculo do 1º dígito verificador (pesos de 10 até 2 sobre os 9 primeiros dígitos)
-  let soma1 = 0;
-  for (let i = 0; i < 9; i++) {
-    soma1 += Number(digitos[i]) * (10 - i);
-  }
-  let resto1 = (soma1 * 10) % 11;
-  if (resto1 === 10 || resto1 === 11) resto1 = 0;
-  if (resto1 !== Number(digitos[9])) {
-    return false;
-  }
-  
-  // Cálculo do 2º dígito verificador (pesos de 11 até 2 sobre os 10 primeiros dígitos)
-  let soma2 = 0;
-  for (let i = 0; i < 10; i++) {
-    soma2 += Number(digitos[i]) * (11 - i);
-  }
-  let resto2 = (soma2 * 10) % 11;
-  if (resto2 === 10 || resto2 === 11) resto2 = 0;
-  if (resto2 !== Number(digitos[10])) {
-    return false;
-  }
-  return true;
+  return (
+    calcularDigitoCPF(digitos, 10) === Number(digitos[9]) &&
+    calcularDigitoCPF(digitos, 11) === Number(digitos[10])
+  );
 }
 
 /**
