@@ -83,13 +83,16 @@ export function encerrarSessao() {
 
 /**
  * Retorna a sessão ativa atual ou null se não houver sessão ou se tiver expirado (30 min).
+ * @param {boolean} [removerSeExpirada=true] - Remove a sessão do localStorage caso esteja expirada.
  * @returns {Object|null}
  */
-export function obterSessaoAtiva() {
+export function obterSessaoAtiva(removerSeExpirada = true) {
   const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
   if (!sessao) return null;
   if (Date.now() > sessao.expiraEm) {
-    removerDados(CHAVES_STORAGE.SESSAO);
+    if (removerSeExpirada) {
+      removerDados(CHAVES_STORAGE.SESSAO);
+    }
     return null;
   }
   return sessao;

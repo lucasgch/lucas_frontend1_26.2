@@ -1,4 +1,5 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
+import { obterSessaoAtiva } from "./auth.js";
 import { obterProdutosComEstoque } from "./produtos.js";
 import {
   aplicarMascaraCEP,
@@ -13,13 +14,8 @@ import { mostrarToast, renderizarLinhaTabelaVazia } from "./ui.js";
  * @returns {string}
  */
 export function obterDonoCarrinhoAtual() {
-  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
-  // Verifica se existe sessão e se ela não expirou
-  if (sessao && Date.now() <= sessao.expiraEm) {
-    return sessao.usuarioId;
-  } else {
-    return "visitante";
-  }
+  const sessao = obterSessaoAtiva(false);
+  return sessao ? sessao.usuarioId : "visitante";
 }
 
 /**
