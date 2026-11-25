@@ -15,16 +15,20 @@ import { validarEmail } from "./utils.js";
 export function renderizarMenuDinamico() {
   const ulMenu = document.querySelector("#menu-principal ul");
 
-  if (!ulMenu) return;
+  if (!ulMenu) {
+    inicializarTema();
+    return;
+  }
 
   const sessao = obterSessaoAtiva();
   const paginaAtual = window.location.pathname.split("/").pop() || "index.html";
 
   document.getElementById("saudacao-header")?.remove();
 
-  // Se for visitante, o HTML já nasce com o menu de visitante pronto! Só garante o badge do carrinho:
+  // Se for visitante, o HTML já nasce com o menu de visitante pronto! Só garante o badge e o botão de tema:
   if (!sessao) {
     atualizarBadgeCarrinho();
+    inicializarTema();
     return;
   }
 
@@ -424,8 +428,7 @@ export function definirMensagemEstado(elemento, texto, tipo = "") {
   elemento.textContent = texto;
 }
 
-// Renderiza o menu e inicializa o formulário de contato ao carregar
+// Renderiza o menu (incluindo botão de tema) e inicializa contato e acessibilidade ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();
-inicializarTema();
 inicializarAcessibilidadeModais();
