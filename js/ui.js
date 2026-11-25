@@ -357,6 +357,26 @@ export function inicializarAcessibilidadeModais() {
   });
 }
 
+/**
+ * Cria e insere uma linha de resumo (.linha-resumo-checkout) com rótulo e valor destacado em um container.
+ * @param {HTMLElement|null} container - Elemento pai onde a linha será inserida.
+ * @param {string} rotulo - Texto exibido à esquerda.
+ * @param {string} valor - Valor destacado à direita.
+ * @returns {HTMLDivElement|null}
+ */
+export function adicionarLinhaResumo(container, rotulo, valor) {
+  if (!container) return null;
+  const linha = document.createElement("div");
+  linha.className = "linha-resumo-checkout";
+  const span = document.createElement("span");
+  span.textContent = rotulo;
+  const strong = document.createElement("strong");
+  strong.textContent = valor;
+  linha.append(span, strong);
+  container.appendChild(linha);
+  return linha;
+}
+
 // Renderiza o menu e inicializa o formulário de contato ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();

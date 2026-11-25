@@ -12,7 +12,7 @@ import {
   ofuscarCPF,
 } from "./utils.js";
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
-import { mostrarToast } from "./ui.js";
+import { adicionarLinhaResumo, mostrarToast } from "./ui.js";
 
 // Define a quantidade padrão de itens da paginação
 const ITENS_POR_PAGINA = 10;
@@ -287,24 +287,15 @@ function abrirModalDetalhesCompra(idCompra) {
     subtitulo.textContent = `Realizado em ${formatarDataHora(compra.data)}`;
   if (msgStatus) msgStatus.textContent = "";
   conteudo.replaceChildren();
-  const criarLinha = (rotulo, valor) => {
-    const linha = document.createElement("div");
-    linha.className = "linha-resumo-checkout";
-    const span = document.createElement("span");
-    span.textContent = rotulo;
-    const strong = document.createElement("strong");
-    strong.textContent = valor;
-    linha.append(span, strong);
-    conteudo.appendChild(linha);
-  };
   // Cliente
-  criarLinha("Cliente:", `${compra.clienteNome} (${compra.clienteId})`);
-  criarLinha("E-mail:", compra.clienteEmail || "—");
+  adicionarLinhaResumo(conteudo, "Cliente:", `${compra.clienteNome} (${compra.clienteId})`);
+  adicionarLinhaResumo(conteudo, "E-mail:", compra.clienteEmail || "—");
   // Endereço
   if (compra.enderecoEntrega) {
     const e = compra.enderecoEntrega;
     const comp = e.complemento ? `, ${e.complemento}` : "";
-    criarLinha(
+    adicionarLinhaResumo(
+      conteudo,
       "Entrega:",
       `${e.logradouro}, ${e.numero}${comp} - ${e.bairro}, ${e.cidade}/${e.uf} (${e.cep})`,
     );
@@ -316,27 +307,30 @@ function abrirModalDetalhesCompra(idCompra) {
   } else if (compra.pagamento?.metodo === "boleto") {
     textoPag = "Boleto Bancário";
   }
-  criarLinha("Pagamento:", textoPag);
+  adicionarLinhaResumo(conteudo, "Pagamento:", textoPag);
   // Itens
   for (const item of compra.itens || []) {
-    criarLinha(
+    adicionarLinhaResumo(
+      conteudo,
       `${item.quantidade}x ${item.nome} (${formatarMoeda(item.precoUnitario)} un.)`,
       formatarMoeda(item.subtotal),
     );
   }
   // Valores
-  criarLinha("Subtotal:", formatarMoeda(compra.subtotal));
+  adicionarLinhaResumo(conteudo, "Subtotal:", formatarMoeda(compra.subtotal));
   if (compra.desconto > 0) {
-    criarLinha(
+    adicionarLinhaResumo(
+      conteudo,
       compra.cupom ? `Desconto (${compra.cupom}):` : "Desconto:",
       `- ${formatarMoeda(compra.desconto)}`,
     );
   }
-  criarLinha(
+  adicionarLinhaResumo(
+    conteudo,
     "Frete:",
     compra.frete === 0 ? "Grátis" : formatarMoeda(compra.frete),
   );
-  criarLinha("Total:", formatarMoeda(compra.total));
+  adicionarLinhaResumo(conteudo, "Total:", formatarMoeda(compra.total));
   // Status atual (desabilita edição se já estiver Cancelado)
   const statusAtual = compra.status || "Pago";
   if (selectStatus) {

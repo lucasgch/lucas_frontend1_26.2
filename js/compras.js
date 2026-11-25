@@ -3,7 +3,7 @@ import { obterSessaoAtiva } from './auth.js';
 import { obterProdutosComEstoque, aplicarFiltrosLoja } from './produtos.js';
 import { obterCarrinho, obterResumoCarrinho, limparCarrinhoAtual, salvarExtrasCarrinho, renderizarCarrinho } from './carrinho.js';
 import { aplicarMascaraCEP, formatarData, formatarMoeda, limparNumeros, validarCartaoLuhn, validarUF } from './utils.js';
-import { mostrarToast } from './ui.js';
+import { adicionarLinhaResumo, mostrarToast } from './ui.js';
 
 /**
  * Retorna a lista de todas as compras registradas no localStorage.
@@ -275,27 +275,17 @@ function renderizarConfirmacaoCompra(pedido) {
   const divResumo = document.getElementById('resumo-confirmacao-pedido');
   if (divResumo) {
     divResumo.replaceChildren();
-    const criarLinha = (rotulo, valor) => {
-      const linha = document.createElement('div');
-      linha.className = 'linha-resumo-checkout';
-      const span = document.createElement('span');
-      span.textContent = rotulo;
-      const strong = document.createElement('strong');
-      strong.textContent = valor;
-      linha.append(span, strong);
-      divResumo.appendChild(linha);
-    };
     // Itens comprados
     for (const item of pedido.itens) {
-      criarLinha(`${item.quantidade}x ${item.nome}`, formatarMoeda(item.subtotal));
+      adicionarLinhaResumo(divResumo, `${item.quantidade}x ${item.nome}`, formatarMoeda(item.subtotal));
     }
     // Valores
-    criarLinha('Subtotal:', formatarMoeda(pedido.subtotal));
+    adicionarLinhaResumo(divResumo, 'Subtotal:', formatarMoeda(pedido.subtotal));
     if (pedido.desconto > 0) {
       const rotuloDesconto = pedido.cupom ? `Desconto (${pedido.cupom}):` : 'Desconto:';
-      criarLinha(rotuloDesconto, `- ${formatarMoeda(pedido.desconto)}`);
+      adicionarLinhaResumo(divResumo, rotuloDesconto, `- ${formatarMoeda(pedido.desconto)}`);
     }
-    criarLinha('Frete:', pedido.frete === 0 ? 'Grátis' : formatarMoeda(pedido.frete));
+    adicionarLinhaResumo(divResumo, 'Frete:', pedido.frete === 0 ? 'Grátis' : formatarMoeda(pedido.frete));
     // Forma de pagamento
     let textoPagamento = 'Pix';
     if (pedido.pagamento?.metodo === 'cartao') {
@@ -303,9 +293,9 @@ function renderizarConfirmacaoCompra(pedido) {
     } else if (pedido.pagamento?.metodo === 'boleto') {
       textoPagamento = 'Boleto Bancário';
     }
-    criarLinha('Pagamento:', textoPagamento);
+    adicionarLinhaResumo(divResumo, 'Pagamento:', textoPagamento);
     // Total final
-    criarLinha('Total pago:', formatarMoeda(pedido.total));
+    adicionarLinhaResumo(divResumo, 'Total pago:', formatarMoeda(pedido.total));
   }
   secaoConfirmacao.hidden = false;
   secaoConfirmacao.scrollIntoView({ behavior: 'smooth' });
@@ -357,30 +347,17 @@ export function inicializarCheckout() {
     for (const item of itens) {
       const produto = catalogo.find((p) => p.id === item.produtoId);
       if (!produto) continue;
-      const linha = document.createElement('div');
-      linha.className = 'linha-resumo-checkout';
-      const spanNome = document.createElement('span');
-      spanNome.textContent = `${item.quantidade}x ${produto.nome}`;
-      const spanValor = document.createElement('strong');
-      spanValor.textContent = formatarMoeda(produto.preco * item.quantidade);
-      linha.append(spanNome, spanValor);
-      divResumo.appendChild(linha);
+      adicionarLinhaResumo(
+        divResumo,
+        `${item.quantidade}x ${produto.nome}`,
+        formatarMoeda(produto.preco * item.quantidade)
+      );
     }
-    const criarLinhaTotal = (rotulo, valorTexto) => {
-      const linha = document.createElement('div');
-      linha.className = 'linha-resumo-checkout';
-      const spanRotulo = document.createElement('span');
-      spanRotulo.textContent = rotulo;
-      const spanValor = document.createElement('strong');
-      spanValor.textContent = valorTexto;
-      linha.append(spanRotulo, spanValor);
-      divResumo.appendChild(linha);
-    };
-   criarLinhaTotal('Subtotal:', formatarMoeda(resumo.subtotal));
-    criarLinhaTotal('Desconto:', `- ${formatarMoeda(resumo.desconto)}`);
+    adicionarLinhaResumo(divResumo, 'Subtotal:', formatarMoeda(resumo.subtotal));
+    adicionarLinhaResumo(divResumo, 'Desconto:', `- ${formatarMoeda(resumo.desconto)}`);
     const textoFrete = resumo.frete === null ? 'A calcular' : resumo.frete === 0 ? 'Grátis' : formatarMoeda(resumo.frete);
-    criarLinhaTotal('Frete:', textoFrete);
-    criarLinhaTotal('Total a pagar:', formatarMoeda(resumo.total));
+    adicionarLinhaResumo(divResumo, 'Frete:', textoFrete);
+    adicionarLinhaResumo(divResumo, 'Total a pagar:', formatarMoeda(resumo.total));
     if (resumo.cep && inputCep && !inputCep.value) {
       inputCep.value = aplicarMascaraCEP(resumo.cep);
     }
