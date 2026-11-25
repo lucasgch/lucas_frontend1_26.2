@@ -192,6 +192,49 @@ function validarEnderecoCheckout(enderecoEntrega) {
 }
 
 /**
+ * Sanitiza e valida os dados da forma de pagamento escolhida (Pix, Cartão ou Boleto),
+ * garantindo que apenas os 4 últimos dígitos do cartão sejam armazenados (Requisito 2.4c).
+ * @param {Object|null} pagamento
+ * @returns {{valido: boolean, mensagem?: string, pagamento?: Object}}
+ */
+function validarPagamentoCheckout(pagamento) {
+  const metodo = String(pagamento?.metodo ?? "").trim();
+  if (!METODOS_PAGAMENTO_VALIDOS.includes(metodo)) {
+    return { valido: false, mensagem: "Forma de pagamento inválida." };
+  }
+
+  if (metodo === "cartao") {
+    const ultimos4Digitos = String(pagamento?.ultimos4Digitos ?? "").trim();
+    const titular = String(pagamento?.titular ?? "").trim();
+    if (!/^\d{4}$/.test(ultimos4Digitos) || titular.length < 3) {
+      return { valido: false, mensagem: "Dados do cartão inválidos." };
+    }
+    return {
+      valido: true,
+      pagamento: { metodo: "cartao", ultimos4Digitos, titular },
+    };
+  }
+
+  if (metodo === "pix") {
+    return {
+      valido: true,
+      pagamento: {
+        metodo: "pix",
+        codigo: String(pagamento?.codigo ?? "").trim(),
+      },
+    };
+  }
+
+  return {
+    valido: true,
+    pagamento: {
+      metodo: "boleto",
+      linhaDigitavel: String(pagamento?.linhaDigitavel ?? "").trim(),
+    },
+  };
+}
+
+/**
  * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
  * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e, 2.4f).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
@@ -220,30 +263,11 @@ export function registrarCompra({
   const enderecoValidado = resEndereco.endereco;
 
   // Valida dados de pagamento antes de gravar (garantindo que nunca salva número completo/CVV do cartão)
-  const metodo = String(pagamento?.metodo ?? "").trim();
-  if (!METODOS_PAGAMENTO_VALIDOS.includes(metodo)) {
-    return { sucesso: false, mensagem: "Forma de pagamento inválida." };
+  const resPagamento = validarPagamentoCheckout(pagamento);
+  if (!resPagamento.valido) {
+    return { sucesso: false, mensagem: resPagamento.mensagem };
   }
-
-  let pagamentoValidado;
-  if (metodo === "cartao") {
-    const ultimos4Digitos = String(pagamento?.ultimos4Digitos ?? "").trim();
-    const titular = String(pagamento?.titular ?? "").trim();
-    if (!/^\d{4}$/.test(ultimos4Digitos) || titular.length < 3) {
-      return { sucesso: false, mensagem: "Dados do cartão inválidos." };
-    }
-    pagamentoValidado = { metodo: "cartao", ultimos4Digitos, titular };
-  } else if (metodo === "pix") {
-    pagamentoValidado = {
-      metodo: "pix",
-      codigo: String(pagamento?.codigo ?? "").trim(),
-    };
-  } else {
-    pagamentoValidado = {
-      metodo: "boleto",
-      linhaDigitavel: String(pagamento?.linhaDigitavel ?? "").trim(),
-    };
-  }
+  const pagamentoValidado = resPagamento.pagamento;
 
   // Verifica itens do carrinho e revalida quantidades e estoque antes de concluir (Requisito 2.4e)
   const itensCarrinho = obterCarrinho(sessao.usuarioId);
