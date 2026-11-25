@@ -198,6 +198,7 @@ export function renderizarCarrinho() {
   if (!tabela) return;
 
   const tbody = tabela.querySelector("tbody");
+  if (!tbody) return;
   const celulaTotal = document.getElementById("valor-total-carrinho");
   const celulaSubtotal = document.getElementById("valor-subtotal-carrinho");
   const celulaDesconto = document.getElementById("valor-desconto-carrinho");
@@ -411,13 +412,13 @@ export function inicializarCarrinho() {
   const btnCalcularFrete = document.getElementById("btn-calcular-frete");
   const msgFrete = document.getElementById("msg-frete");
   inputCep?.addEventListener("input", () => {
-    inputCep.value = aplicarMascaraCEP(inputCep.value);
+    inputCep.value = aplicarMascaraCEP(inputCep?.value);
   });
   btnCalcularFrete?.addEventListener("click", () => {
     const { subtotal } = obterResumoCarrinho();
     const res = calcularFretePorCep(inputCep?.value, subtotal);
     if (res.valido) {
-      salvarExtrasCarrinho({ cep: inputCep.value });
+      salvarExtrasCarrinho({ cep: inputCep?.value });
       definirMensagemEstado(
         msgFrete,
         `${res.regiao}: ${formatarFrete(res.valor)}`,
