@@ -748,9 +748,6 @@ export function inicializarRelatorios() {
       if (btn) abrirModalDetalhesCompra(btn.dataset.id);
     });
   btnFecharModalCompra?.addEventListener("click", () => modalCompra?.close());
-  modalCompra?.addEventListener("click", (evento) => {
-    if (evento.target === modalCompra) modalCompra.close();
-  });
   btnSalvarStatus?.addEventListener("click", () => {
     const idCompra = modalCompra?.dataset.compraId;
     if (!idCompra || !selectStatusDetalhe) return;

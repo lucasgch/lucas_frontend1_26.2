@@ -303,13 +303,6 @@ export function inicializarModalProduto() {
     modal.close();
   });
 
-  // Fecha ao clicar no fundo escuro fora da caixa do modal
-  modal.addEventListener("click", (evento) => {
-    if (evento.target === modal) {
-      modal.close();
-    }
-  });
-
   const inputQtd = document.getElementById("modal-quantidade");
   const btnMenos = document.getElementById("modal-qtd-menos");
   const btnMais = document.getElementById("modal-qtd-mais");
