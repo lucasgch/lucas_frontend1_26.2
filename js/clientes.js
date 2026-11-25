@@ -396,7 +396,7 @@ export function inicializarCadastro() {
     } finally {
       alternarCarregamentoBotao(btnSubmit, false);
     }
-    // Se o CPF ou E-mail já existie, mostra o erro no campo correspondente
+    // Se o CPF ou E-mail já existe, mostra o erro no campo correspondente
     if (!resultado.sucesso) {
       if (resultado.erroCampo === "cpf") {
         definirErroCampo(campoCpf, resultado.mensagem);
