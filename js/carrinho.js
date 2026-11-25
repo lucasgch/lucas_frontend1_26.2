@@ -189,141 +189,170 @@ export function atualizarBadgeCarrinho() {
 }
 
 /**
+ * Cria um botão de ajuste de quantidade (− ou +) para uma linha da tabela do carrinho.
+ * @param {Object} opcoes
+ * @param {string} opcoes.produtoId
+ * @param {string} opcoes.classeExtra
+ * @param {string} opcoes.simbolo
+ * @param {boolean} opcoes.desabilitado
+ * @param {string} opcoes.ariaLabel
+ * @returns {HTMLButtonElement}
+ */
+function criarBotaoPassoCarrinho({
+  produtoId,
+  classeExtra,
+  simbolo,
+  desabilitado,
+  ariaLabel,
+}) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = `btn-qtd ${classeExtra}`;
+  btn.dataset.id = produtoId;
+  btn.textContent = simbolo;
+  btn.disabled = desabilitado;
+  btn.setAttribute("aria-label", ariaLabel);
+  return btn;
+}
+
+/**
+ * Constrói o elemento <tr> completo de um item da tabela do carrinho.
+ * @param {Object} produto - Dados do produto com estoque atualizado.
+ * @param {number} quantidade - Quantidade atual no carrinho.
+ * @returns {HTMLTableRowElement}
+ */
+function criarLinhaItemCarrinho(produto, quantidade) {
+  const tr = document.createElement("tr");
+  tr.dataset.produtoId = produto.id;
+
+  // 1. Coluna Produto (miniatura + título)
+  const thProduto = document.createElement("th");
+  thProduto.scope = "row";
+  thProduto.className = "coluna-produto";
+
+  const img = document.createElement("img");
+  img.src = produto.imagem;
+  img.alt = produto.alt || `Capa do livro ${produto.nome}`;
+  img.className = "miniatura-carrinho";
+
+  const spanNome = document.createElement("span");
+  spanNome.className = "nome-produto-carrinho";
+  spanNome.textContent = produto.nome;
+  thProduto.append(img, spanNome);
+
+  // 2. Coluna Preço Unitário
+  const tdPreco = document.createElement("td");
+  tdPreco.className = "preco-unitario";
+  tdPreco.textContent = formatarMoeda(produto.preco);
+
+  // 3. Coluna Quantidade (botões − e + limitados ao estoque)
+  const tdQtd = document.createElement("td");
+  tdQtd.className = "coluna-quantidade";
+
+  const divSeletor = document.createElement("div");
+  divSeletor.className = "seletor-quantidade";
+
+  const btnMenos = criarBotaoPassoCarrinho({
+    produtoId: produto.id,
+    classeExtra: "btn-carrinho-menos",
+    simbolo: "−",
+    desabilitado: quantidade <= 1,
+    ariaLabel: `Diminuir quantidade de ${produto.nome}`,
+  });
+
+  const spanQtd = document.createElement("span");
+  spanQtd.className = "qtd-valor-carrinho";
+  spanQtd.textContent = String(quantidade);
+
+  const btnMais = criarBotaoPassoCarrinho({
+    produtoId: produto.id,
+    classeExtra: "btn-carrinho-mais",
+    simbolo: "+",
+    desabilitado: quantidade >= produto.estoque,
+    ariaLabel: `Aumentar quantidade de ${produto.nome}`,
+  });
+
+  divSeletor.append(btnMenos, spanQtd, btnMais);
+  tdQtd.appendChild(divSeletor);
+
+  // 4. Coluna Subtotal
+  const tdSubtotal = document.createElement("td");
+  tdSubtotal.className = "subtotal-item";
+  tdSubtotal.textContent = formatarMoeda(produto.preco * quantidade);
+
+  // 5. Coluna Remover
+  const tdAcoes = document.createElement("td");
+  const btnRemover = document.createElement("button");
+  btnRemover.type = "button";
+  btnRemover.className = "botao botao-remover";
+  btnRemover.dataset.id = produto.id;
+  btnRemover.textContent = "Remover";
+  btnRemover.setAttribute("aria-label", `Remover ${produto.nome} do carrinho`);
+  tdAcoes.appendChild(btnRemover);
+
+  tr.append(thProduto, tdPreco, tdQtd, tdSubtotal, tdAcoes);
+  return tr;
+}
+
+/**
+ * Atualiza as células de Subtotal, Desconto, Frete e Total no rodapé da tabela do carrinho.
+ * @param {{subtotal: number, desconto: number, frete: number|null, total: number}} resumo
+ */
+function atualizarTotaisTabelaCarrinho({ subtotal, desconto, frete, total }) {
+  const celulaSubtotal = document.getElementById("valor-subtotal-carrinho");
+  const celulaDesconto = document.getElementById("valor-desconto-carrinho");
+  const celulaFrete = document.getElementById("valor-frete-carrinho");
+  const celulaTotal = document.getElementById("valor-total-carrinho");
+
+  if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(subtotal);
+  if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(desconto)}`;
+  if (celulaFrete) celulaFrete.textContent = formatarFrete(frete);
+  if (celulaTotal) {
+    const strongTotal = document.createElement("strong");
+    strongTotal.textContent = formatarMoeda(total);
+    celulaTotal.replaceChildren(strongTotal);
+  }
+}
+
+/**
  * Renderiza os itens do carrinho na tabela #tabela-carrinho e atualiza o total geral.
  */
 export function renderizarCarrinho() {
   atualizarBadgeCarrinho();
 
   const tabela = document.getElementById("tabela-carrinho");
-  if (!tabela) return;
-
-  const tbody = tabela.querySelector("tbody");
+  const tbody = tabela?.querySelector("tbody");
   if (!tbody) return;
-  const celulaTotal = document.getElementById("valor-total-carrinho");
-  const celulaSubtotal = document.getElementById("valor-subtotal-carrinho");
-  const celulaDesconto = document.getElementById("valor-desconto-carrinho");
-  const celulaFrete = document.getElementById("valor-frete-carrinho");
+
   const btnFinalizar = document.getElementById("btn-finalizar-compra");
   const itensCarrinho = obterCarrinho();
-  const catalogo = obterProdutosComEstoque();
-
   tbody.replaceChildren();
 
   if (itensCarrinho.length === 0) {
     renderizarLinhaTabelaVazia(tbody, 5, "Seu carrinho está vazio.");
-    if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
-    if (btnFinalizar) btnFinalizar.setAttribute("aria-disabled", "true");
-    if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(0);
-    if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(0)}`;
-    if (celulaFrete) celulaFrete.textContent = "A calcular";
+    btnFinalizar?.setAttribute("aria-disabled", "true");
+    atualizarTotaisTabelaCarrinho({
+      subtotal: 0,
+      desconto: 0,
+      frete: null,
+      total: 0,
+    });
     return;
   }
 
-  if (btnFinalizar) btnFinalizar.removeAttribute("aria-disabled");
+  btnFinalizar?.removeAttribute("aria-disabled");
 
+  const catalogo = obterProdutosComEstoque();
   const fragmento = document.createDocumentFragment();
-
-  itensCarrinho.forEach((item) => {
+  for (const item of itensCarrinho) {
     const produto = catalogo.find((p) => p.id === item.produtoId);
-    if (!produto) return;
-
-    const subtotal = produto.preco * item.quantidade;
-
-    const tr = document.createElement("tr");
-    tr.dataset.produtoId = produto.id;
-
-    // Coluna produto com imagem e nome
-    const thProduto = document.createElement("th");
-    thProduto.scope = "row";
-    thProduto.className = "coluna-produto";
-
-    const img = document.createElement("img");
-    img.src = produto.imagem;
-    img.alt = produto.alt || `Capa do livro ${produto.nome}`;
-    img.className = "miniatura-carrinho";
-
-    const spanNome = document.createElement("span");
-    spanNome.className = "nome-produto-carrinho";
-    spanNome.textContent = produto.nome;
-
-    thProduto.append(img, spanNome);
-
-    // Coluna Preço Unitário
-    const tdPreco = document.createElement("td");
-    tdPreco.className = "preco-unitario";
-    tdPreco.textContent = formatarMoeda(produto.preco);
-
-    // Coluna Quantidade (botões - e + limitados ao estoque)
-    const tdQtd = document.createElement("td");
-    tdQtd.className = "coluna-quantidade";
-
-    const divSeletor = document.createElement("div");
-    divSeletor.className = "seletor-quantidade";
-
-    const btnMenos = document.createElement("button");
-    btnMenos.type = "button";
-    btnMenos.className = "btn-qtd btn-carrinho-menos";
-    btnMenos.dataset.id = produto.id;
-    btnMenos.textContent = "−";
-    btnMenos.disabled = item.quantidade <= 1;
-    btnMenos.setAttribute(
-      "aria-label",
-      `Diminuir quantidade de ${produto.nome}`,
-    );
-
-    const spanQtd = document.createElement("span");
-    spanQtd.className = "qtd-valor-carrinho";
-    spanQtd.textContent = item.quantidade;
-
-    const btnMais = document.createElement("button");
-    btnMais.type = "button";
-    btnMais.className = "btn-qtd btn-carrinho-mais";
-    btnMais.dataset.id = produto.id;
-    btnMais.textContent = "+";
-    btnMais.disabled = item.quantidade >= produto.estoque;
-    btnMais.setAttribute(
-      "aria-label",
-      `Aumentar quantidade de ${produto.nome}`,
-    );
-    divSeletor.append(btnMenos, spanQtd, btnMais);
-    tdQtd.appendChild(divSeletor);
-
-    // Coluna Subtotal
-    const tdSubtotal = document.createElement("td");
-    tdSubtotal.className = "subtotal-item";
-    tdSubtotal.textContent = formatarMoeda(subtotal);
-
-    // Coluna Remover
-    const tdAcoes = document.createElement("td");
-    const btnRemover = document.createElement("button");
-    btnRemover.type = "button";
-    btnRemover.className = "botao botao-remover";
-    btnRemover.dataset.id = produto.id;
-    btnRemover.textContent = "Remover";
-    btnRemover.setAttribute(
-      "aria-label",
-      `Remover ${produto.nome} do carrinho`,
-    );
-    tdAcoes.appendChild(btnRemover);
-    tr.append(thProduto, tdPreco, tdQtd, tdSubtotal, tdAcoes);
-    fragmento.appendChild(tr);
-  });
-
+    if (produto) {
+      fragmento.appendChild(criarLinhaItemCarrinho(produto, item.quantidade));
+    }
+  }
   tbody.appendChild(fragmento);
 
-  const resumo = obterResumoCarrinho();
-  if (celulaSubtotal)
-    celulaSubtotal.textContent = formatarMoeda(resumo.subtotal);
-  if (celulaDesconto)
-    celulaDesconto.textContent = `- ${formatarMoeda(resumo.desconto)}`;
-  if (celulaFrete) {
-    celulaFrete.textContent = formatarFrete(resumo.frete);
-  }
-  if (celulaTotal) {
-    const strongTotal = document.createElement("strong");
-    strongTotal.textContent = formatarMoeda(resumo.total);
-    celulaTotal.replaceChildren(strongTotal);
-  }
+  atualizarTotaisTabelaCarrinho(obterResumoCarrinho());
 }
 
 /**
