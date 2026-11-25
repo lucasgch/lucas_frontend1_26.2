@@ -248,12 +248,12 @@ export function renderizarCarrinho() {
 
     thProduto.append(img, spanNome);
 
-    // 2. Coluna Preço Unitário
+    // Coluna Preço Unitário
     const tdPreco = document.createElement("td");
     tdPreco.className = "preco-unitario";
     tdPreco.textContent = formatarMoeda(produto.preco);
 
-    // 3. Coluna Quantidade (botões - e + limitados ao estoque)
+    // Coluna Quantidade (botões - e + limitados ao estoque)
     const tdQtd = document.createElement("td");
     tdQtd.className = "coluna-quantidade";
 
@@ -288,12 +288,12 @@ export function renderizarCarrinho() {
     divSeletor.append(btnMenos, spanQtd, btnMais);
     tdQtd.appendChild(divSeletor);
 
-    // 4. Coluna Subtotal
+    // Coluna Subtotal
     const tdSubtotal = document.createElement("td");
     tdSubtotal.className = "subtotal-item";
     tdSubtotal.textContent = formatarMoeda(subtotal);
 
-    // 5. Coluna Remover
+    // Coluna Remover
     const tdAcoes = document.createElement("td");
     const btnRemover = document.createElement("button");
     btnRemover.type = "button";
@@ -327,12 +327,9 @@ export function renderizarCarrinho() {
 }
 
 /**
- * Inicializa os eventos de adicionar, alterar quantidade e remover do carrinho.
+ * Conecta os botões "Adicionar ao carrinho" da grade de produtos e do modal de detalhes.
  */
-export function inicializarCarrinho() {
-  renderizarCarrinho();
-
-  // Clique em "Adicionar ao carrinho" nos cards da grade (Home ou Loja)
+function inicializarBotoesAdicionarCarrinho() {
   const grade = document.querySelector(".grade-produtos");
   grade?.addEventListener("click", (evento) => {
     const btnAdicionar = evento.target.closest(".botao-adicionar");
@@ -342,9 +339,7 @@ export function inicializarCarrinho() {
     if (resultado.sucesso) renderizarCarrinho();
   });
 
-  // Clique em "Adicionar ao carrinho" dentro do Modal de detalhes
   const btnModalAdicionar = document.getElementById("modal-btn-adicionar");
-
   btnModalAdicionar?.addEventListener("click", () => {
     const inputQtd = document.getElementById("modal-quantidade");
     const modal = document.getElementById("modal-produto");
@@ -362,78 +357,59 @@ export function inicializarCarrinho() {
       }
     }
   });
+}
 
-  // Cliques na tabela do carrinho (-, + e Remover)
+/**
+ * Conecta os botões de diminuir (-), aumentar (+) e remover itens na tabela do carrinho.
+ */
+function inicializarTabelaCarrinho() {
   const tabela = document.getElementById("tabela-carrinho");
-  tabela?.addEventListener("click", (evento) => {
+  if (!tabela) return;
+
+  tabela.addEventListener("click", (evento) => {
     const btnMenos = evento.target.closest(".btn-carrinho-menos");
     const btnMais = evento.target.closest(".btn-carrinho-mais");
+    const btnPasso = btnMenos || btnMais;
+
+    if (btnPasso) {
+      const id = btnPasso.dataset.id;
+      const delta = btnMenos ? -1 : 1;
+      const item = obterCarrinho().find((i) => i.produtoId === id);
+      if (item && item.quantidade + delta >= 1) {
+        alterarQuantidadeCarrinho(id, item.quantidade + delta);
+        renderizarCarrinho();
+      }
+      return;
+    }
+
     const btnRemover = evento.target.closest(".botao-remover");
-    if (btnMenos) {
-      const id = btnMenos.dataset.id;
-      const item = obterCarrinho().find((i) => i.produtoId === id);
-      if (item && item.quantidade > 1) {
-        alterarQuantidadeCarrinho(id, item.quantidade - 1);
-        renderizarCarrinho();
-      }
-    } else if (btnMais) {
-      const id = btnMais.dataset.id;
-      const item = obterCarrinho().find((i) => i.produtoId === id);
-      if (item) {
-        alterarQuantidadeCarrinho(id, item.quantidade + 1);
-        renderizarCarrinho();
-      }
-    } else if (btnRemover) {
+    if (btnRemover) {
       removerDoCarrinho(btnRemover.dataset.id);
       renderizarCarrinho();
       mostrarToast("Item removido do carrinho.", "info");
     }
   });
+}
 
-  // Aplicar Cupom de Desconto
+/**
+ * Inicializa o campo de cupom de desconto e restaura o cupom salvo na sessão atual.
+ * @param {{codigoCupom: string, subtotal: number}} resumoInicial
+ */
+function inicializarCupomCarrinho(resumoInicial) {
   const inputCupom = document.getElementById("input-cupom");
   const btnAplicarCupom = document.getElementById("btn-aplicar-cupom");
   const msgCupom = document.getElementById("msg-cupom");
-  btnAplicarCupom?.addEventListener("click", () => {
+  if (!inputCupom || !btnAplicarCupom) return;
+
+  btnAplicarCupom.addEventListener("click", () => {
     const { subtotal } = obterResumoCarrinho();
-    const res = validarCupom(inputCupom?.value, subtotal);
-    if (res.valido) {
-      salvarExtrasCarrinho({ codigoCupom: res.cupom.codigo });
-      definirMensagemEstado(msgCupom, res.mensagem, "sucesso");
-    } else {
-      salvarExtrasCarrinho({ codigoCupom: "" });
-      definirMensagemEstado(msgCupom, res.mensagem, "erro");
-    }
+    const res = validarCupom(inputCupom.value, subtotal);
+    salvarExtrasCarrinho({ codigoCupom: res.valido ? res.cupom.codigo : "" });
+    definirMensagemEstado(msgCupom, res.mensagem, res.valido ? "sucesso" : "erro");
     renderizarCarrinho();
   });
 
-  // Calcular Frete por CEP
-  const inputCep = document.getElementById("input-cep-carrinho");
-  const btnCalcularFrete = document.getElementById("btn-calcular-frete");
-  const msgFrete = document.getElementById("msg-frete");
-  inputCep?.addEventListener("input", () => {
-    inputCep.value = aplicarMascaraCEP(inputCep?.value);
-  });
-  btnCalcularFrete?.addEventListener("click", () => {
-    const { subtotal } = obterResumoCarrinho();
-    const res = calcularFretePorCep(inputCep?.value, subtotal);
-    if (res.valido) {
-      salvarExtrasCarrinho({ cep: inputCep?.value });
-      definirMensagemEstado(
-        msgFrete,
-        `${res.regiao}: ${formatarFrete(res.valor)}`,
-        "sucesso",
-      );
-    } else {
-      salvarExtrasCarrinho({ cep: "" });
-      definirMensagemEstado(msgFrete, res.mensagem, "erro");
-    }
-    renderizarCarrinho();
-  });
-
-  // Restaura nos inputs e nas mensagens o cupom e CEP que já estavam salvos (ex: após login ou F5)
-  const resumoInicial = obterResumoCarrinho();
-  if (resumoInicial.codigoCupom && inputCupom) {
+  if (resumoInicial.codigoCupom) {
     inputCupom.value = resumoInicial.codigoCupom;
     const resCupom = validarCupom(
       resumoInicial.codigoCupom,
@@ -443,20 +419,60 @@ export function inicializarCarrinho() {
       definirMensagemEstado(msgCupom, resCupom.mensagem, "sucesso");
     }
   }
-  if (resumoInicial.cep && inputCep) {
+}
+
+/**
+ * Inicializa o simulador de frete por CEP e restaura o CEP salvo na sessão atual.
+ * @param {{cep: string, subtotal: number}} resumoInicial
+ */
+function inicializarFreteCarrinho(resumoInicial) {
+  const inputCep = document.getElementById("input-cep-carrinho");
+  const btnCalcularFrete = document.getElementById("btn-calcular-frete");
+  const msgFrete = document.getElementById("msg-frete");
+  if (!inputCep || !btnCalcularFrete) return;
+
+  const formatarMensagemFrete = (res) =>
+    `${res.regiao}: ${formatarFrete(res.valor)}`;
+
+  inputCep.addEventListener("input", () => {
+    inputCep.value = aplicarMascaraCEP(inputCep.value);
+  });
+
+  btnCalcularFrete.addEventListener("click", () => {
+    const { subtotal } = obterResumoCarrinho();
+    const res = calcularFretePorCep(inputCep.value, subtotal);
+    salvarExtrasCarrinho({ cep: res.valido ? aplicarMascaraCEP(inputCep.value) : "" });
+    definirMensagemEstado(
+      msgFrete,
+      res.valido ? formatarMensagemFrete(res) : res.mensagem,
+      res.valido ? "sucesso" : "erro",
+    );
+    renderizarCarrinho();
+  });
+
+  if (resumoInicial.cep) {
     inputCep.value = resumoInicial.cep;
     const resFrete = calcularFretePorCep(
       resumoInicial.cep,
       resumoInicial.subtotal,
     );
     if (resFrete.valido) {
-      definirMensagemEstado(
-        msgFrete,
-        `${resFrete.regiao}: ${formatarFrete(resFrete.valor)}`,
-        "sucesso",
-      );
+      definirMensagemEstado(msgFrete, formatarMensagemFrete(resFrete), "sucesso");
     }
   }
+}
+
+/**
+ * Inicializa a renderização e todos os eventos interativos do carrinho na página atual.
+ */
+export function inicializarCarrinho() {
+  renderizarCarrinho();
+  inicializarBotoesAdicionarCarrinho();
+  inicializarTabelaCarrinho();
+
+  const resumoInicial = obterResumoCarrinho();
+  inicializarCupomCarrinho(resumoInicial);
+  inicializarFreteCarrinho(resumoInicial);
 }
 
 /**
