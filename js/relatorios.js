@@ -1,6 +1,10 @@
 import { obterSessaoAtiva } from "./auth.js";
 import { obterClientes } from "./clientes.js";
-import { atualizarStatusCompra, obterCompras } from "./compras.js";
+import {
+  atualizarStatusCompra,
+  obterCompras,
+  formatarPagamento,
+} from "./compras.js";
 import {
   aplicarMascaraCPF,
   criarConteudoDestacado,
@@ -288,7 +292,11 @@ function abrirModalDetalhesCompra(idCompra) {
   if (msgStatus) msgStatus.textContent = "";
   conteudo.replaceChildren();
   // Cliente
-  adicionarLinhaResumo(conteudo, "Cliente:", `${compra.clienteNome} (${compra.clienteId})`);
+  adicionarLinhaResumo(
+    conteudo,
+    "Cliente:",
+    `${compra.clienteNome} (${compra.clienteId})`,
+  );
   adicionarLinhaResumo(conteudo, "E-mail:", compra.clienteEmail || "—");
   // Endereço
   if (compra.enderecoEntrega) {
@@ -300,13 +308,11 @@ function abrirModalDetalhesCompra(idCompra) {
       `${e.logradouro}, ${e.numero}${comp} - ${e.bairro}, ${e.cidade}/${e.uf} (${e.cep})`,
     );
   }
-  // Pagamento
-  let textoPag = "Pix";
-  if (compra.pagamento?.metodo === "cartao") {
-    textoPag = `Cartão de Crédito (final ${compra.pagamento.ultimos4Digitos})`;
-  } else if (compra.pagamento?.metodo === "boleto") {
-    textoPag = "Boleto Bancário";
-  }
+  adicionarLinhaResumo(
+    conteudo,
+    "Pagamento:",
+    formatarPagamento(compra.pagamento),
+  );
   adicionarLinhaResumo(conteudo, "Pagamento:", textoPag);
   // Itens
   for (const item of compra.itens || []) {
