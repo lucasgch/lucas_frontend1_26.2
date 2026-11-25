@@ -317,6 +317,78 @@ function configurarCamposDadosCadastro(campos) {
 }
 
 /**
+ * Cria e insere a barra visual de força de senha logo após o input.
+ * @param {HTMLInputElement} campoSenha
+ * @returns {HTMLDivElement} Elemento interno preenchido conforme o nível da senha.
+ */
+function criarIndicadorForcaSenha(campoSenha) {
+  const containerForca = document.createElement("div");
+  containerForca.className = "indicador-forca";
+  const barraForca = document.createElement("div");
+  barraForca.className = "barra-forca-preenchimento";
+  containerForca.appendChild(barraForca);
+  campoSenha.insertAdjacentElement("afterend", containerForca);
+  return barraForca;
+}
+
+/**
+ * Configura indicador de força em tempo real, validação de senha e confirmação de senha.
+ * @param {HTMLInputElement|null} campoSenha
+ * @param {HTMLInputElement|null} campoConfirmaSenha
+ */
+function configurarCamposSenhaCadastro(campoSenha, campoConfirmaSenha) {
+  function validarConfirmacao() {
+    if (!campoConfirmaSenha || !campoSenha) return;
+    if (
+      campoConfirmaSenha.value &&
+      campoConfirmaSenha.value !== campoSenha.value
+    ) {
+      definirErroCampo(campoConfirmaSenha, MENSAGENS_ERRO_CLIENTE.confirmaSenha);
+    } else {
+      definirErroCampo(campoConfirmaSenha, "");
+    }
+  }
+
+  if (campoSenha) {
+    const barraForca = criarIndicadorForcaSenha(campoSenha);
+
+    campoSenha.addEventListener("input", () => {
+      const avaliacao = avaliarForcaSenha(campoSenha.value);
+      barraForca.dataset.nivel = avaliacao.nivel;
+
+      const msgErro = campoSenha.parentElement?.querySelector(
+        ".mensagem-erro-campo",
+      );
+      if (msgErro) {
+        msgErro.textContent = avaliacao.texto;
+        msgErro.dataset.nivel = avaliacao.nivel;
+      }
+
+      campoSenha.setCustomValidity(
+        avaliacao.valida || !campoSenha.value
+          ? ""
+          : MENSAGENS_ERRO_CLIENTE.senha,
+      );
+
+      // Se o usuário já preencheu a confirmação, revalida se continuam iguais
+      if (campoConfirmaSenha?.value) {
+        validarConfirmacao();
+      }
+    });
+
+    campoSenha.addEventListener("blur", () => {
+      const avaliacao = avaliarForcaSenha(campoSenha.value);
+      if (campoSenha.value && !avaliacao.valida) {
+        definirErroCampo(campoSenha, MENSAGENS_ERRO_CLIENTE.senha);
+      }
+    });
+  }
+
+  campoConfirmaSenha?.addEventListener("input", validarConfirmacao);
+  campoConfirmaSenha?.addEventListener("blur", validarConfirmacao);
+}
+
+/**
  * Inicializa as máscaras e validações do formulário de cadastro.
  */
 export function inicializarCadastro() {
@@ -339,57 +411,7 @@ export function inicializarCadastro() {
   } = campos;
 
   configurarCamposDadosCadastro(campos);
-
-  // Validação da senha
-  if (campoSenha) {
-    const containerForca = document.createElement("div");
-    containerForca.className = "indicador-forca";
-    const barraForca = document.createElement("div");
-    barraForca.className = "barra-forca-preenchimento";
-    containerForca.appendChild(barraForca);
-    campoSenha.insertAdjacentElement("afterend", containerForca);
-
-    campoSenha.addEventListener("input", () => {
-      const avaliacao = avaliarForcaSenha(campoSenha.value);
-      barraForca.dataset.nivel = avaliacao.nivel;
-      const msgErro = campoSenha.parentElement.querySelector(
-        ".mensagem-erro-campo",
-      );
-      if (msgErro) {
-        msgErro.textContent = avaliacao.texto;
-        msgErro.dataset.nivel = avaliacao.nivel;
-      }
-      campoSenha.setCustomValidity(
-        avaliacao.valida || !campoSenha.value 
-        ? ""
-        : MENSAGENS_ERRO_CLIENTE.senha,
-      );
-      // Se o usuário já preencheu a confirmação, revalida se continuam iguais
-      if (campoConfirmaSenha?.value) {
-        validarConfirmacao();
-      }
-    });
-    campoSenha.addEventListener("blur", () => {
-      const avaliacao = avaliarForcaSenha(campoSenha.value);
-      if (campoSenha.value && !avaliacao.valida) {
-        definirErroCampo(campoSenha, MENSAGENS_ERRO_CLIENTE.senha);
-      }
-    });
-  } // <-- Fecha o if (campoSenha)
-  // 6. Validação da Confirmação de Senha (#cad-confirma-senha)
-  function validarConfirmacao() {
-    if (!campoConfirmaSenha || !campoSenha) return;
-    if (
-      campoConfirmaSenha.value &&
-      campoConfirmaSenha.value !== campoSenha.value
-    ) {
-      definirErroCampo(campoConfirmaSenha, MENSAGENS_ERRO_CLIENTE.confirmaSenha); 
-    } else {
-      definirErroCampo(campoConfirmaSenha, "");
-    }
-  }
-  campoConfirmaSenha?.addEventListener("input", validarConfirmacao);
-  campoConfirmaSenha?.addEventListener("blur", validarConfirmacao);
+  configurarCamposSenhaCadastro(campos.senha, campos.confirmaSenha);
 
   // Envia o formulário ao clicar em "Criar conta"
   formCadastro.addEventListener("submit", async (evento) => {
