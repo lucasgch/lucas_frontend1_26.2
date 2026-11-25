@@ -1,20 +1,19 @@
-import { CHAVES_STORAGE, lerDados, salvarDados } from './storage.js';
-import { obterProdutosComEstoque } from './produtos.js';
-import { aplicarMascaraCEP, formatarMoeda } from './utils.js';
-import { mostrarToast } from './ui.js';
+import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
+import { obterProdutosComEstoque } from "./produtos.js";
+import { aplicarMascaraCEP, formatarMoeda } from "./utils.js";
+import { mostrarToast } from "./ui.js";
 
 /**
  * Retorna o identificador do dono do carrinho atual (ID do cliente logado ou 'visitante').
  * @returns {string}
  */
-export function obterDonoCarrinhoAtual(){
-  
+export function obterDonoCarrinhoAtual() {
   const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
   // Verifica se existe sessão e se ela não expirou
-  if (sessao && Date.now() <= sessao.expiraEm){
+  if (sessao && Date.now() <= sessao.expiraEm) {
     return sessao.usuarioId;
   } else {
-    return 'visitante';
+    return "visitante";
   }
 }
 
@@ -24,16 +23,15 @@ export function obterDonoCarrinhoAtual(){
  * @param {string} [donoId=obterDonoCarrinhoAtual()] - ID dono do carrinho atual.
  * @returns {Array<{produtoId: string, quantidade: number}>}
  */
-export function obterCarrinho(donoId = obterDonoCarrinhoAtual()){
+export function obterCarrinho(donoId = obterDonoCarrinhoAtual()) {
+  // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
+  const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
 
-    // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
-    const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-    
-    // Busca o array de itens do donoId ('visitante' por padrão)
-    const itens = todosOsCarrinhos[donoId];
-    
-    // Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
-    return Array.isArray(itens) ? itens : [];
+  // Busca o array de itens do donoId ('visitante' por padrão)
+  const itens = todosOsCarrinhos[donoId];
+
+  // Garante que sempre retorna um Array (mesmo se não existir ou estiver corrompido)
+  return Array.isArray(itens) ? itens : [];
 }
 
 /**
@@ -43,14 +41,13 @@ export function obterCarrinho(donoId = obterDonoCarrinhoAtual()){
  * @returns {boolean}
  */
 export function salvarCarrinho(itens, donoId = obterDonoCarrinhoAtual()) {
+  // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
+  const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
+  // Atualiza a lista de itens do donoId ('visitante' por padrão)
+  todosOsCarrinhos[donoId] = itens;
 
-    // Lê o dicionário de carrinhos no localStorage (ou {} se vazio)
-    const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-    // Atualiza a lista de itens do donoId ('visitante' por padrão)
-    todosOsCarrinhos[donoId] = itens;
-
-    // Persiste o dicionário atualizado e retorna true em caso de sucesso
-    return salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
+  // Persiste o dicionário atualizado e retorna true em caso de sucesso
+  return salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
 
 /**
@@ -59,41 +56,45 @@ export function salvarCarrinho(itens, donoId = obterDonoCarrinhoAtual()) {
  * @param {number} [quantidade=1] - Quantidade a adicionar.
  * @returns {{sucesso: boolean, mensagem: string}}
  */
-export function adicionarAoCarrinho(produtoId, quantidade = 1){
-    const qtdAdicionar = Number(quantidade);
-    
-    // Verifica se a quantidade é válida
-    if (!Number.isInteger(qtdAdicionar) || qtdAdicionar <= 0){
-        return { sucesso: false, mensagem: 'Quantidade inválida' };
-    }
-    
-    const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
-    if (!produto) {
-        return { sucesso: false, mensagem: 'Produto não encontrado.' };
-    }
+export function adicionarAoCarrinho(produtoId, quantidade = 1) {
+  const qtdAdicionar = Number(quantidade);
 
-    // Busca os itens atuais do carrinho
-    const itens = obterCarrinho();
-    const itemExistente = itens.find((item) => item.produtoId === produtoId);
-    const qtdAtualNoCarrinho = itemExistente ? itemExistente.quantidade : 0;
-    const novaQuantidadeTotal = qtdAtualNoCarrinho + qtdAdicionar;    
+  // Verifica se a quantidade é válida
+  if (!Number.isInteger(qtdAdicionar) || qtdAdicionar <= 0) {
+    return { sucesso: false, mensagem: "Quantidade inválida" };
+  }
 
-    // Valida o estoque e não permite exceder o estoque disponível
-    if (novaQuantidadeTotal > produto.estoque) {
-        return {
-            sucesso: false, mensagem: `Estoque insuficiente! Você já tem ${qtdAtualNoCarrinho} no carrinho (máx: ${produto.estoque}).`
-        };
-    }
+  const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
+  if (!produto) {
+    return { sucesso: false, mensagem: "Produto não encontrado." };
+  }
 
-    // Atualiza intem presente no carrinho ou adiciona novo caso não existir
-    if (itemExistente) {
-        itemExistente.quantidade = novaQuantidadeTotal;
-    } else {
-        itens.push({ produtoId, quantidade: qtdAdicionar});
-    }
+  // Busca os itens atuais do carrinho
+  const itens = obterCarrinho();
+  const itemExistente = itens.find((item) => item.produtoId === produtoId);
+  const qtdAtualNoCarrinho = itemExistente ? itemExistente.quantidade : 0;
+  const novaQuantidadeTotal = qtdAtualNoCarrinho + qtdAdicionar;
 
-    salvarCarrinho(itens);
-    return { sucesso: true, mensagem: `"${produto.nome}" adicionado ao carrinho!` };
+  // Valida o estoque e não permite exceder o estoque disponível
+  if (novaQuantidadeTotal > produto.estoque) {
+    return {
+      sucesso: false,
+      mensagem: `Estoque insuficiente! Você já tem ${qtdAtualNoCarrinho} no carrinho (máx: ${produto.estoque}).`,
+    };
+  }
+
+  // Atualiza item presente no carrinho ou adiciona novo caso não existir
+  if (itemExistente) {
+    itemExistente.quantidade = novaQuantidadeTotal;
+  } else {
+    itens.push({ produtoId, quantidade: qtdAdicionar });
+  }
+
+  salvarCarrinho(itens);
+  return {
+    sucesso: true,
+    mensagem: `"${produto.nome}" adicionado ao carrinho!`,
+  };
 }
 
 /**
@@ -102,45 +103,49 @@ export function adicionarAoCarrinho(produtoId, quantidade = 1){
  * @param {number} novaQuantidade - Nova quantidade desejada.
  * @returns {{sucesso: boolean, mensagem: string}}
  */
-export function alterarQuantidadeCarrinho(produtoId, novaQuantidade){
-    const qtd = Number(novaQuantidade);
-    
-    // Verifica se a quantidade é válida
-    if(!Number.isInteger(qtd) || qtd <1 ){
-        return { sucesso: false, mensagem: 'Quantidade mínima é 1' };
-    }
+export function alterarQuantidadeCarrinho(produtoId, novaQuantidade) {
+  const qtd = Number(novaQuantidade);
 
-    // Verifica se o produto está no carrinho
-    const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
-    if (!produto) {
-        return { sucesso: false, mensagem: 'Produto não encontrado.' };
-    }
+  // Verifica se a quantidade é válida
+  if (!Number.isInteger(qtd) || qtd < 1) {
+    return { sucesso: false, mensagem: "Quantidade mínima é 1" };
+  }
 
-    // Verifique se há quantidade suficiente em estoque
-    if (qtd > produto.estoque) {
-        return { sucesso: false, mensagem: `Apenas ${produto.estoque} unidade(s) disponível(is) em estoque.` };
-    }
+  // Verifica se o produto está no carrinho
+  const produto = obterProdutosComEstoque().find((p) => p.id === produtoId);
+  if (!produto) {
+    return { sucesso: false, mensagem: "Produto não encontrado." };
+  }
 
-    const itens = obterCarrinho();
-    const item = itens.find((i) => i.produtoId === produtoId);
-    if (!item) {
-        return { sucesso: false, mensagem: 'Item não está no carrinho.' }
-    }
+  // Verifique se há quantidade suficiente em estoque
+  if (qtd > produto.estoque) {
+    return {
+      sucesso: false,
+      mensagem: `Apenas ${produto.estoque} unidade(s) disponível(is) em estoque.`,
+    };
+  }
 
-    item.quantidade = qtd;
-    salvarCarrinho(itens);
-    return { sucesso: true, mensagem: 'Quantidade atualizada.'}
-    
+  const itens = obterCarrinho();
+  const item = itens.find((i) => i.produtoId === produtoId);
+  if (!item) {
+    return { sucesso: false, mensagem: "Item não está no carrinho." };
+  }
+
+  item.quantidade = qtd;
+  salvarCarrinho(itens);
+  return { sucesso: true, mensagem: "Quantidade atualizada." };
 }
 
 /**
  * Remove um produto do carrinho.
  * @param {string} produtoId - ID do produto a ser removido.
  */
-export function removerDoCarrinho(produtoId){
-    const itensAtuais = obterCarrinho();
-    const itensRestantes = itensAtuais.filter((item) => item.produtoId !== produtoId);
-    salvarCarrinho(itensRestantes);
+export function removerDoCarrinho(produtoId) {
+  const itensAtuais = obterCarrinho();
+  const itensRestantes = itensAtuais.filter(
+    (item) => item.produtoId !== produtoId,
+  );
+  salvarCarrinho(itensRestantes);
 }
 
 /**
@@ -149,16 +154,16 @@ export function removerDoCarrinho(produtoId){
 export function atualizarBadgeCarrinho() {
   const itens = obterCarrinho();
   const totalUnidades = itens.reduce((soma, item) => soma + item.quantidade, 0);
-  let badge = document.getElementById('badge-carrinho');
+  let badge = document.getElementById("badge-carrinho");
   if (!badge) {
-    const listaMenu = document.querySelector('#menu-principal ul');
+    const listaMenu = document.querySelector("#menu-principal ul");
     if (!listaMenu) return;
-    const liCarrinho = document.createElement('li');
-    liCarrinho.className = 'item-menu-carrinho';
-    const linkCarrinho = document.createElement('a');
-    linkCarrinho.href = 'loja.html#carrinho';
-    linkCarrinho.className = 'link-icone-carrinho';
-    linkCarrinho.setAttribute('aria-label', 'Ver meu carrinho de compras');
+    const liCarrinho = document.createElement("li");
+    liCarrinho.className = "item-menu-carrinho";
+    const linkCarrinho = document.createElement("a");
+    linkCarrinho.href = "loja.html#carrinho";
+    linkCarrinho.className = "link-icone-carrinho";
+    linkCarrinho.setAttribute("aria-label", "Ver meu carrinho de compras");
     // Ícone SVG minimalista de sacola/carrinho
     linkCarrinho.innerHTML = `
       <svg class="icone-carrinho-svg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -167,14 +172,14 @@ export function atualizarBadgeCarrinho() {
         <path d="M16 10a4 4 0 0 1-8 0"/>
       </svg>
     `;
-    badge = document.createElement('span');
-    badge.id = 'badge-carrinho';
-    badge.className = 'badge-carrinho';
+    badge = document.createElement("span");
+    badge.id = "badge-carrinho";
+    badge.className = "badge-carrinho";
     linkCarrinho.appendChild(badge);
     liCarrinho.appendChild(linkCarrinho);
     listaMenu.appendChild(liCarrinho);
   }
-  badge.textContent = totalUnidades > 99 ? '99+' : totalUnidades;
+  badge.textContent = totalUnidades > 99 ? "99+" : totalUnidades;
   badge.hidden = totalUnidades === 0;
 }
 
@@ -182,164 +187,179 @@ export function atualizarBadgeCarrinho() {
  * Renderiza os itens do carrinho na tabela #tabela-carrinho e atualiza o total geral.
  */
 export function renderizarCarrinho() {
-    atualizarBadgeCarrinho();
+  atualizarBadgeCarrinho();
 
-     const tabela = document.getElementById('tabela-carrinho');
-     if (!tabela) return;
+  const tabela = document.getElementById("tabela-carrinho");
+  if (!tabela) return;
 
-     const tbody = tabela.querySelector('tbody');
-     const celulaTotal = document.getElementById('valor-total-carrinho');
-     const celulaSubtotal = document.getElementById('valor-subtotal-carrinho');
-     const celulaDesconto = document.getElementById('valor-desconto-carrinho');
-     const celulaFrete = document.getElementById('valor-frete-carrinho');
-     const btnFinalizar = document.getElementById('btn-finalizar-compra');
-     const itensCarrinho = obterCarrinho();
-     const catalogo = obterProdutosComEstoque();
+  const tbody = tabela.querySelector("tbody");
+  const celulaTotal = document.getElementById("valor-total-carrinho");
+  const celulaSubtotal = document.getElementById("valor-subtotal-carrinho");
+  const celulaDesconto = document.getElementById("valor-desconto-carrinho");
+  const celulaFrete = document.getElementById("valor-frete-carrinho");
+  const btnFinalizar = document.getElementById("btn-finalizar-compra");
+  const itensCarrinho = obterCarrinho();
+  const catalogo = obterProdutosComEstoque();
 
-     tbody.replaceChildren();
+  tbody.replaceChildren();
 
-     if (itensCarrinho.length === 0) {
-        const trVazia = document.createElement('tr');
-        const tdVazia = document.createElement('td');
-        tdVazia.colSpan = 5;
-        tdVazia.textContent = 'Seu carrinho está vazio.';
-        trVazia.appendChild(tdVazia);
-        tbody.appendChild(trVazia);
-        if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
-        if (btnFinalizar) btnFinalizar.setAttribute('aria-disabled', 'true');
-        if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(0);
-        if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(0)}`;
-        if (celulaFrete) celulaFrete.textContent = 'A calcular';
-        return;
-     }
+  if (itensCarrinho.length === 0) {
+    const trVazia = document.createElement("tr");
+    const tdVazia = document.createElement("td");
+    tdVazia.colSpan = 5;
+    tdVazia.textContent = "Seu carrinho está vazio.";
+    trVazia.appendChild(tdVazia);
+    tbody.appendChild(trVazia);
+    if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
+    if (btnFinalizar) btnFinalizar.setAttribute("aria-disabled", "true");
+    if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(0);
+    if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(0)}`;
+    if (celulaFrete) celulaFrete.textContent = "A calcular";
+    return;
+  }
 
-     if (btnFinalizar) btnFinalizar.removeAttribute('aria-disabled');
-     
-     const fragmento = document.createDocumentFragment();
+  if (btnFinalizar) btnFinalizar.removeAttribute("aria-disabled");
 
-     itensCarrinho.forEach((item) => {
-        const produto = catalogo.find((p) => p.id === item.produtoId);
-        if (!produto) return;
+  const fragmento = document.createDocumentFragment();
 
-        const subtotal = produto.preco * item.quantidade;
+  itensCarrinho.forEach((item) => {
+    const produto = catalogo.find((p) => p.id === item.produtoId);
+    if (!produto) return;
 
-        const tr = document.createElement('tr');
-        tr.dataset.produtoId = produto.id;
+    const subtotal = produto.preco * item.quantidade;
 
-        // Coluna produto com imagem e nome
-        const thProduto = document.createElement('th');
-        thProduto.scope = 'row';
-        thProduto.className = 'coluna-produto';
+    const tr = document.createElement("tr");
+    tr.dataset.produtoId = produto.id;
 
-        const img = document.createElement('img');
-        img.src = produto.imagem;
-        img.alt = produto.alt || `Capa do livro ${produto.nome}`;
-        img.className = 'miniatura-carrinho';
+    // Coluna produto com imagem e nome
+    const thProduto = document.createElement("th");
+    thProduto.scope = "row";
+    thProduto.className = "coluna-produto";
 
-        const spanNome = document.createElement('span');
-        spanNome.className = 'nome-produto-carrinho';
-        spanNome.textContent = produto.nome;
+    const img = document.createElement("img");
+    img.src = produto.imagem;
+    img.alt = produto.alt || `Capa do livro ${produto.nome}`;
+    img.className = "miniatura-carrinho";
 
-        thProduto.append(img, spanNome);
+    const spanNome = document.createElement("span");
+    spanNome.className = "nome-produto-carrinho";
+    spanNome.textContent = produto.nome;
 
-        // 2. Coluna Preço Unitário
-        const tdPreco = document.createElement('td');
-        tdPreco.className = 'preco-unitario';
-        tdPreco.textContent = formatarMoeda(produto.preco);
+    thProduto.append(img, spanNome);
 
-        // 3. Coluna Quantidade (botões - e + limitados ao estoque)
-        const tdQtd = document.createElement('td');
-        tdQtd.className = 'coluna-quantidade';
+    // 2. Coluna Preço Unitário
+    const tdPreco = document.createElement("td");
+    tdPreco.className = "preco-unitario";
+    tdPreco.textContent = formatarMoeda(produto.preco);
 
-        const divSeletor = document.createElement('div');
-        divSeletor.className = 'seletor-quantidade';
+    // 3. Coluna Quantidade (botões - e + limitados ao estoque)
+    const tdQtd = document.createElement("td");
+    tdQtd.className = "coluna-quantidade";
 
-        const btnMenos = document.createElement('button');
-        btnMenos.type = 'button';
-        btnMenos.className = 'btn-qtd btn-carrinho-menos';
-        btnMenos.dataset.id = produto.id;
-        btnMenos.textContent = '−';
-        btnMenos.disabled = item.quantidade <= 1;
-        btnMenos.setAttribute('aria-label', `Diminuir quantidade de ${produto.nome}`);
+    const divSeletor = document.createElement("div");
+    divSeletor.className = "seletor-quantidade";
 
-        const spanQtd = document.createElement('span');
-        spanQtd.className = 'qtd-valor-carrinho';
-        spanQtd.textContent = item.quantidade;
+    const btnMenos = document.createElement("button");
+    btnMenos.type = "button";
+    btnMenos.className = "btn-qtd btn-carrinho-menos";
+    btnMenos.dataset.id = produto.id;
+    btnMenos.textContent = "−";
+    btnMenos.disabled = item.quantidade <= 1;
+    btnMenos.setAttribute(
+      "aria-label",
+      `Diminuir quantidade de ${produto.nome}`,
+    );
 
-        const btnMais = document.createElement('button');
-        btnMais.type = 'button';
-        btnMais.className = 'btn-qtd btn-carrinho-mais';
-        btnMais.dataset.id = produto.id;
-        btnMais.textContent = '+';
-        btnMais.disabled = item.quantidade >= produto.estoque;
-        btnMais.setAttribute('aria-label', `Aumentar quantidade de ${produto.nome}`);
-        divSeletor.append(btnMenos, spanQtd, btnMais);
-        tdQtd.appendChild(divSeletor);
+    const spanQtd = document.createElement("span");
+    spanQtd.className = "qtd-valor-carrinho";
+    spanQtd.textContent = item.quantidade;
 
-        // 4. Coluna Subtotal
-        const tdSubtotal = document.createElement('td');
-        tdSubtotal.className = 'subtotal-item';
-        tdSubtotal.textContent = formatarMoeda(subtotal);
-        
-        // 5. Coluna Remover
-        const tdAcoes = document.createElement('td');
-        const btnRemover = document.createElement('button');
-                btnRemover.type = 'button';
-        btnRemover.className = 'botao botao-remover';
-        btnRemover.dataset.id = produto.id;
-        btnRemover.textContent = 'Remover';
-        btnRemover.setAttribute('aria-label', `Remover ${produto.nome} do carrinho`);
-        tdAcoes.appendChild(btnRemover);
-        tr.append(thProduto, tdPreco, tdQtd, tdSubtotal, tdAcoes);
-        fragmento.appendChild(tr);
-     });
+    const btnMais = document.createElement("button");
+    btnMais.type = "button";
+    btnMais.className = "btn-qtd btn-carrinho-mais";
+    btnMais.dataset.id = produto.id;
+    btnMais.textContent = "+";
+    btnMais.disabled = item.quantidade >= produto.estoque;
+    btnMais.setAttribute(
+      "aria-label",
+      `Aumentar quantidade de ${produto.nome}`,
+    );
+    divSeletor.append(btnMenos, spanQtd, btnMais);
+    tdQtd.appendChild(divSeletor);
 
-     tbody.appendChild(fragmento);
+    // 4. Coluna Subtotal
+    const tdSubtotal = document.createElement("td");
+    tdSubtotal.className = "subtotal-item";
+    tdSubtotal.textContent = formatarMoeda(subtotal);
 
-     const resumo = obterResumoCarrinho();
-     if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(resumo.subtotal);
-     if (celulaDesconto) celulaDesconto.textContent = `- ${formatarMoeda(resumo.desconto)}`;
-     if (celulaFrete) {
-       celulaFrete.textContent =
-         resumo.frete === null ? 'A calcular' : resumo.frete === 0 ? 'Grátis' : formatarMoeda(resumo.frete);
-     }
-     if (celulaTotal) {
-       const strongTotal = document.createElement('strong');
-       strongTotal.textContent = formatarMoeda(resumo.total);
-       celulaTotal.replaceChildren(strongTotal);
-     }
+    // 5. Coluna Remover
+    const tdAcoes = document.createElement("td");
+    const btnRemover = document.createElement("button");
+    btnRemover.type = "button";
+    btnRemover.className = "botao botao-remover";
+    btnRemover.dataset.id = produto.id;
+    btnRemover.textContent = "Remover";
+    btnRemover.setAttribute(
+      "aria-label",
+      `Remover ${produto.nome} do carrinho`,
+    );
+    tdAcoes.appendChild(btnRemover);
+    tr.append(thProduto, tdPreco, tdQtd, tdSubtotal, tdAcoes);
+    fragmento.appendChild(tr);
+  });
+
+  tbody.appendChild(fragmento);
+
+  const resumo = obterResumoCarrinho();
+  if (celulaSubtotal)
+    celulaSubtotal.textContent = formatarMoeda(resumo.subtotal);
+  if (celulaDesconto)
+    celulaDesconto.textContent = `- ${formatarMoeda(resumo.desconto)}`;
+  if (celulaFrete) {
+    celulaFrete.textContent =
+      resumo.frete === null
+        ? "A calcular"
+        : resumo.frete === 0
+          ? "Grátis"
+          : formatarMoeda(resumo.frete);
+  }
+  if (celulaTotal) {
+    const strongTotal = document.createElement("strong");
+    strongTotal.textContent = formatarMoeda(resumo.total);
+    celulaTotal.replaceChildren(strongTotal);
+  }
 }
 
 /**
  * Inicializa os eventos de adicionar, alterar quantidade e remover do carrinho.
  */
 export function inicializarCarrinho() {
-    renderizarCarrinho();
+  renderizarCarrinho();
 
-    // Clique em "Adicionar ao carrinho" nos cards da grade (Home ou Loja)
-    const grade = document.querySelector('.grade-produtos');
-    grade?.addEventListener('click', (evento) => {
-        const btnAdicionar = evento.target.closest('.botao-adicionar');
-        if (!btnAdicionar) return;
-        const resultado = adicionarAoCarrinho(btnAdicionar.dataset.id, 1);
-        mostrarToast(resultado.mensagem, resultado.sucesso ? 'sucesso' : 'erro');
-        if (resultado.sucesso) renderizarCarrinho();
-    });
+  // Clique em "Adicionar ao carrinho" nos cards da grade (Home ou Loja)
+  const grade = document.querySelector(".grade-produtos");
+  grade?.addEventListener("click", (evento) => {
+    const btnAdicionar = evento.target.closest(".botao-adicionar");
+    if (!btnAdicionar) return;
+    const resultado = adicionarAoCarrinho(btnAdicionar.dataset.id, 1);
+    mostrarToast(resultado.mensagem, resultado.sucesso ? "sucesso" : "erro");
+    if (resultado.sucesso) renderizarCarrinho();
+  });
 
-    // Clique em "Adicionar ao carrinho" dentro do Modal de detalhes
-    const btnModalAdicionar = document.getElementById('modal-btn-adicionar');
-    
-    btnModalAdicionar?.addEventListener('click', () => {
-    const inputQtd = document.getElementById('modal-quantidade');
-    const modal = document.getElementById('modal-produto');
+  // Clique em "Adicionar ao carrinho" dentro do Modal de detalhes
+  const btnModalAdicionar = document.getElementById("modal-btn-adicionar");
+
+  btnModalAdicionar?.addEventListener("click", () => {
+    const inputQtd = document.getElementById("modal-quantidade");
+    const modal = document.getElementById("modal-produto");
     const qtd = Number(inputQtd?.value) || 1;
     const resultado = adicionarAoCarrinho(btnModalAdicionar.dataset.id, qtd);
     if (resultado.sucesso) {
       renderizarCarrinho();
-      mostrarToast(resultado.mensagem, 'sucesso');
+      mostrarToast(resultado.mensagem, "sucesso");
       modal?.close();
     } else {
-      const erroQtd = document.getElementById('modal-erro-qtd');
+      const erroQtd = document.getElementById("modal-erro-qtd");
       if (erroQtd) {
         erroQtd.textContent = resultado.mensagem;
         erroQtd.hidden = false;
@@ -348,11 +368,11 @@ export function inicializarCarrinho() {
   });
 
   // Cliques na tabela do carrinho (-, + e Remover)
-  const tabela = document.getElementById('tabela-carrinho');
-  tabela?.addEventListener('click', (evento) => {
-    const btnMenos = evento.target.closest('.btn-carrinho-menos');
-    const btnMais = evento.target.closest('.btn-carrinho-mais');
-    const btnRemover = evento.target.closest('.botao-remover');
+  const tabela = document.getElementById("tabela-carrinho");
+  tabela?.addEventListener("click", (evento) => {
+    const btnMenos = evento.target.closest(".btn-carrinho-menos");
+    const btnMais = evento.target.closest(".btn-carrinho-mais");
+    const btnRemover = evento.target.closest(".botao-remover");
     if (btnMenos) {
       const id = btnMenos.dataset.id;
       const item = obterCarrinho().find((i) => i.produtoId === id);
@@ -370,27 +390,27 @@ export function inicializarCarrinho() {
     } else if (btnRemover) {
       removerDoCarrinho(btnRemover.dataset.id);
       renderizarCarrinho();
-      mostrarToast('Item removido do carrinho.', 'info');
+      mostrarToast("Item removido do carrinho.", "info");
     }
   });
 
- // Aplicar Cupom de Desconto
-  const inputCupom = document.getElementById('input-cupom');
-  const btnAplicarCupom = document.getElementById('btn-aplicar-cupom');
-  const msgCupom = document.getElementById('msg-cupom');
-  btnAplicarCupom?.addEventListener('click', () => {
+  // Aplicar Cupom de Desconto
+  const inputCupom = document.getElementById("input-cupom");
+  const btnAplicarCupom = document.getElementById("btn-aplicar-cupom");
+  const msgCupom = document.getElementById("msg-cupom");
+  btnAplicarCupom?.addEventListener("click", () => {
     const { subtotal } = obterResumoCarrinho();
     const res = validarCupom(inputCupom?.value, subtotal);
     if (res.valido) {
       salvarExtrasCarrinho({ codigoCupom: res.cupom.codigo });
       if (msgCupom) {
-        msgCupom.style.color = '#16a34a';
+        msgCupom.style.color = "#16a34a";
         msgCupom.textContent = res.mensagem;
       }
     } else {
-      salvarExtrasCarrinho({ codigoCupom: '' });
+      salvarExtrasCarrinho({ codigoCupom: "" });
       if (msgCupom) {
-        msgCupom.style.color = '#dc2626';
+        msgCupom.style.color = "#dc2626";
         msgCupom.textContent = res.mensagem;
       }
     }
@@ -398,47 +418,53 @@ export function inicializarCarrinho() {
   });
 
   // Calcular Frete por CEP
-  const inputCep = document.getElementById('input-cep-carrinho');
-  const btnCalcularFrete = document.getElementById('btn-calcular-frete');
-  const msgFrete = document.getElementById('msg-frete');
-  inputCep?.addEventListener('input', () => {
+  const inputCep = document.getElementById("input-cep-carrinho");
+  const btnCalcularFrete = document.getElementById("btn-calcular-frete");
+  const msgFrete = document.getElementById("msg-frete");
+  inputCep?.addEventListener("input", () => {
     inputCep.value = aplicarMascaraCEP(inputCep.value);
   });
-  btnCalcularFrete?.addEventListener('click', () => {
+  btnCalcularFrete?.addEventListener("click", () => {
     const { subtotal } = obterResumoCarrinho();
     const res = calcularFretePorCep(inputCep?.value, subtotal);
     if (res.valido) {
       salvarExtrasCarrinho({ cep: inputCep.value });
       if (msgFrete) {
-        msgFrete.style.color = '#16a34a';
-        msgFrete.textContent = `${res.regiao}: ${res.valor === 0 ? 'Grátis' : formatarMoeda(res.valor)}`;
+        msgFrete.style.color = "#16a34a";
+        msgFrete.textContent = `${res.regiao}: ${res.valor === 0 ? "Grátis" : formatarMoeda(res.valor)}`;
       }
     } else {
-      salvarExtrasCarrinho({ cep: '' });
+      salvarExtrasCarrinho({ cep: "" });
       if (msgFrete) {
-        msgFrete.style.color = '#dc2626';
+        msgFrete.style.color = "#dc2626";
         msgFrete.textContent = res.mensagem;
       }
     }
     renderizarCarrinho();
   });
 
-   // Restaura nos inputs e nas mensagens o cupom e CEP que já estavam salvos (ex: após login ou F5)
+  // Restaura nos inputs e nas mensagens o cupom e CEP que já estavam salvos (ex: após login ou F5)
   const resumoInicial = obterResumoCarrinho();
   if (resumoInicial.codigoCupom && inputCupom) {
     inputCupom.value = resumoInicial.codigoCupom;
-    const resCupom = validarCupom(resumoInicial.codigoCupom, resumoInicial.subtotal);
+    const resCupom = validarCupom(
+      resumoInicial.codigoCupom,
+      resumoInicial.subtotal,
+    );
     if (resCupom.valido && msgCupom) {
-      msgCupom.style.color = '#16a34a';
+      msgCupom.style.color = "#16a34a";
       msgCupom.textContent = resCupom.mensagem;
     }
   }
   if (resumoInicial.cep && inputCep) {
     inputCep.value = resumoInicial.cep;
-    const resFrete = calcularFretePorCep(resumoInicial.cep, resumoInicial.subtotal);
+    const resFrete = calcularFretePorCep(
+      resumoInicial.cep,
+      resumoInicial.subtotal,
+    );
     if (resFrete.valido && msgFrete) {
-      msgFrete.style.color = '#16a34a';
-      msgFrete.textContent = `${resFrete.regiao}: ${resFrete.valor === 0 ? 'Grátis' : formatarMoeda(resFrete.valor)}`;
+      msgFrete.style.color = "#16a34a";
+      msgFrete.textContent = `${resFrete.regiao}: ${resFrete.valor === 0 ? "Grátis" : formatarMoeda(resFrete.valor)}`;
     }
   }
 }
@@ -448,8 +474,8 @@ export function inicializarCarrinho() {
  * @param {string} usuarioId - ID do cliente autenticado.
  */
 export function mesclarCarrinhoAoLogar(usuarioId) {
-  const itensVisitante = obterCarrinho('visitante');
-  const extrasVisitante = obterExtrasCarrinho('visitante');
+  const itensVisitante = obterCarrinho("visitante");
+  const extrasVisitante = obterExtrasCarrinho("visitante");
 
   // Mescla cupom e CEP do visitante (se o visitante tiver preenchido algum)
   if (extrasVisitante.codigoCupom || extrasVisitante.cep) {
@@ -457,11 +483,11 @@ export function mesclarCarrinhoAoLogar(usuarioId) {
     salvarExtrasCarrinho(
       {
         codigoCupom: extrasVisitante.codigoCupom || extrasCliente.codigoCupom,
-        cep: extrasVisitante.cep || extrasCliente.cep
+        cep: extrasVisitante.cep || extrasCliente.cep,
       },
-      usuarioId
+      usuarioId,
     );
-    salvarExtrasCarrinho({ codigoCupom: '', cep: '' }, 'visitante');
+    salvarExtrasCarrinho({ codigoCupom: "", cep: "" }, "visitante");
   }
 
   // Se carrinho de itens do visitante estiver vazio, encerra aqui
@@ -477,26 +503,59 @@ export function mesclarCarrinhoAoLogar(usuarioId) {
     if (!produto || produto.estoque <= 0) {
       continue;
     }
-    const itemExistente = itensCliente.find((item) => item.produtoId === itemVis.produtoId);
+    const itemExistente = itensCliente.find(
+      (item) => item.produtoId === itemVis.produtoId,
+    );
     if (itemExistente) {
-      itemExistente.quantidade = Math.min(itemExistente.quantidade + itemVis.quantidade, produto.estoque);
+      itemExistente.quantidade = Math.min(
+        itemExistente.quantidade + itemVis.quantidade,
+        produto.estoque,
+      );
     } else {
       itensCliente.push({
         produtoId: itemVis.produtoId,
-        quantidade: Math.min(itemVis.quantidade, produto.estoque)
+        quantidade: Math.min(itemVis.quantidade, produto.estoque),
       });
     }
   }
   salvarCarrinho(itensCliente, usuarioId);
-  salvarCarrinho([], 'visitante');
+  salvarCarrinho([], "visitante");
 }
 
 // Constante de cupons
 export const CUPONS_DISPONIVEIS = {
-  LEITOR10: { codigo: 'LEITOR10', tipo: 'percentual', valor: 10, minimo: 50, validade: '2027-12-31', descricao: '10% de desconto' }, 
-  LIVRO25: { codigo: 'LIVRO25', tipo: 'fixo', valor: 25, minimo: 120, validade: '2027-12-31', descricao: 'R$ 25,00 de desconto' },
-  FRETEGRATIS: { codigo: 'FRETEGRATIS', tipo: 'frete', valor: 0, minimo: 80, validade: '2027-12-31', descricao: 'Frete grátis' },
-  EXPIRADO20: { codigo: 'EXPIRADO20', tipo: 'percentual', valor: 20, minimo: 30, validade: '2025-01-01', descricao: 'Cupom vencido' }
+  LEITOR10: {
+    codigo: "LEITOR10",
+    tipo: "percentual",
+    valor: 10,
+    minimo: 50,
+    validade: "2027-12-31",
+    descricao: "10% de desconto",
+  },
+  LIVRO25: {
+    codigo: "LIVRO25",
+    tipo: "fixo",
+    valor: 25,
+    minimo: 120,
+    validade: "2027-12-31",
+    descricao: "R$ 25,00 de desconto",
+  },
+  FRETEGRATIS: {
+    codigo: "FRETEGRATIS",
+    tipo: "frete",
+    valor: 0,
+    minimo: 80,
+    validade: "2027-12-31",
+    descricao: "Frete grátis",
+  },
+  EXPIRADO20: {
+    codigo: "EXPIRADO20",
+    tipo: "percentual",
+    valor: 20,
+    minimo: 30,
+    validade: "2025-01-01",
+    descricao: "Cupom vencido",
+  },
 };
 
 /**
@@ -505,22 +564,30 @@ export const CUPONS_DISPONIVEIS = {
  * @param {number} subtotal - Subtotal atual do carrinho.
  * @returns {{valido: boolean, valor: number, regiao?: string, mensagem?: string}}
  */
-export function calcularFretePorCep(cep, subtotal){
-  const cepLimpo = String(cep).replace(/\D/g, '');
-  if (cepLimpo.length !== 8){
-    return { valido: false, valor: 0, mensagem: 'Digite um CEP válido com 8 números.' };
+export function calcularFretePorCep(cep, subtotal) {
+  const cepLimpo = String(cep).replace(/\D/g, "");
+  if (cepLimpo.length !== 8) {
+    return {
+      valido: false,
+      valor: 0,
+      mensagem: "Digite um CEP válido com 8 números.",
+    };
   }
-  if ( subtotal>=200 ){
-    return { valido: true, valor: 0, regiao: 'Frete Grátis (acima de R$ 200,00)' };
+  if (subtotal >= 200) {
+    return {
+      valido: true,
+      valor: 0,
+      regiao: "Frete Grátis (acima de R$ 200,00)",
+    };
   }
   const primeiroDigito = Number(cepLimpo[0]);
 
-  if (primeiroDigito >= 8 ){
-    return { valido: true, valor: 15, regiao: 'Região Sul' };
-  } else if (primeiroDigito <= 3 ){
-    return { valido: true, valor: 25, regiao: 'Região Sudeste' };
+  if (primeiroDigito >= 8) {
+    return { valido: true, valor: 15, regiao: "Região Sul" };
+  } else if (primeiroDigito <= 3) {
+    return { valido: true, valor: 25, regiao: "Região Sudeste" };
   } else {
-    return { valido: true, valor: 35, regiao: 'Demais Regiões' };
+    return { valido: true, valor: 35, regiao: "Demais Regiões" };
   }
 }
 
@@ -530,20 +597,27 @@ export function calcularFretePorCep(cep, subtotal){
  * @param {number} subtotal - Subtotal atual do carrinho.
  * @returns {{valido: boolean, cupom?: Object, mensagem: string}}
  */
-export function validarCupom(codigo, subtotal){
+export function validarCupom(codigo, subtotal) {
   const chave = String(codigo).trim().toUpperCase();
   const cupom = CUPONS_DISPONIVEIS[chave];
   if (!cupom) {
-    return { valido: false, mensagem: 'Cupom inválido ou inexistente.' };
+    return { valido: false, mensagem: "Cupom inválido ou inexistente." };
   }
-    const dataLimite = new Date(`${cupom.validade}T23:59:59`);
-  if (Date.now() > dataLimite.getTime() ){
-    return { valido: false, mensagem: 'Este cupom está expirado.' };
+  const dataLimite = new Date(`${cupom.validade}T23:59:59`);
+  if (Date.now() > dataLimite.getTime()) {
+    return { valido: false, mensagem: "Este cupom está expirado." };
   }
-   if (subtotal < cupom.minimo) {
-    return { valido: false, mensagem: `Valor mínimo para este cupom é ${formatarMoeda(cupom.minimo)}.` };
+  if (subtotal < cupom.minimo) {
+    return {
+      valido: false,
+      mensagem: `Valor mínimo para este cupom é ${formatarMoeda(cupom.minimo)}.`,
+    };
   }
-  return { valido: true, cupom, mensagem: `Cupom ${cupom.codigo} aplicado (${cupom.descricao})!` };
+  return {
+    valido: true,
+    cupom,
+    mensagem: `Cupom ${cupom.codigo} aplicado (${cupom.descricao})!`,
+  };
 }
 
 /**
@@ -555,8 +629,8 @@ export function obterExtrasCarrinho(donoId = obterDonoCarrinhoAtual()) {
   const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
   const extras = todosOsCarrinhos[`${donoId}:extras`];
   return {
-    codigoCupom: extras?.codigoCupom || '',
-    cep: extras?.cep || ''
+    codigoCupom: extras?.codigoCupom || "",
+    cep: extras?.cep || "",
   };
 }
 
@@ -565,9 +639,15 @@ export function obterExtrasCarrinho(donoId = obterDonoCarrinhoAtual()) {
  * @param {{codigoCupom?: string, cep?: string}} novosExtras
  * @param {string} [donoId=obterDonoCarrinhoAtual()]
  */
-export function salvarExtrasCarrinho(novosExtras, donoId = obterDonoCarrinhoAtual()) {
+export function salvarExtrasCarrinho(
+  novosExtras,
+  donoId = obterDonoCarrinhoAtual(),
+) {
   const todosOsCarrinhos = lerDados(CHAVES_STORAGE.CARRINHO, {});
-  const atuais = todosOsCarrinhos[`${donoId}:extras`] || { codigoCupom: '', cep: '' };
+  const atuais = todosOsCarrinhos[`${donoId}:extras`] || {
+    codigoCupom: "",
+    cep: "",
+  };
   todosOsCarrinhos[`${donoId}:extras`] = { ...atuais, ...novosExtras };
   salvarDados(CHAVES_STORAGE.CARRINHO, todosOsCarrinhos);
 }
@@ -577,7 +657,7 @@ export function salvarExtrasCarrinho(novosExtras, donoId = obterDonoCarrinhoAtua
  * @param {string} [cepAlternativo=''] - CEP opcional (ex: endereço do checkout) para cálculo do frete.
  * @returns {{subtotal: number, desconto: number, frete: number|null, total: number, codigoCupom: string, cep: string}}
  */
-export function obterResumoCarrinho(cepAlternativo = '') {
+export function obterResumoCarrinho(cepAlternativo = "") {
   const itens = obterCarrinho();
   const catalogo = obterProdutosComEstoque();
   const extras = obterExtrasCarrinho();
@@ -597,17 +677,17 @@ export function obterResumoCarrinho(cepAlternativo = '') {
   if (codigoCupomAtivo && subtotal > 0) {
     const resCupom = validarCupom(codigoCupomAtivo, subtotal);
     if (resCupom.valido) {
-      if (resCupom.cupom.tipo === 'percentual') {
+      if (resCupom.cupom.tipo === "percentual") {
         desconto = subtotal * (resCupom.cupom.valor / 100);
-      } else if (resCupom.cupom.tipo === 'fixo') {
+      } else if (resCupom.cupom.tipo === "fixo") {
         desconto = Math.min(resCupom.cupom.valor, subtotal);
-      } else if (resCupom.cupom.tipo === 'frete') {
+      } else if (resCupom.cupom.tipo === "frete") {
         cupomFreteGratis = true;
       }
     } else {
       // Se o subtotal caiu abaixo do mínimo do cupom, desativa o cupom salvo
-      codigoCupomAtivo = '';
-      salvarExtrasCarrinho({ codigoCupom: '' });
+      codigoCupomAtivo = "";
+      salvarExtrasCarrinho({ codigoCupom: "" });
     }
   }
   // Calcula frete (se o usuário informou um CEP)
@@ -628,7 +708,7 @@ export function obterResumoCarrinho(cepAlternativo = '') {
     frete,
     total,
     codigoCupom: codigoCupomAtivo,
-    cep: cepAtivo
+    cep: cepAtivo,
   };
 }
 
@@ -636,7 +716,7 @@ export function obterResumoCarrinho(cepAlternativo = '') {
  * Esvazia o carrinho do usuário atual e limpa o cupom/CEP ativos após finalizar uma compra.
  */
 export function limparCarrinhoAtual() {
-  salvarExtrasCarrinho({ codigoCupom: '', cep: '' });
+  salvarExtrasCarrinho({ codigoCupom: "", cep: "" });
   salvarCarrinho([]);
   renderizarCarrinho();
 }
