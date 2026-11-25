@@ -1,7 +1,7 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 import { obterProdutosComEstoque } from "./produtos.js";
 import { aplicarMascaraCEP, formatarFrete, formatarMoeda } from "./utils.js";
-import { mostrarToast } from "./ui.js";
+import { mostrarToast, renderizarLinhaTabelaVazia } from "./ui.js";
 
 /**
  * Retorna o identificador do dono do carrinho atual (ID do cliente logado ou 'visitante').
@@ -204,12 +204,7 @@ export function renderizarCarrinho() {
   tbody.replaceChildren();
 
   if (itensCarrinho.length === 0) {
-    const trVazia = document.createElement("tr");
-    const tdVazia = document.createElement("td");
-    tdVazia.colSpan = 5;
-    tdVazia.textContent = "Seu carrinho está vazio.";
-    trVazia.appendChild(tdVazia);
-    tbody.appendChild(trVazia);
+    renderizarLinhaTabelaVazia(tbody, 5, "Seu carrinho está vazio.");
     if (celulaTotal) celulaTotal.textContent = formatarMoeda(0);
     if (btnFinalizar) btnFinalizar.setAttribute("aria-disabled", "true");
     if (celulaSubtotal) celulaSubtotal.textContent = formatarMoeda(0);

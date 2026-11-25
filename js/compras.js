@@ -23,7 +23,11 @@ import {
   validarCartaoLuhn,
   validarUF,
 } from "./utils.js";
-import { adicionarLinhaResumo, mostrarToast } from "./ui.js";
+import {
+  adicionarLinhaResumo,
+  mostrarToast,
+  renderizarLinhaTabelaVazia,
+} from "./ui.js";
 
 /**
  * Retorna a lista de todas as compras registradas no localStorage.
@@ -627,12 +631,11 @@ export function renderizarMeusPedidos() {
     .sort((a, b) => new Date(b.data) - new Date(a.data));
   tbody.replaceChildren();
   if (meusPedidos.length === 0) {
-    const trVazia = document.createElement("tr");
-    const tdVazia = document.createElement("td");
-    tdVazia.colSpan = 5;
-    tdVazia.textContent = "Você ainda não realizou nenhum pedido.";
-    trVazia.appendChild(tdVazia);
-    tbody.appendChild(trVazia);
+    renderizarLinhaTabelaVazia(
+      tbody,
+      5,
+      "Você ainda não realizou nenhum pedido.",
+    );
     if (tfootTd) tfootTd.textContent = formatarMoeda(0);
     return;
   }

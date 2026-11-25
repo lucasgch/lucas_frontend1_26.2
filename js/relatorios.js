@@ -17,7 +17,11 @@ import {
   ofuscarCPF,
 } from "./utils.js";
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
-import { adicionarLinhaResumo, mostrarToast } from "./ui.js";
+import {
+  adicionarLinhaResumo,
+  mostrarToast,
+  renderizarLinhaTabelaVazia,
+} from "./ui.js";
 
 // Define a quantidade padrão de itens da paginação
 const ITENS_POR_PAGINA = 10;
@@ -40,12 +44,7 @@ export function renderizarTabelaClientes(
   if (!tbody) return;
   tbody.replaceChildren();
   if (listaClientes.length === 0) {
-    const trVazia = document.createElement("tr");
-    const tdVazia = document.createElement("td");
-    tdVazia.colSpan = 6;
-    tdVazia.textContent = "Nenhum cliente encontrado.";
-    trVazia.appendChild(tdVazia);
-    tbody.appendChild(trVazia);
+    renderizarLinhaTabelaVazia(tbody, 6, "Nenhum cliente encontrado.");
     if (celulaTotal) celulaTotal.textContent = "Total de clientes listados: 0";
     return;
   }
@@ -201,12 +200,7 @@ export function renderizarTabelaCompras(listaCompras) {
   if (!tbody) return;
   tbody.replaceChildren();
   if (listaCompras.length === 0) {
-    const trVazia = document.createElement("tr");
-    const tdVazia = document.createElement("td");
-    tdVazia.colSpan = 7;
-    tdVazia.textContent = "Nenhuma compra encontrada.";
-    trVazia.appendChild(tdVazia);
-    tbody.appendChild(trVazia);
+    renderizarLinhaTabelaVazia(tbody, 7, "Nenhuma compra encontrada.");
     if (celulaTotal) celulaTotal.textContent = "Total de compras listadas: 0";
     if (celulaSoma) celulaSoma.textContent = `Total: ${formatarMoeda(0)}`;
     return;
@@ -881,12 +875,11 @@ export function renderizarTabelaMensagens() {
   tbody.replaceChildren();
 
   if (mensagens.length === 0) {
-    const trVazia = document.createElement("tr");
-    const tdVazia = document.createElement("td");
-    tdVazia.colSpan = 7;
-    tdVazia.textContent = "Nenhuma mensagem recebida até o momento.";
-    trVazia.appendChild(tdVazia);
-    tbody.appendChild(trVazia);
+    renderizarLinhaTabelaVazia(
+      tbody,
+      7,
+      "Nenhuma mensagem recebida até o momento.",
+    );
     if (celulaTotal)
       celulaTotal.textContent = "Total de mensagens: 0 (0 não lidas)";
     return;

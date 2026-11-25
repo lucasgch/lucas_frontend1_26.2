@@ -377,6 +377,22 @@ export function adicionarLinhaResumo(container, rotulo, valor) {
   return linha;
 }
 
+/**
+ * Insere uma linha de aviso ocupando todas as colunas em um <tbody> quando não há registros.
+ * @param {HTMLElement|null} tbody - Corpo da tabela alvo.
+ * @param {number} colunas - Quantidade de colunas (colSpan).
+ * @param {string} mensagem - Mensagem exibida ao usuário.
+ */
+export function renderizarLinhaTabelaVazia(tbody, colunas, mensagem) {
+  if (!tbody) return;
+  const trVazia = document.createElement("tr");
+  const tdVazia = document.createElement("td");
+  tdVazia.colSpan = colunas;
+  tdVazia.textContent = mensagem;
+  trVazia.appendChild(tdVazia);
+  tbody.appendChild(trVazia);
+}
+
 // Renderiza o menu e inicializa o formulário de contato ao carregar
 renderizarMenuDinamico();
 inicializarFormularioContato();
