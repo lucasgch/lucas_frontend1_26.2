@@ -405,9 +405,9 @@ export function inicializarCheckout() {
   const inputCartaoValidade = document.getElementById("chk-cartao-validade");
   const inputCartaoCvv = document.getElementById("chk-cartao-cvv");
   function mostrarEtapa(numero) {
-    etapa1.hidden = numero !== 1;
-    etapa2.hidden = numero !== 2;
-    etapa3.hidden = numero !== 3;
+    if (etapa1) etapa1.hidden = numero !== 1;
+    if (etapa2) etapa2.hidden = numero !== 2;
+    if (etapa3) etapa3.hidden = numero !== 3;
     const titulos = {
       1: "Etapa 1 de 3: Resumo do Pedido",
       2: "Etapa 2 de 3: Endereço de Entrega",
@@ -416,6 +416,7 @@ export function inicializarCheckout() {
     if (indicadorEtapa) indicadorEtapa.textContent = titulos[numero];
   }
   function preencherResumoEtapa1() {
+    if (!divResumo) return;
     const itens = obterCarrinho();
     const catalogo = obterProdutosComEstoque();
     const resumo = obterResumoCarrinho();
@@ -505,7 +506,7 @@ export function inicializarCheckout() {
     .getElementById("btn-voltar-etapa-2")
     ?.addEventListener("click", () => mostrarEtapa(2));
   document.getElementById("btn-ir-etapa-3")?.addEventListener("click", () => {
-    erroEtapa2.textContent = "";
+    if (erroEtapa2) erroEtapa2.textContent = "";
     if (
       limparNumeros(inputCep?.value).length !== 8 ||
       !inputLogradouro?.value.trim() ||
@@ -514,11 +515,13 @@ export function inicializarCheckout() {
       !inputCidade?.value.trim() ||
       !validarUF(inputUf?.value)
     ) {
-      erroEtapa2.textContent =
-        "Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF válida, ex: SC).";
+      if (erroEtapa2) {
+        erroEtapa2.textContent =
+          "Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF válida, ex: SC).";
+      }
       return;
     }
-    salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep.value) });
+    salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep?.value) });
     renderizarCarrinho();
     mostrarEtapa(3);
   });
@@ -529,19 +532,22 @@ export function inicializarCheckout() {
   const painelPix = document.getElementById("painel-pagamento-pix");
   const painelCartao = document.getElementById("painel-pagamento-cartao");
   const painelBoleto = document.getElementById("painel-pagamento-boleto");
+  const definirErroEtapa3 = (mensagem) => {
+    if (erroEtapa3) erroEtapa3.textContent = mensagem;
+  };
   radiosPagamento.forEach((radio) => {
     radio.addEventListener("change", () => {
-      painelPix.hidden = radio.value !== "pix";
-      painelCartao.hidden = radio.value !== "cartao";
-      painelBoleto.hidden = radio.value !== "boleto";
-      erroEtapa3.textContent = "";
+      if (painelPix) painelPix.hidden = radio.value !== "pix";
+      if (painelCartao) painelCartao.hidden = radio.value !== "cartao";
+      if (painelBoleto) painelBoleto.hidden = radio.value !== "boleto";
+      definirErroEtapa3("");
     });
   });
   // Confirmar Compra (Etapa 3)
   document
     .getElementById("btn-confirmar-compra")
     ?.addEventListener("click", () => {
-      erroEtapa3.textContent = "";
+      definirErroEtapa3("");
       const metodo =
         modalCheckout.querySelector('input[name="metodo_pagamento"]:checked')
           ?.value || "pix";
@@ -552,21 +558,23 @@ export function inicializarCheckout() {
         const validade = inputCartaoValidade?.value.trim() || "";
         const cvv = limparNumeros(inputCartaoCvv?.value);
         if (!validarCartaoLuhn(numCartao)) {
-          erroEtapa3.textContent =
-            "Número de cartão inválido (falhou na verificação de Luhn).";
+          definirErroEtapa3(
+            "Número de cartão inválido (falhou na verificação de Luhn).",
+          );
           return;
         }
         if (nomeCartao.length < 3) {
-          erroEtapa3.textContent = "Informe o nome impresso no cartão.";
+          definirErroEtapa3("Informe o nome impresso no cartão.");
           return;
         }
         if (!validarValidadeCartao(validade)) {
-          erroEtapa3.textContent =
-            "Validade inválida ou cartão vencido (use MM/AA).";
+          definirErroEtapa3(
+            "Validade inválida ou cartão vencido (use MM/AA).",
+          );
           return;
         }
         if (cvv.length < 3 || cvv.length > 4) {
-          erroEtapa3.textContent = "Informe um CVV válido de 3 ou 4 dígitos.";
+          definirErroEtapa3("Informe um CVV válido de 3 ou 4 dígitos.");
           return;
         }
         // Requisito 2.4c: armazena apenas os 4 últimos dígitos do cartão!
@@ -590,20 +598,20 @@ export function inicializarCheckout() {
         };
       }
       const enderecoEntrega = {
-        cep: aplicarMascaraCEP(inputCep.value),
-        logradouro: inputLogradouro.value.trim(),
-        numero: inputNumero.value.trim(),
+        cep: aplicarMascaraCEP(inputCep?.value),
+        logradouro: inputLogradouro?.value.trim() || "",
+        numero: inputNumero?.value.trim() || "",
         complemento: inputComplemento?.value.trim() || "",
-        bairro: inputBairro.value.trim(),
-        cidade: inputCidade.value.trim(),
-        uf: inputUf.value.trim().toUpperCase(),
+        bairro: inputBairro?.value.trim() || "",
+        cidade: inputCidade?.value.trim() || "",
+        uf: inputUf?.value.trim().toUpperCase() || "",
       };
       const resultado = registrarCompra({
         enderecoEntrega,
         pagamento: dadosPagamento,
       });
       if (!resultado.sucesso) {
-        erroEtapa3.textContent = resultado.mensagem;
+        definirErroEtapa3(resultado.mensagem);
         return;
       }
       modalCheckout.close();
