@@ -10,6 +10,7 @@ import {
   criarConteudoDestacado,
   debounce,
   formatarDataHora,
+  formatarFrete,
   formatarMoeda,
   limparNumeros,
   normalizarTexto,
@@ -331,11 +332,7 @@ function abrirModalDetalhesCompra(idCompra) {
       `- ${formatarMoeda(compra.desconto)}`,
     );
   }
-  adicionarLinhaResumo(
-    conteudo,
-    "Frete:",
-    compra.frete === 0 ? "Grátis" : formatarMoeda(compra.frete),
-  );
+  adicionarLinhaResumo(conteudo, "Frete:", formatarFrete(compra.frete));
   adicionarLinhaResumo(conteudo, "Total:", formatarMoeda(compra.total));
   // Status atual (desabilita edição se já estiver Cancelado)
   const statusAtual = compra.status || "Pago";
@@ -842,7 +839,7 @@ export function inicializarRelatorios() {
       c.status || "Pago",
       formatarMoeda(c.subtotal),
       formatarMoeda(c.desconto),
-      c.frete === 0 ? "Grátis" : formatarMoeda(c.frete),
+      formatarFrete(c.frete),
       formatarMoeda(c.total),
     ]);
     exportarCSV("relatorio-compras.csv", cabecalhos, linhas);

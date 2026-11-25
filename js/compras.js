@@ -17,6 +17,7 @@ import {
 import {
   aplicarMascaraCEP,
   formatarData,
+  formatarFrete,
   formatarMoeda,
   limparNumeros,
   validarCartaoLuhn,
@@ -354,11 +355,7 @@ function renderizarConfirmacaoCompra(pedido) {
         `- ${formatarMoeda(pedido.desconto)}`,
       );
     }
-    adicionarLinhaResumo(
-      divResumo,
-      "Frete:",
-      pedido.frete === 0 ? "Grátis" : formatarMoeda(pedido.frete),
-    );
+    adicionarLinhaResumo(divResumo, "Frete:", formatarFrete(pedido.frete));
     // Forma de pagamento
     adicionarLinhaResumo(
       divResumo,
@@ -434,13 +431,7 @@ export function inicializarCheckout() {
       "Desconto:",
       `- ${formatarMoeda(resumo.desconto)}`,
     );
-    const textoFrete =
-      resumo.frete === null
-        ? "A calcular"
-        : resumo.frete === 0
-          ? "Grátis"
-          : formatarMoeda(resumo.frete);
-    adicionarLinhaResumo(divResumo, "Frete:", textoFrete);
+    adicionarLinhaResumo(divResumo, "Frete:", formatarFrete(resumo.frete));
     adicionarLinhaResumo(
       divResumo,
       "Total a pagar:",

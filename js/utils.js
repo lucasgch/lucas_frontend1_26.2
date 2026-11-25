@@ -13,6 +13,16 @@ export function formatarMoeda(valor) {
 }
 
 /**
+ * Formata o valor do frete para exibição ('A calcular', 'Grátis' ou moeda brasileira).
+ * @param {number|null|undefined} valor - Valor numérico do frete ou null se ainda não calculado.
+ * @returns {string}
+ */
+export function formatarFrete(valor) {
+  if (valor === null || valor === undefined) return "A calcular";
+  return Number(valor) === 0 ? "Grátis" : formatarMoeda(valor);
+}
+
+/**
  * Normaliza um texto para comparação (minúsculas, sem espaços nas pontas e sem acentos).
  * @param {string} [texto=''] - Texto de entrada.
  * @returns {string} Texto normalizado.

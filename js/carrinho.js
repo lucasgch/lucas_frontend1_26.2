@@ -1,6 +1,6 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 import { obterProdutosComEstoque } from "./produtos.js";
-import { aplicarMascaraCEP, formatarMoeda } from "./utils.js";
+import { aplicarMascaraCEP, formatarFrete, formatarMoeda } from "./utils.js";
 import { mostrarToast } from "./ui.js";
 
 /**
@@ -316,12 +316,7 @@ export function renderizarCarrinho() {
   if (celulaDesconto)
     celulaDesconto.textContent = `- ${formatarMoeda(resumo.desconto)}`;
   if (celulaFrete) {
-    celulaFrete.textContent =
-      resumo.frete === null
-        ? "A calcular"
-        : resumo.frete === 0
-          ? "Grátis"
-          : formatarMoeda(resumo.frete);
+    celulaFrete.textContent = formatarFrete(resumo.frete);
   }
   if (celulaTotal) {
     const strongTotal = document.createElement("strong");
@@ -431,7 +426,7 @@ export function inicializarCarrinho() {
       salvarExtrasCarrinho({ cep: inputCep.value });
       if (msgFrete) {
         msgFrete.style.color = "#16a34a";
-        msgFrete.textContent = `${res.regiao}: ${res.valor === 0 ? "Grátis" : formatarMoeda(res.valor)}`;
+        msgFrete.textContent = `${res.regiao}: ${formatarFrete(res.valor)}`;
       }
     } else {
       salvarExtrasCarrinho({ cep: "" });
@@ -464,7 +459,7 @@ export function inicializarCarrinho() {
     );
     if (resFrete.valido && msgFrete) {
       msgFrete.style.color = "#16a34a";
-      msgFrete.textContent = `${resFrete.regiao}: ${resFrete.valor === 0 ? "Grátis" : formatarMoeda(resFrete.valor)}`;
+      msgFrete.textContent = `${resFrete.regiao}: ${formatarFrete(resFrete.valor)}`;
     }
   }
 }
