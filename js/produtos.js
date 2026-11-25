@@ -19,10 +19,11 @@ const ROTULOS_CATEGORIA = {
 /**
  * Cria o elemento <li> de um produto a partir do <template>
  * @param {Object} produto
- * @returns {HTMLLIElement}
+ * @returns {HTMLLIElement|null}
  */
 export function criarCardProduto(produto) {
   const template = document.getElementById("template-card-produto");
+  if (!template) return null;
   const clone = template.content.cloneNode(true);
   const li = clone.querySelector(".item-produto");
   const card = clone.querySelector(".card-produto");
@@ -58,7 +59,7 @@ export function criarCardProduto(produto) {
   // Botão de adicionar ao carrinho (desabilita se estoque for 0)
   const btnAdicionar = clone.querySelector(".botao-adicionar");
 
-  // Botão de ver detalhes ao carrinho
+  // Botão de ver detalhes do produto
   const btnDetalhes = clone.querySelector(".botao-detalhes");
 
   btnDetalhes.dataset.id = produto.id;
@@ -89,7 +90,8 @@ export function renderizarGradeProdutos(produtos, container) {
   // Usa DocumentFragment para inserir todos os livros no DOM de uma só vez
   const fragmento = document.createDocumentFragment();
   produtos.forEach((produto) => {
-    fragmento.appendChild(criarCardProduto(produto));
+    const card = criarCardProduto(produto);
+    if (card) fragmento.appendChild(card); // Verifica se o elemento existe
   });
   container.appendChild(fragmento);
 }
@@ -261,6 +263,7 @@ export function abrirModalProduto(produtoId) {
   const btnMais = document.getElementById("modal-qtd-mais");
   const btnAdicionar = document.getElementById("modal-btn-adicionar");
   const erroQtd = document.getElementById("modal-erro-qtd");
+  if (!inputQtd || !btnAdicionar) return; // Verifica se os elementos existem
   if (erroQtd) {
     erroQtd.textContent = "";
   }
@@ -316,25 +319,27 @@ export function inicializarModalProduto() {
 
   // Função que valida o valor atual e atualiza os botões (-, + e Adicionar)
   function validarQuantidadeModal() {
+    if (!inputQtd) return; // Verifica se elemento existe
+
     // Remove qualquer sinal de '-' ou caractere que não seja número (0-9)
     inputQtd.value = limparNumeros(inputQtd.value);
     const qtd = Number(inputQtd.value);
     const maxEstoque = Number(inputQtd.max);
-
     // Trava o botão '-' se já estiver em 1 (ou menos) e o '+' se já estiver no estoque máximo
     if (btnMenos) btnMenos.disabled = qtd <= 1;
     if (btnMais) btnMais.disabled = qtd >= maxEstoque;
-
     if (qtd > maxEstoque) {
-      btnAdicionar.disabled = true;
-      erroQtd.textContent = `Máximo disponível: ${maxEstoque} un.`;
-      erroQtd.hidden = false;
+      if (btnAdicionar) btnAdicionar.disabled = true;
+      if (erroQtd) {
+        erroQtd.textContent = `Máximo disponível: ${maxEstoque} un.`;
+        erroQtd.hidden = false;
+      }
     } else if (!Number.isInteger(qtd) || qtd <= 0) {
-      btnAdicionar.disabled = true;
-      erroQtd.textContent = "";
+      if (btnAdicionar) btnAdicionar.disabled = true;
+      if (erroQtd) erroQtd.textContent = "";
     } else {
-      btnAdicionar.disabled = false;
-      erroQtd.textContent = "";
+      if (btnAdicionar) btnAdicionar.disabled = false;
+      if (erroQtd) erroQtd.textContent = "";
     }
   }
 
@@ -349,6 +354,7 @@ export function inicializarModalProduto() {
 
   // Diminui 1 ao clicar no botão '-'
   btnMenos?.addEventListener("click", () => {
+    if (!inputQtd) return;
     const atual = Number(inputQtd.value) || 1;
     if (atual > 1) {
       inputQtd.value = atual - 1;
@@ -358,6 +364,7 @@ export function inicializarModalProduto() {
 
   // Aumenta 1 ao clicar no botão '+'
   btnMais?.addEventListener("click", () => {
+    if (!inputQtd) return;
     const atual = Number(inputQtd.value) || 0;
     const maxEstoque = Number(inputQtd.max);
     if (atual < maxEstoque) {
