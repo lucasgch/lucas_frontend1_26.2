@@ -10,6 +10,7 @@ import {
 } from "./utils.js";
 import {
   alternarCarregamentoBotao,
+  definirMensagemEstado,
   mostrarToast,
   renderizarMenuDinamico,
 } from "./ui.js";
@@ -777,15 +778,13 @@ export function inicializarPerfil() {
         definirErroCampo(campoErro, resultado.mensagem);
         campoErro.focus();
       } else {
-        avisoPerfil.style.color = "#d97706";
-        avisoPerfil.textContent = resultado.mensagem;
+        definirMensagemEstado(avisoPerfil, resultado.mensagem, "aviso");
       }
       return;
     }
 
     // Sucesso!
-    avisoPerfil.style.color = "#16a34a";
-    avisoPerfil.textContent = resultado.mensagem;
+    definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
     carregarDadosNosCampos();
     renderizarMenuDinamico();
     mostrarToast(resultado.mensagem, "sucesso");

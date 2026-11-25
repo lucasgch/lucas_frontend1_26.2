@@ -7,7 +7,11 @@ import {
   formatarMoeda,
   limparNumeros,
 } from "./utils.js";
-import { mostrarToast, renderizarLinhaTabelaVazia } from "./ui.js";
+import {
+  definirMensagemEstado,
+  mostrarToast,
+  renderizarLinhaTabelaVazia,
+} from "./ui.js";
 
 /**
  * Retorna o identificador do dono do carrinho atual (ID do cliente logado ou 'visitante').
@@ -394,16 +398,10 @@ export function inicializarCarrinho() {
     const res = validarCupom(inputCupom?.value, subtotal);
     if (res.valido) {
       salvarExtrasCarrinho({ codigoCupom: res.cupom.codigo });
-      if (msgCupom) {
-        msgCupom.style.color = "#16a34a";
-        msgCupom.textContent = res.mensagem;
-      }
+      definirMensagemEstado(msgCupom, res.mensagem, "sucesso");
     } else {
       salvarExtrasCarrinho({ codigoCupom: "" });
-      if (msgCupom) {
-        msgCupom.style.color = "#dc2626";
-        msgCupom.textContent = res.mensagem;
-      }
+      definirMensagemEstado(msgCupom, res.mensagem, "erro");
     }
     renderizarCarrinho();
   });
@@ -420,16 +418,14 @@ export function inicializarCarrinho() {
     const res = calcularFretePorCep(inputCep?.value, subtotal);
     if (res.valido) {
       salvarExtrasCarrinho({ cep: inputCep.value });
-      if (msgFrete) {
-        msgFrete.style.color = "#16a34a";
-        msgFrete.textContent = `${res.regiao}: ${formatarFrete(res.valor)}`;
-      }
+      definirMensagemEstado(
+        msgFrete,
+        `${res.regiao}: ${formatarFrete(res.valor)}`,
+        "sucesso",
+      );
     } else {
       salvarExtrasCarrinho({ cep: "" });
-      if (msgFrete) {
-        msgFrete.style.color = "#dc2626";
-        msgFrete.textContent = res.mensagem;
-      }
+      definirMensagemEstado(msgFrete, res.mensagem, "erro");
     }
     renderizarCarrinho();
   });
@@ -442,9 +438,8 @@ export function inicializarCarrinho() {
       resumoInicial.codigoCupom,
       resumoInicial.subtotal,
     );
-    if (resCupom.valido && msgCupom) {
-      msgCupom.style.color = "#16a34a";
-      msgCupom.textContent = resCupom.mensagem;
+    if (resCupom.valido) {
+      definirMensagemEstado(msgCupom, resCupom.mensagem, "sucesso");
     }
   }
   if (resumoInicial.cep && inputCep) {
@@ -453,9 +448,12 @@ export function inicializarCarrinho() {
       resumoInicial.cep,
       resumoInicial.subtotal,
     );
-    if (resFrete.valido && msgFrete) {
-      msgFrete.style.color = "#16a34a";
-      msgFrete.textContent = `${resFrete.regiao}: ${formatarFrete(resFrete.valor)}`;
+    if (resFrete.valido) {
+      definirMensagemEstado(
+        msgFrete,
+        `${resFrete.regiao}: ${formatarFrete(resFrete.valor)}`,
+        "sucesso",
+      );
     }
   }
 }

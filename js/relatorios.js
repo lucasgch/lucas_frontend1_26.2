@@ -19,6 +19,7 @@ import {
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 import {
   adicionarLinhaResumo,
+  definirMensagemEstado,
   mostrarToast,
   renderizarLinhaTabelaVazia,
 } from "./ui.js";
@@ -752,10 +753,11 @@ export function inicializarRelatorios() {
     const idCompra = modalCompra?.dataset.compraId;
     if (!idCompra || !selectStatusDetalhe) return;
     const res = atualizarStatusCompra(idCompra, selectStatusDetalhe.value);
-    if (msgStatusCompra) {
-      msgStatusCompra.style.color = res.sucesso ? "#16a34a" : "#dc2626";
-      msgStatusCompra.textContent = res.mensagem;
-    }
+    definirMensagemEstado(
+      msgStatusCompra,
+      res.mensagem,
+      res.sucesso ? "sucesso" : "erro",
+    );
     if (res.sucesso) {
       if (selectStatusDetalhe.value === "Cancelado") {
         selectStatusDetalhe.disabled = true;

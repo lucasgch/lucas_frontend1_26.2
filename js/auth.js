@@ -7,7 +7,7 @@ import {
 } from "./storage.js";
 import { gerarHashSenha, gerarSalt, obterClientes } from "./clientes.js";
 import { mesclarCarrinhoAoLogar } from "./carrinho.js";
-import { alternarCarregamentoBotao } from "./ui.js";
+import { alternarCarregamentoBotao, definirMensagemEstado } from "./ui.js";
 
 const TEMPO_EXPIRACAO_MS = 30 * 60 * 1000; // 30 minutos em milissegundos
 const TEMPO_BLOQUEIO_MS = 60 * 1000; // 60 segundos de bloqueio após 3 erros
@@ -220,14 +220,23 @@ export function inicializarLogin() {
   // via redirecionamento
   const params = new URLSearchParams(window.location.search);
   if (params.get("cadastro") === "sucesso") {
-    avisoLogin.style.color = "#16a34a";
-    avisoLogin.textContent =
-      "Cadastro realizado com sucesso! Faça seu login abaixo.";
+    definirMensagemEstado(
+      avisoLogin,
+      "Cadastro realizado com sucesso! Faça seu login abaixo.",
+      "sucesso",
+    );
   } else if (params.get("motivo") === "login_necessario") {
-    avisoLogin.textContent = "Faça login para acessar a página solicitada.";
+    definirMensagemEstado(
+      avisoLogin,
+      "Faça login para acessar a página solicitada.",
+      "aviso",
+    );
   } else if (params.get("motivo") === "sessao_expirada") {
-    avisoLogin.textContent =
-      "Sua sessão expirou por inatividade. Faça login novamente.";
+    definirMensagemEstado(
+      avisoLogin,
+      "Sua sessão expirou por inatividade. Faça login novamente.",
+      "aviso",
+    );
   }
 
   let timerBloqueio = null;
@@ -238,12 +247,17 @@ export function inicializarLogin() {
       const seg = obterSegundosRestantesBloqueio();
       if (seg > 0) {
         if (btnSubmit) btnSubmit.disabled = true;
-        avisoLogin.style.color = "#dc2626";
-        avisoLogin.textContent = `Login bloqueado temporariamente. Tente novamente em ${seg}s.`;
+        definirMensagemEstado(
+          avisoLogin,
+          `Login bloqueado temporariamente. Tente novamente em ${seg}s.`,
+          "erro",
+        );
       } else {
         clearInterval(timerBloqueio);
         if (btnSubmit) btnSubmit.disabled = false;
-        avisoLogin.textContent = "";
+        if (avisoLogin.textContent.startsWith("Login bloqueado")) {
+          definirMensagemEstado(avisoLogin, "");
+        }
       }
     };
     atualizar();
@@ -257,9 +271,13 @@ export function inicializarLogin() {
 
   formLogin.addEventListener("submit", async (evento) => {
     evento.preventDefault();
-    avisoLogin.style.color = "#dc2626";
+    definirMensagemEstado(avisoLogin, "", "erro");
     if (!campoEmail?.value.trim() || !campoSenha?.value) {
-      avisoLogin.textContent = "Preencha seu e-mail e a sua senha.";
+      definirMensagemEstado(
+        avisoLogin,
+        "Preencha seu e-mail e a sua senha.",
+        "erro",
+      );
       (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
       return;
     }

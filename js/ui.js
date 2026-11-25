@@ -179,31 +179,41 @@ export function inicializarFormularioContato() {
 
   [campoNome, campoEmail, campoMensagem].forEach((campo) => {
     campo?.addEventListener("input", () => {
-      avisoContato.textContent = "";
+      definirMensagemEstado(avisoContato, "");
     });
   });
 
   formContato.addEventListener("submit", (evento) => {
     evento.preventDefault();
-    avisoContato.style.color = "#dc2626";
 
     const nome = campoNome?.value.trim() || "";
     const email = campoEmail?.value.trim() || "";
     const mensagem = campoMensagem?.value.trim() || "";
 
     if (nome.length < 3) {
-      avisoContato.textContent = "Informe seu nome (mínimo de 3 caracteres).";
+      definirMensagemEstado(
+        avisoContato,
+        "Informe seu nome (mínimo de 3 caracteres).",
+        "erro",
+      );
       campoNome?.focus();
       return;
     }
     if (!validarEmail(email)) {
-      avisoContato.textContent = "Informe um endereço de e-mail válido.";
+      definirMensagemEstado(
+        avisoContato,
+        "Informe um endereço de e-mail válido.",
+        "erro",
+      );
       campoEmail?.focus();
       return;
     }
     if (mensagem.length < 5) {
-      avisoContato.textContent =
-        "Digite uma mensagem com pelo menos 5 caracteres.";
+      definirMensagemEstado(
+        avisoContato,
+        "Digite uma mensagem com pelo menos 5 caracteres.",
+        "erro",
+      );
       campoMensagem?.focus();
       return;
     }
@@ -224,9 +234,11 @@ export function inicializarFormularioContato() {
     salvarDados(CHAVES_STORAGE.MENSAGENS, lista);
     mostrarToast("Mensagem enviada com sucesso!", "sucesso");
     formContato.reset();
-    avisoContato.style.color = "#16a34a";
-    avisoContato.textContent =
-      "Mensagem enviada com sucesso! Obrigado pelo contato.";
+    definirMensagemEstado(
+      avisoContato,
+      "Mensagem enviada com sucesso! Obrigado pelo contato.",
+      "sucesso",
+    );
   });
 }
 
@@ -391,6 +403,25 @@ export function renderizarLinhaTabelaVazia(tbody, colunas, mensagem) {
   tdVazia.textContent = mensagem;
   trVazia.appendChild(tdVazia);
   tbody.appendChild(trVazia);
+}
+
+/**
+ * Define o texto e a classe semântica de cor em um elemento de mensagem/aviso.
+ * @param {HTMLElement|null} elemento - Elemento que exibirá a mensagem.
+ * @param {string} texto - Texto da mensagem (use '' para limpar).
+ * @param {'sucesso'|'erro'|'aviso'|''} [tipo=''] - Tipo semântico da cor aplicada via CSS.
+ */
+export function definirMensagemEstado(elemento, texto, tipo = "") {
+  if (!elemento) return;
+  elemento.classList.remove(
+    "mensagem-sucesso",
+    "mensagem-erro",
+    "mensagem-aviso",
+  );
+  if (tipo) {
+    elemento.classList.add(`mensagem-${tipo}`);
+  }
+  elemento.textContent = texto;
 }
 
 // Renderiza o menu e inicializa o formulário de contato ao carregar

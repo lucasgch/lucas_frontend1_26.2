@@ -257,3 +257,31 @@ html[data-tema="escuro"] .opcoes-pagamento {
   background-color: var(--surface-subtle-hover);
   transform: scale(1.06);
 }
+
+/* Classes semânticas para mensagens de feedback */
+.mensagem-sucesso,
+.mensagem-erro-campo.mensagem-sucesso {
+  color: #16a34a;
+}
+
+.mensagem-erro,
+.mensagem-erro-campo.mensagem-erro {
+  color: #dc2626;
+}
+
+.mensagem-aviso,
+.mensagem-erro-campo.mensagem-aviso {
+  color: #d97706;
+}
+
+html[data-tema="escuro"] .mensagem-sucesso {
+  color: #4ade80;
+}
+
+html[data-tema="escuro"] .mensagem-erro {
+  color: #f87171;
+}
+
+html[data-tema="escuro"] .mensagem-aviso {
+  color: #fbbf24;
+}
