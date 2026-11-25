@@ -64,18 +64,22 @@ export function validarValidadeCartao(validade = "") {
 }
 
 /**
- * Subtrai do estoque no localStorage as quantidades compradas (Requisito 2.4e).
- * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
+ * Ajusta o saldo de estoque no localStorage somando (fator = 1) ou subtraindo (fator = -1) quantidades.
+ * @param {Array<{produtoId: string, quantidade: number}>} itens
+ * @param {1|-1} fator - Use -1 para baixa na compra e 1 para devolução no cancelamento.
  */
-export function baixarEstoqueItens(itensComprados) {
+function ajustarEstoqueItens(itens, fator) {
   const mapaEstoque = lerDados(CHAVES_STORAGE.ESTOQUE, {});
   const catalogoAtual = obterProdutosComEstoque();
 
-  for (const item of itensComprados) {
+  for (const item of itens || []) {
     const produto = catalogoAtual.find((p) => p.id === item.produtoId);
     if (produto) {
-      const novoEstoque = Math.max(0, produto.estoque - item.quantidade);
-      mapaEstoque[item.produtoId] = novoEstoque;
+      const estoqueAtual = mapaEstoque[item.produtoId] ?? produto.estoque;
+      mapaEstoque[item.produtoId] = Math.max(
+        0,
+        estoqueAtual + item.quantidade * fator,
+      );
     }
   }
 
@@ -83,19 +87,19 @@ export function baixarEstoqueItens(itensComprados) {
 }
 
 /**
+ * Subtrai do estoque no localStorage as quantidades compradas (Requisito 2.4e).
+ * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
+ */
+export function baixarEstoqueItens(itensComprados) {
+  ajustarEstoqueItens(itensComprados, -1);
+}
+
+/**
  * Devolve ao estoque no localStorage as quantidades de uma compra cancelada (Requisito 2.5d).
  * @param {Array<{produtoId: string, quantidade: number}>} itensComprados
  */
 export function devolverEstoqueItens(itensComprados) {
-  const mapaEstoque = lerDados(CHAVES_STORAGE.ESTOQUE, {});
-  const catalogoAtual = obterProdutosComEstoque();
-  for (const item of itensComprados || []) {
-    const produto = catalogoAtual.find((p) => p.id === item.produtoId);
-    if (produto) {
-      mapaEstoque[item.produtoId] = produto.estoque + item.quantidade;
-    }
-  }
-  salvarDados(CHAVES_STORAGE.ESTOQUE, mapaEstoque);
+  ajustarEstoqueItens(itensComprados, 1);
 }
 
 const STATUS_COMPRA_VALIDOS = ["Pago", "Enviado", "Entregue", "Cancelado"];
