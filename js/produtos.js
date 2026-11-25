@@ -1,6 +1,11 @@
 // js/produtos.js
 import { PRODUTOS_INICIAIS } from "./data/produtos.js";
-import { formatarMoeda, normalizarTexto, debounce } from "./utils.js";
+import {
+  formatarMoeda,
+  normalizarTexto,
+  debounce,
+  limparNumeros,
+} from "./utils.js";
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 
 const ROTULOS_CATEGORIA = {
@@ -312,7 +317,7 @@ export function inicializarModalProduto() {
   // Função que valida o valor atual e atualiza os botões (-, + e Adicionar)
   function validarQuantidadeModal() {
     // Remove qualquer sinal de '-' ou caractere que não seja número (0-9)
-    inputQtd.value = inputQtd.value.replace(/\D/g, "");
+    inputQtd.value = limparNumeros(inputQtd.value);
     const qtd = Number(inputQtd.value);
     const maxEstoque = Number(inputQtd.max);
 

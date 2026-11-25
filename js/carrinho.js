@@ -1,6 +1,11 @@
 import { CHAVES_STORAGE, lerDados, salvarDados } from "./storage.js";
 import { obterProdutosComEstoque } from "./produtos.js";
-import { aplicarMascaraCEP, formatarFrete, formatarMoeda } from "./utils.js";
+import {
+  aplicarMascaraCEP,
+  formatarFrete,
+  formatarMoeda,
+  limparNumeros,
+} from "./utils.js";
 import { mostrarToast, renderizarLinhaTabelaVazia } from "./ui.js";
 
 /**
@@ -555,7 +560,7 @@ export const CUPONS_DISPONIVEIS = {
  * @returns {{valido: boolean, valor: number, regiao?: string, mensagem?: string}}
  */
 export function calcularFretePorCep(cep, subtotal) {
-  const cepLimpo = String(cep).replace(/\D/g, "");
+  const cepLimpo = limparNumeros(cep);
   if (cepLimpo.length !== 8) {
     return {
       valido: false,
