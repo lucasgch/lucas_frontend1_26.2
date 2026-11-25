@@ -226,26 +226,46 @@ export async function cadastrarCliente({
 }
 
 /**
+ * Coleta as referências dos inputs do formulário de cadastro.
+ * @returns {{nome: HTMLInputElement|null, cpf: HTMLInputElement|null, telefone: HTMLInputElement|null, email: HTMLInputElement|null, senha: HTMLInputElement|null, confirmaSenha: HTMLInputElement|null}}
+ */
+function obterCamposCadastro() {
+  return {
+    nome: document.getElementById("cad-nome"),
+    cpf: document.getElementById("cad-cpf"),
+    telefone: document.getElementById("cad-telefone"),
+    email: document.getElementById("cad-email"),
+    senha: document.getElementById("cad-senha"),
+    confirmaSenha: document.getElementById("cad-confirma-senha"),
+  };
+}
+
+/**
  * Inicializa as máscaras e validações do formulário de cadastro.
  */
-export function inicializarCadastro() {
-  const formCadastro = document.getElementById("form-cadastro");
+export function inicializarCadastro(){  
+  const formCadastro = document.getElementById("form-cadastro");                        
   if (!formCadastro) return;
   formCadastro.noValidate = true;
-
   // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
   formCadastro.querySelectorAll(".campo-form input").forEach((input) => {
     definirErroCampo(input, "");
   });
 
+  const campos = obterCamposCadastro();
+  const {
+    nome: campoNome,
+    cpf: campoCpf,
+    telefone: campoTelefone,
+    email: campoEmail,
+    senha: campoSenha,
+    confirmaSenha: campoConfirmaSenha,
+  } = campos;
+
   // Validação do Nome Completo (#cad-nome)
-  const campoNome = document.getElementById("cad-nome");
   campoNome?.addEventListener("blur", () => {
     if (campoNome.value && !validarNomeCompleto(campoNome.value)) {
-      definirErroCampo(
-        campoNome,
-        "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-      );
+      definirErroCampo(campoNome, MENSAGENS_ERRO_CLIENTE.nome);
     } else {
       definirErroCampo(campoNome, "");
     }
@@ -256,7 +276,6 @@ export function inicializarCadastro() {
     }
   });
   // Máscara e Validação do CPF (#cad-cpf)
-  const campoCpf = document.getElementById("cad-cpf");
   campoCpf?.addEventListener("input", () => {
     campoCpf.value = aplicarMascaraCPF(campoCpf.value);
     if (campoCpf.value.length === 14 && !validarCPF(campoCpf.value)) {
@@ -270,43 +289,33 @@ export function inicializarCadastro() {
   });
   campoCpf?.addEventListener("blur", () => {
     if (campoCpf.value && !validarCPF(campoCpf.value)) {
-      definirErroCampo(
-        campoCpf,
-        "CPF inválido. Digite os 11 números corretamente.",
-      );
+      definirErroCampo(campoCpf , MENSAGENS_ERRO_CLIENTE.cpf);
     }
   });
 
   // Validação do Telefone (#cad-telefone — somente números, 10 ou 11 dígitos)
-  const campoTelefone = document.getElementById("cad-telefone");
   campoTelefone?.addEventListener("input", () => {
     campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
     if (validarTelefone(campoTelefone.value)) {
       definirErroCampo(campoTelefone, "");
     }
   });
-  campoTelefone?.addEventListener("blur", () => {
-    if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
-      definirErroCampo(
-        campoTelefone,
-        "Informe um telefone válido com DDD (10 ou 11 números).",
-      );
-    } else {
-      definirErroCampo(campoTelefone, "");
-    }
-  });
+  campoTelefone?.addEventListener("blur", () => 
+    {
+      if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
+          definirErroCampo(campoTelefone, MENSAGENS_ERRO_CLIENTE.telefone);             
+        } else { 
+          definirErroCampo(campoTelefone, "");
+        }                                                                  
+      });
 
   // Validação do E-mail (#cad-email)
-  const campoEmail = document.getElementById("cad-email");
   campoEmail?.addEventListener("blur", () => {
     if (campoEmail.value && !validarEmail(campoEmail.value)) {
-      definirErroCampo(
-        campoEmail,
-        "Informe um endereço de e-mail válido (ex: nome@dominio.com).",
-      );
-    } else {
-      definirErroCampo(campoEmail, "");
-    }
+      definirErroCampo(campoEmail, MENSAGENS_ERRO_CLIENTE.email);
+    } else { 
+      definirErroCampo(campoEmail,"");                                       
+    }                                                                    
   });
   campoEmail?.addEventListener("input", () => {
     if (validarEmail(campoEmail.value)) {
@@ -315,9 +324,6 @@ export function inicializarCadastro() {
   });
 
   // Validação da senha
-  const campoSenha = document.getElementById("cad-senha");
-  const campoConfirmaSenha = document.getElementById("cad-confirma-senha");
-
   if (campoSenha) {
     const containerForca = document.createElement("div");
     containerForca.className = "indicador-forca";
@@ -337,9 +343,9 @@ export function inicializarCadastro() {
         msgErro.dataset.nivel = avaliacao.nivel;
       }
       campoSenha.setCustomValidity(
-        avaliacao.valida || !campoSenha.value
-          ? ""
-          : "A senha deve ter no mínimo 8 caracteres, com letras e números.",
+        avaliacao.valida || !campoSenha.value 
+        ? ""
+        : MENSAGENS_ERRO_CLIENTE.senha,
       );
       // Se o usuário já preencheu a confirmação, revalida se continuam iguais
       if (campoConfirmaSenha?.value) {
@@ -349,10 +355,7 @@ export function inicializarCadastro() {
     campoSenha.addEventListener("blur", () => {
       const avaliacao = avaliarForcaSenha(campoSenha.value);
       if (campoSenha.value && !avaliacao.valida) {
-        definirErroCampo(
-          campoSenha,
-          "A senha deve ter no mínimo 8 caracteres, com letras e números.",
-        );
+        definirErroCampo(campoSenha, MENSAGENS_ERRO_CLIENTE.senha);
       }
     });
   } // <-- Fecha o if (campoSenha)
@@ -363,7 +366,7 @@ export function inicializarCadastro() {
       campoConfirmaSenha.value &&
       campoConfirmaSenha.value !== campoSenha.value
     ) {
-      definirErroCampo(campoConfirmaSenha, "As senhas não coincidem.");
+      definirErroCampo(campoConfirmaSenha, MENSAGENS_ERRO_CLIENTE.confirmaSenha); 
     } else {
       definirErroCampo(campoConfirmaSenha, "");
     }
@@ -386,17 +389,7 @@ export function inicializarCadastro() {
       },
       { exigirSenha: true, validarConfirmacao: true },
     );
-    const valido = aplicarErrosFormulario(
-      {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senha: campoSenha,
-        confirmaSenha: campoConfirmaSenha,
-      },
-      erros,
-    );
+    const valido = aplicarErrosFormulario(campos, erros);
     if (!valido) return;
     // Salva o cliente no localStorage com senha protegida por SHA-256
     const btnSubmit = formCadastro.querySelector('button[type="submit"]');
