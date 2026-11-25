@@ -1,15 +1,15 @@
-export const VERSAO_STORAGE = '1.0';
+export const VERSAO_STORAGE = "1.0";
 export const CHAVES_STORAGE = Object.freeze({
-  VERSAO: 'lojaLivros:versao',
-  CONTADORES: 'lojaLivros:contadores',
-  ESTOQUE: 'lojaLivros:estoque',
-  CLIENTES: 'lojaLivros:cliente',
-  CARRINHO: 'lojaLivros:carrinho',
-  SESSAO: 'lojaLivros:sessao',
-  TENTATIVAS_LOGIN: 'lojaLivros:tentativasLogin',
-  COMPRAS: 'lojaLivros:compras',
-  MENSAGENS: 'lojaLivros:mensagens',
-  TEMA: 'lojaLivros:tema'
+  VERSAO: "lojaLivros:versao",
+  CONTADORES: "lojaLivros:contadores",
+  ESTOQUE: "lojaLivros:estoque",
+  CLIENTES: "lojaLivros:cliente",
+  CARRINHO: "lojaLivros:carrinho",
+  SESSAO: "lojaLivros:sessao",
+  TENTATIVAS_LOGIN: "lojaLivros:tentativasLogin",
+  COMPRAS: "lojaLivros:compras",
+  MENSAGENS: "lojaLivros:mensagens",
+  TEMA: "lojaLivros:tema",
 });
 
 /**
@@ -18,8 +18,8 @@ export const CHAVES_STORAGE = Object.freeze({
  * @param {*} valorPadrao - Valor retornado caso a chave não exista ou esteja corrompida.
  * @returns {*} O dado convertido ou o valorPadrao.
  */
-export function lerDados(chave, valorPadrao = null){
-  try{
+export function lerDados(chave, valorPadrao = null) {
+  try {
     // 1. Busca o texto bruto no localStorage usando a 'chave'
     const textoSalvo = localStorage.getItem(chave);
     // 2. Se não existir nada salvo (for estritamente igual a null), retorna o valorPadrao
@@ -28,7 +28,7 @@ export function lerDados(chave, valorPadrao = null){
     }
     return JSON.parse(textoSalvo);
   } catch (erro) {
-    // 4. Se o JSON estiver corrompido, avisa no console e retorna o valorPadrao sem quebrar o site
+    // 3. Se o JSON estiver corrompido, avisa no console e retorna o valorPadrao sem quebrar o site
     console.error(`Erro ao ler a chave "${chave}" do localStorage:`, erro);
     return valorPadrao;
   }
@@ -69,7 +69,7 @@ export function gerarProximoId(tipo, prefixo) {
   contadores[tipo] = proximoNumero;
   salvarDados(CHAVES_STORAGE.CONTADORES, contadores);
   // 4. Formata o número com 3 dígitos (ex: '001') e junta com o prefixo
-  const numeroFormatado = String(proximoNumero).padStart(3, '0');
+  const numeroFormatado = String(proximoNumero).padStart(3, "0");
   return `${prefixo}${numeroFormatado}`;
 }
 
@@ -78,8 +78,8 @@ export function gerarProximoId(tipo, prefixo) {
  * @param {string} chave - Nome da chave a ser removida.
  * @returns {boolean} Retorna true se removeu com sucesso, ou false em caso de erro.
  */
-export function removerDados(chave){
-  try{
+export function removerDados(chave) {
+  try {
     localStorage.removeItem(chave);
     return true;
   } catch (erro) {
@@ -102,7 +102,7 @@ export function inicializarStorage() {
     salvarDados(CHAVES_STORAGE.CONTADORES, {
       cliente: 0,
       compra: 0,
-      mensagem: 0
+      mensagem: 0,
     });
   }
 

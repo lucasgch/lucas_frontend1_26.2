@@ -1,6 +1,6 @@
-const formatadorMoeda = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL'
+const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
 });
 
 /**
@@ -27,18 +27,18 @@ export function formatarFrete(valor) {
  * @param {string} [texto=''] - Texto de entrada.
  * @returns {string} Texto normalizado.
  */
-export function normalizarTexto(texto = '') {
-  return String(texto ?? '') // ?? => Se texto null ou undefined retorna vazio
+export function normalizarTexto(texto = "") {
+  return String(texto ?? "") // ?? => Se texto null ou undefined retorna vazio
     .toLowerCase()
     .trim()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '');
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
-const formatadorData = new Intl.DateTimeFormat('pt-BR', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric'
+const formatadorData = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
 });
 
 /**
@@ -48,15 +48,15 @@ const formatadorData = new Intl.DateTimeFormat('pt-BR', {
  */
 export function formatarData(dataIso) {
   const data = new Date(dataIso);
-  return Number.isNaN(data.getTime()) ? '' : formatadorData.format(data);
+  return Number.isNaN(data.getTime()) ? "" : formatadorData.format(data);
 }
 
-const formatadorDataHora = new Intl.DateTimeFormat('pt-BR', {
-  day: '2-digit',
-  month: '2-digit',
-  year: 'numeric',
-  hour: '2-digit',
-  minute: '2-digit'
+const formatadorDataHora = new Intl.DateTimeFormat("pt-BR", {
+  day: "2-digit",
+  month: "2-digit",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
 });
 
 /**
@@ -66,21 +66,22 @@ const formatadorDataHora = new Intl.DateTimeFormat('pt-BR', {
  */
 export function formatarDataHora(dataIso) {
   const data = new Date(dataIso);
-  return Number.isNaN(data.getTime()) ? '' : formatadorDataHora.format(data);
+  return Number.isNaN(data.getTime()) ? "" : formatadorDataHora.format(data);
 }
 
 const UFS_BRASIL = new Set([
-  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
-  'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
-  'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO",
+  "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI",
+  "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO",
 ]);
+
 /**
  * Valida se a sigla informada corresponde a uma UF brasileira válida.
  * @param {string} [uf='']
  * @returns {boolean}
  */
-export function validarUF(uf = '') {
-  return UFS_BRASIL.has(String(uf ?? '').trim().toUpperCase());
+export function validarUF(uf = "") {
+  return UFS_BRASIL.has(String(uf ?? "").trim().toUpperCase());
 }
 
 /**
@@ -106,8 +107,8 @@ export function debounce(funcao, atraso = 300) {
  * @param {string} [valor=''] - Texto de entrada.
  * @returns {string} Apenas os dígitos numéricos.
  */
-export function limparNumeros(valor = '') {
-  return String(valor).replace(/\D/g, '');
+export function limparNumeros(valor = "") {
+  return String(valor).replace(/\D/g, "");
 }
 
 /**
@@ -115,11 +116,12 @@ export function limparNumeros(valor = '') {
  * @param {string} valor - Texto digitado no campo de CPF.
  * @returns {string} CPF formatado.
  */
-export function aplicarMascaraCPF(valor){
+export function aplicarMascaraCPF(valor) {
   const apenasDigitos = limparNumeros(valor).slice(0, 11);
-  return apenasDigitos.replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d)/, '$1.$2')
-    .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  return apenasDigitos
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d)/, "$1.$2")
+    .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
 }
 
 /**
@@ -142,7 +144,7 @@ function calcularDigitoCPF(digitos, pesoInicial) {
  * @param {string} [cpf=''] - CPF com ou sem máscara.
  * @returns {boolean} true se o CPF for válido, false caso contrário.
  */
-export function validarCPF(cpf = '') {
+export function validarCPF(cpf = "") {
   const digitos = limparNumeros(cpf);
   // Deve ter 11 dígitos e não pode ter todos os números iguais
   if (digitos.length !== 11 || /^(\d)\1{10}$/.test(digitos)) {
@@ -159,7 +161,7 @@ export function validarCPF(cpf = '') {
  * @param {string} [nome=''] - Nome completo informado.
  * @returns {boolean}
  */
-export function validarNomeCompleto(nome = '') {
+export function validarNomeCompleto(nome = "") {
   const texto = String(nome).trim();
   if (texto.length < 3) return false;
   // Divide pelos espaços e verifica se há pelo menos 2 palavras (nome e sobrenome)
@@ -172,7 +174,7 @@ export function validarNomeCompleto(nome = '') {
  * @param {string} [telefone=''] - Telefone informado.
  * @returns {boolean}
  */
-export function validarTelefone(telefone = '') {
+export function validarTelefone(telefone = "") {
   const texto = String(telefone).trim();
   // Recusa DDD com dígito 0 e valida 10 ou 11 dígitos numéricos
   if (!/^[1-9]{2}\d{8,9}$/.test(texto)) return false;
@@ -188,7 +190,7 @@ export function validarTelefone(telefone = '') {
  * @param {string} [email=''] - E-mail informado.
  * @returns {boolean}
  */
-export function validarEmail(email = '') {
+export function validarEmail(email = "") {
   const texto = String(email).trim();
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(texto);
 }
@@ -199,10 +201,10 @@ export function validarEmail(email = '') {
  * @param {string} [senha=''] - Senha digitada.
  * @returns {{valida: boolean, nivel: 'vazia'|'fraca'|'media'|'forte', texto: string}}
  */
-export function avaliarForcaSenha(senha = '') {
-    const texto = String(senha);
+export function avaliarForcaSenha(senha = "") {
+  const texto = String(senha);
   if (!texto) {
-    return { valida: false, nivel: 'vazia', texto: '' };
+    return { valida: false, nivel: "vazia", texto: "" };
   }
   const temMinimo8 = texto.length >= 8;
   const temLetra = /[a-zA-ZÀ-ÿ]/.test(texto);
@@ -212,18 +214,18 @@ export function avaliarForcaSenha(senha = '') {
 
   // Requisito obrigatório
   const atendeRequisito = temMinimo8 && temLetra && temNumero;
-  
+
   if (!atendeRequisito) {
     return {
       valida: false,
-      nivel: 'fraca',
-      texto: 'Força: Fraca (mín. 8 caracteres, com letras e números)'
+      nivel: "fraca",
+      texto: "Força: Fraca (mín. 8 caracteres, com letras e números)",
     };
   }
   if (texto.length >= 10 && (temMaiuscula || temEspecial)) {
-    return { valida: true, nivel: 'forte', texto: 'Força: Forte' };
+    return { valida: true, nivel: "forte", texto: "Força: Forte" };
   }
-  return { valida: true, nivel: 'media', texto: 'Força: Média' };
+  return { valida: true, nivel: "media", texto: "Força: Média" };
 }
 
 /**
@@ -231,9 +233,9 @@ export function avaliarForcaSenha(senha = '') {
  * @param {string} [valor=''] - CEP digitado.
  * @returns {string} CEP formatado.
  */
-export function aplicarMascaraCEP(valor = '') {
+export function aplicarMascaraCEP(valor = "") {
   const digitos = limparNumeros(valor).slice(0, 8);
-  return digitos.replace(/^(\d{5})(\d)/, '$1-$2');
+  return digitos.replace(/^(\d{5})(\d)/, "$1-$2");
 }
 
 /**
@@ -241,7 +243,7 @@ export function aplicarMascaraCEP(valor = '') {
  * @param {string} [numero=''] - Número do cartão com ou sem espaços.
  * @returns {boolean} true se passar na verificação de Luhn.
  */
-export function validarCartaoLuhn(numero = '') {
+export function validarCartaoLuhn(numero = "") {
   const digitos = limparNumeros(numero);
   if (digitos.length < 13 || digitos.length > 19 || /^(\d)\1+$/.test(digitos)) {
     return false;
@@ -271,18 +273,20 @@ export function validarCartaoLuhn(numero = '') {
  */
 export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
   const fragmento = document.createDocumentFragment();
-  const texto = String(textoOriginal || '').normalize('NFC');
+  const texto = String(textoOriginal || "").normalize("NFC");
   const termoNorm = normalizarTexto(termo);
   if (!termoNorm) {
     fragmento.appendChild(document.createTextNode(texto));
     return fragmento;
   }
   // Caso especial de CPF sem máscara (ex.: digitou "123456" para "123.456.789-01")
-  if (ehCpf && !texto.includes('•') && !texto.includes('*')) {
-    const termoDigitos = /^[\d.\-\s]+$/.test(String(termo).trim()) ? limparNumeros(termo) : '';
+  if (ehCpf && !texto.includes("•") && !texto.includes("*")) {
+    const termoDigitos = /^[\d.\-\s]+$/.test(String(termo).trim())
+      ? limparNumeros(termo)
+      : "";
     if (termoDigitos) {
       const posicoesDigitos = [];
-      let apenasDigitos = '';
+      let apenasDigitos = "";
       for (let i = 0; i < texto.length; i++) {
         if (/\d/.test(texto[i])) {
           posicoesDigitos.push(i);
@@ -293,11 +297,17 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
       if (idx !== -1) {
         const inicio = posicoesDigitos[idx];
         const fim = posicoesDigitos[idx + termoDigitos.length - 1] + 1;
-        if (inicio > 0) fragmento.appendChild(document.createTextNode(texto.slice(0, inicio)));
-        const mark = document.createElement('mark');
+        if (inicio > 0) {
+          fragmento.appendChild(
+            document.createTextNode(texto.slice(0, inicio)),
+          );
+        }
+        const mark = document.createElement("mark");
         mark.textContent = texto.slice(inicio, fim);
         fragmento.appendChild(mark);
-        if (fim < texto.length) fragmento.appendChild(document.createTextNode(texto.slice(fim)));
+        if (fim < texto.length) {
+          fragmento.appendChild(document.createTextNode(texto.slice(fim)));
+        }
         return fragmento;
       }
     }
@@ -305,8 +315,10 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
   // Busca normalizada mantendo os índices do texto original (preserva acentos e maiúsculas)
   const chars = Array.from(texto);
   const textoNorm = chars
-    .map((c) => c.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase())
-    .join('');
+    .map((c) =>
+      c.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(),
+    )
+    .join("");
   let posAtual = 0;
   let idxEncontrado = textoNorm.indexOf(termoNorm, posAtual);
   if (idxEncontrado === -1) {
@@ -315,16 +327,22 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
   }
   while (idxEncontrado !== -1) {
     if (idxEncontrado > posAtual) {
-      fragmento.appendChild(document.createTextNode(chars.slice(posAtual, idxEncontrado).join('')));
+      fragmento.appendChild(
+        document.createTextNode(chars.slice(posAtual, idxEncontrado).join("")),
+      );
     }
-    const mark = document.createElement('mark');
-    mark.textContent = chars.slice(idxEncontrado, idxEncontrado + termoNorm.length).join('');
+    const mark = document.createElement("mark");
+    mark.textContent = chars
+      .slice(idxEncontrado, idxEncontrado + termoNorm.length)
+      .join("");
     fragmento.appendChild(mark);
     posAtual = idxEncontrado + termoNorm.length;
     idxEncontrado = textoNorm.indexOf(termoNorm, posAtual);
   }
   if (posAtual < chars.length) {
-    fragmento.appendChild(document.createTextNode(chars.slice(posAtual).join('')));
+    fragmento.appendChild(
+      document.createTextNode(chars.slice(posAtual).join("")),
+    );
   }
   return fragmento;
 }
@@ -334,7 +352,7 @@ export function criarConteudoDestacado(textoOriginal, termo, ehCpf = false) {
  * @param {string} [cpf=''] - CPF com ou sem máscara.
  * @returns {string}
  */
-export function ofuscarCPF(cpf = '') {
+export function ofuscarCPF(cpf = "") {
   const digitos = limparNumeros(cpf);
   if (digitos.length !== 11) return aplicarMascaraCPF(cpf);
   return `${digitos.slice(0, 3)}.•••.•••-${digitos.slice(9, 11)}`;

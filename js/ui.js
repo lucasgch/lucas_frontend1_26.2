@@ -78,7 +78,7 @@ export function renderizarMenuDinamico() {
   }
   // "Meu perfil"
   adicionarLink("perfil.html", "Meu perfil");
- // Botão "Sair"
+  // Botão "Sair"
   const liSair = document.createElement("li");
   const linkSair = document.createElement("a");
   linkSair.href = "#sair";

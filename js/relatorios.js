@@ -309,7 +309,6 @@ function abrirModalDetalhesCompra(idCompra) {
     "Pagamento:",
     formatarPagamento(compra.pagamento),
   );
-  adicionarLinhaResumo(conteudo, "Pagamento:", textoPag);
   // Itens
   for (const item of compra.itens || []) {
     adicionarLinhaResumo(

@@ -104,6 +104,7 @@ export function devolverEstoqueItens(itensComprados) {
 
 const STATUS_COMPRA_VALIDOS = ["Pago", "Enviado", "Entregue", "Cancelado"];
 const METODOS_PAGAMENTO_VALIDOS = ["pix", "cartao", "boleto"];
+
 /**
  * Altera o status de uma compra e devolve os itens ao estoque quando cancelada (Requisito 2.5d).
  * Pedidos já cancelados são tratados como estado final para evitar devolução duplicada de estoque.

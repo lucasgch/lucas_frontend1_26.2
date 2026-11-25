@@ -70,6 +70,7 @@ export function criarCardProduto(produto) {
   }
   return li;
 }
+
 /**
  * Renderiza uma lista de produtos dentro do container UL
  * @param {Array} produtos

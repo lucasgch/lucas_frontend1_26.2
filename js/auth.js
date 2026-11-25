@@ -74,6 +74,7 @@ export function renovarSessao() {
   sessao.expiraEm = Date.now() + TEMPO_EXPIRACAO_MS;
   salvarDados(CHAVES_STORAGE.SESSAO, sessao);
 }
+
 /**
  * Encerra a sessão do usuário (Logout), mantendo o carrinho salvo.
  */
@@ -313,7 +314,7 @@ inicializarLogin();
 export function verificarAcessoPagina() {
   const caminho = window.location.pathname;
   const paginaAtual = caminho.split("/").pop() || "index.html";
-  //  Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
+  // Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
   const sessaoBruta = lerDados(CHAVES_STORAGE.SESSAO, null);
   if (sessaoBruta && Date.now() > sessaoBruta.expiraEm) {
     removerDados(CHAVES_STORAGE.SESSAO);

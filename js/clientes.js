@@ -78,6 +78,7 @@ function validarDadosCliente(
   }
   return erros;
 }
+
 /**
  * Aplica os erros de validação aos inputs do formulário, limpa os válidos e foca o primeiro inválido.
  * @param {Record<string, HTMLInputElement|null>} mapaCampos
