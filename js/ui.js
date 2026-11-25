@@ -20,74 +20,87 @@ function realizarLogout(evento) {
 }
 
 /**
- * Monta os itens do menu principal dinamicamente conforme o estado da sessão (Requisito 2.2d)
+ * Cria um elemento <li> contendo um link <a> configurado para o menu principal.
+ * @param {Object} opcoes
+ * @param {string} opcoes.href - Destino do link.
+ * @param {string} opcoes.texto - Rótulo visível do link.
+ * @param {string} [opcoes.paginaAtual=''] - Nome do arquivo HTML atual para marcar aria-current.
+ * @param {string} [opcoes.id=''] - ID opcional do elemento <a>.
+ * @param {(evento: MouseEvent) => void} [opcoes.aoClicar] - Handler opcional de clique.
+ * @returns {HTMLLIElement}
+ */
+function criarItemMenu({ href, texto, paginaAtual = "", id = "", aoClicar }) {
+  const li = document.createElement("li");
+  const a = document.createElement("a");
+  a.href = href;
+  a.textContent = texto;
+  if (id) a.id = id;
+  if (paginaAtual === href) {
+    a.setAttribute("aria-current", "page");
+  }
+  if (aoClicar) {
+    a.addEventListener("click", aoClicar);
+  }
+  li.appendChild(a);
+  return li;
+}
+
+/**
+ * Remove a saudação anterior e, se houver sessão ativa, exibe "Olá, [primeiro nome]" no cabeçalho.
+ * @param {{nome?: string}|null} sessao
+ */
+function atualizarSaudacaoHeader(sessao) {
+  document.getElementById("saudacao-header")?.remove();
+  if (!sessao?.nome) return;
+
+  const logo = document.querySelector(".site-header .site-logo");
+  if (!logo) return;
+
+  const primeiroNome = String(sessao.nome).trim().split(/\s+/)[0];
+  const spanOla = document.createElement("span");
+  spanOla.id = "saudacao-header";
+  spanOla.className = "saudacao-usuario";
+  spanOla.textContent = `Olá, ${primeiroNome}`;
+  logo.insertAdjacentElement("afterend", spanOla);
+}
+
+/**
+ * Monta os itens do menu principal dinamicamente conforme o estado da sessão (Requisito 2.2d).
  */
 export function renderizarMenuDinamico() {
   const ulMenu = document.querySelector("#menu-principal ul");
-
   if (!ulMenu) {
     inicializarTema();
     return;
   }
 
   const sessao = obterSessaoAtiva();
-  const paginaAtual = window.location.pathname.split("/").pop() || "index.html";
+  atualizarSaudacaoHeader(sessao);
 
-  document.getElementById("saudacao-header")?.remove();
+  if (sessao) {
+    const paginaAtual =
+      window.location.pathname.split("/").pop() || "index.html";
+    const definicoesLinks = [
+      { href: "index.html", texto: "Início" },
+      { href: "loja.html", texto: "Loja" },
+      ...(sessao.perfil === "administrador"
+        ? [{ href: "relatorios.html", texto: "Relatórios" }]
+        : []),
+      { href: "perfil.html", texto: "Meu perfil" },
+      {
+        href: "#sair",
+        texto: "Sair",
+        id: "link-sair-menu",
+        aoClicar: realizarLogout,
+      },
+    ];
 
-  // Se for visitante, o HTML já nasce com o menu de visitante pronto! Só garante o badge e o botão de tema:
-  if (!sessao) {
-    atualizarBadgeCarrinho();
-    inicializarTema();
-    return;
+    const itensMenu = definicoesLinks.map((item) =>
+      criarItemMenu({ ...item, paginaAtual }),
+    );
+    ulMenu.replaceChildren(...itensMenu);
   }
 
-  // Se logado, substitui pelos links da conta logada:
-  ulMenu.replaceChildren();
-
-  // Cria cada item li
-  function adicionarLink(href, texto) {
-    const li = document.createElement("li");
-    const a = document.createElement("a");
-    a.href = href;
-    a.textContent = texto;
-    if (paginaAtual === href) {
-      a.setAttribute("aria-current", "page");
-    }
-    li.appendChild(a);
-    ulMenu.appendChild(li);
-  }
-
-  // Links comuns
-  adicionarLink("index.html", "Início");
-  adicionarLink("loja.html", "Loja");
-
-  // Administrador vê também "Relatórios"
-  if (sessao.perfil === "administrador") {
-    adicionarLink("relatorios.html", "Relatórios");
-  }
-  // Saudação "Olá, [primeiro nome]" centralizada entre a logo e o menu
-  const logo = document.querySelector(".site-header .site-logo");
-  if (logo) {
-    const primeiroNome = sessao.nome.split(" ")[0];
-    const spanOla = document.createElement("span");
-    spanOla.id = "saudacao-header";
-    spanOla.className = "saudacao-usuario";
-    spanOla.textContent = `Olá, ${primeiroNome}`;
-    logo.insertAdjacentElement("afterend", spanOla);
-  }
-  // "Meu perfil"
-  adicionarLink("perfil.html", "Meu perfil");
-  // Botão "Sair"
-  const liSair = document.createElement("li");
-  const linkSair = document.createElement("a");
-  linkSair.href = "#sair";
-  linkSair.id = "link-sair-menu";
-  linkSair.textContent = "Sair";
-  linkSair.addEventListener("click", realizarLogout);
-  liSair.appendChild(linkSair);
-  ulMenu.appendChild(liSair);
-  // Ícone e contador do carrinho no final do menu
   atualizarBadgeCarrinho();
   inicializarTema();
 }
