@@ -151,6 +151,47 @@ export function atualizarStatusCompra(idCompra, novoStatus) {
 }
 
 /**
+ * Sanitiza e valida os campos obrigatórios do endereço de entrega.
+ * @param {Object|null} enderecoEntrega
+ * @returns {{valido: boolean, mensagem?: string, endereco?: Object}}
+ */
+function validarEnderecoCheckout(enderecoEntrega) {
+  const cepLimpo = limparNumeros(enderecoEntrega?.cep);
+  const logradouro = String(enderecoEntrega?.logradouro ?? "").trim();
+  const numero = String(enderecoEntrega?.numero ?? "").trim();
+  const complemento = String(enderecoEntrega?.complemento ?? "").trim();
+  const bairro = String(enderecoEntrega?.bairro ?? "").trim();
+  const cidade = String(enderecoEntrega?.cidade ?? "").trim();
+  const uf = String(enderecoEntrega?.uf ?? "").trim().toUpperCase();
+  if (
+    cepLimpo.length !== 8 ||
+    !logradouro ||
+    !numero ||
+    !bairro ||
+    !cidade ||
+    !validarUF(uf)
+  ) {
+    return {
+      valido: false,
+      mensagem:
+        "Endereço de entrega inválido. Verifique CEP, campos obrigatórios e UF.",
+    };
+  }
+  return {
+    valido: true,
+    endereco: {
+      cep: aplicarMascaraCEP(cepLimpo),
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf,
+    },
+  };
+}
+
+/**
  * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
  * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e, 2.4f).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
@@ -172,40 +213,11 @@ export function registrarCompra({
   }
 
   // Valida endereço de entrega antes de gravar
-  const cepLimpo = limparNumeros(enderecoEntrega?.cep);
-  const logradouro = String(enderecoEntrega?.logradouro ?? "").trim();
-  const numero = String(enderecoEntrega?.numero ?? "").trim();
-  const complemento = String(enderecoEntrega?.complemento ?? "").trim();
-  const bairro = String(enderecoEntrega?.bairro ?? "").trim();
-  const cidade = String(enderecoEntrega?.cidade ?? "").trim();
-  const uf = String(enderecoEntrega?.uf ?? "")
-    .trim()
-    .toUpperCase();
-
-  if (
-    cepLimpo.length !== 8 ||
-    !logradouro ||
-    !numero ||
-    !bairro ||
-    !cidade ||
-    !validarUF(uf)
-  ) {
-    return {
-      sucesso: false,
-      mensagem:
-        "Endereço de entrega inválido. Verifique CEP, campos obrigatórios e UF.",
-    };
+  const resEndereco = validarEnderecoCheckout(enderecoEntrega);
+  if (!resEndereco.valido) {
+    return { sucesso: false, mensagem: resEndereco.mensagem };
   }
-
-  const enderecoValidado = {
-    cep: aplicarMascaraCEP(cepLimpo),
-    logradouro,
-    numero,
-    complemento,
-    bairro,
-    cidade,
-    uf,
-  };
+  const enderecoValidado = resEndereco.endereco;
 
   // Valida dados de pagamento antes de gravar (garantindo que nunca salva número completo/CVV do cartão)
   const metodo = String(pagamento?.metodo ?? "").trim();
