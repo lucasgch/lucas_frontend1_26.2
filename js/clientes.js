@@ -389,77 +389,73 @@ function configurarCamposSenhaCadastro(campoSenha, campoConfirmaSenha) {
 }
 
 /**
+ * Processa o envio do formulário de cadastro, validando os campos, salvando o cliente e redirecionando.
+ * @param {SubmitEvent} evento
+ * @param {{formCadastro: HTMLFormElement, campos: ReturnType<typeof obterCamposCadastro>}} contexto
+ */
+async function processarSubmitCadastro(evento, { formCadastro, campos }) {
+  evento.preventDefault();
+
+  const dados = {
+    nome: campos.nome?.value ?? "",
+    cpf: campos.cpf?.value ?? "",
+    telefone: campos.telefone?.value ?? "",
+    email: campos.email?.value ?? "",
+    senha: campos.senha?.value ?? "",
+    confirmaSenha: campos.confirmaSenha?.value ?? "",
+  };
+
+  const erros = validarDadosCliente(dados, {
+    exigirSenha: true,
+    validarConfirmacao: true,
+  });
+  if (!aplicarErrosFormulario(campos, erros)) return;
+
+  // Salva o cliente no localStorage com senha protegida por SHA-256
+  const btnSubmit = formCadastro.querySelector('button[type="submit"]');
+  alternarCarregamentoBotao(btnSubmit, true, "Criando conta...");
+  let resultado;
+  try {
+    resultado = await cadastrarCliente(dados);
+  } finally {
+    alternarCarregamentoBotao(btnSubmit, false);
+  }
+
+  // Se o CPF, e-mail ou outro campo falhar na regra de negócio, destaca e foca o campo
+  if (!resultado.sucesso) {
+    const campoErro = campos[resultado.erroCampo];
+    if (campoErro) {
+      definirErroCampo(campoErro, resultado.mensagem);
+      campoErro.focus();
+    }
+    return;
+  }
+
+  // Cadastro concluído! Leva o usuário para a tela de login
+  window.location.href = "login.html?cadastro=sucesso";
+}
+
+/**
  * Inicializa as máscaras e validações do formulário de cadastro.
  */
 export function inicializarCadastro() {
   const formCadastro = document.getElementById("form-cadastro");
   if (!formCadastro) return;
   formCadastro.noValidate = true;
+
   // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
   formCadastro.querySelectorAll(".campo-form input").forEach((input) => {
     definirErroCampo(input, "");
   });
 
   const campos = obterCamposCadastro();
-  const {
-    nome: campoNome,
-    cpf: campoCpf,
-    telefone: campoTelefone,
-    email: campoEmail,
-    senha: campoSenha,
-    confirmaSenha: campoConfirmaSenha,
-  } = campos;
-
   configurarCamposDadosCadastro(campos);
   configurarCamposSenhaCadastro(campos.senha, campos.confirmaSenha);
 
-  // Envia o formulário ao clicar em "Criar conta"
-  formCadastro.addEventListener("submit", async (evento) => {
-    // Impede a página de recarregar
-    evento.preventDefault();
-    const erros = validarDadosCliente(
-      {
-        nome: campoNome?.value,
-        cpf: campoCpf?.value,
-        telefone: campoTelefone?.value,
-        email: campoEmail?.value,
-        senha: campoSenha?.value,
-        confirmaSenha: campoConfirmaSenha?.value,
-      },
-      { exigirSenha: true, validarConfirmacao: true },
-    );
-    const valido = aplicarErrosFormulario(campos, erros);
-    if (!valido) return;
-    // Salva o cliente no localStorage com senha protegida por SHA-256
-    const btnSubmit = formCadastro.querySelector('button[type="submit"]');
-    alternarCarregamentoBotao(btnSubmit, true, "Criando conta...");
-    let resultado;
-    try {
-      resultado = await cadastrarCliente({
-        nome: campoNome.value,
-        cpf: campoCpf.value,
-        telefone: campoTelefone.value,
-        email: campoEmail.value,
-        senha: campoSenha.value,
-      });
-    } finally {
-      alternarCarregamentoBotao(btnSubmit, false);
-    }
-    // Se o CPF ou E-mail já existe, mostra o erro no campo correspondente
-    if (!resultado.sucesso) {
-      if (resultado.erroCampo === "cpf") {
-        definirErroCampo(campoCpf, resultado.mensagem);
-        campoCpf.focus();
-      } else if (resultado.erroCampo === "email") {
-        definirErroCampo(campoEmail, resultado.mensagem);
-        campoEmail.focus();
-      }
-      return;
-    }
-    // Cadastro concluído! Leva o usuário para a tela de login
-    window.location.href = "login.html?cadastro=sucesso";
-  });
-} // <-- Fecha a função inicializarCadastro()
+  formCadastro.addEventListener("submit", (evento) =>
+    processarSubmitCadastro(evento, { formCadastro, campos }),
+  );
+}
 inicializarCadastro();
 
 /**
