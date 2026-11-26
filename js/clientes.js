@@ -706,6 +706,48 @@ function inicializarModalExclusaoConta(usuarioId) {
 }
 
 /**
+ * Coleta as referências aos campos do formulário de perfil.
+ * @returns {Object} Mapa de elementos <input> do formulário.
+ */
+function obterCamposPerfil() {
+  return {
+    id: document.getElementById("perfil-id"),
+    nome: document.getElementById("perfil-nome"),
+    cpf: document.getElementById("perfil-cpf"),
+    telefone: document.getElementById("perfil-telefone"),
+    email: document.getElementById("perfil-email"),
+    senhaAtual: document.getElementById("perfil-senha-atual"),
+    novaSenha: document.getElementById("perfil-senha"),
+    confirmaSenha: document.getElementById("perfil-confirma-senha"),
+  };
+}
+
+/**
+ * Preenche o formulário de perfil com os dados atuais do cliente (CPF ofuscado)
+ * e atualiza o título da tabela de pedidos.
+ * @param {string} usuarioId - ID do cliente autenticado.
+ * @param {Object} campos - Mapa de inputs retornado por obterCamposPerfil().
+ */
+function preencherCamposPerfil(usuarioId, campos) {
+  const cliente = obterClientes().find((c) => c.id === usuarioId);
+  if (!cliente) return;
+  campos.id.value = cliente.id;
+  campos.nome.value = cliente.nome;
+  campos.cpf.value = ofuscarCPF(cliente.cpf);
+  campos.cpf.dataset.ofuscado = "true";
+  campos.cpf.dataset.cpfReal = cliente.cpf;
+  campos.telefone.value = cliente.telefone || "";
+  campos.email.value = cliente.email;
+  campos.senhaAtual.value = "";
+  campos.novaSenha.value = "";
+  campos.confirmaSenha.value = "";
+  const captionPedidos = document.querySelector("#tabela-pedidos caption");
+  if (captionPedidos) {
+    captionPedidos.textContent = `Histórico de pedidos do cliente ${cliente.id}`;
+  }
+}
+
+/**
  * Inicializa o formulário de edição de perfil e o modal de exclusão de conta em perfil.html.
  */
 export function inicializarPerfil() {
@@ -720,13 +762,17 @@ export function inicializarPerfil() {
   if (!sessao) return;
 
   const campoId = document.getElementById("perfil-id");
-  const campoNome = document.getElementById("perfil-nome");
-  const campoCpf = document.getElementById("perfil-cpf");
-  const campoTelefone = document.getElementById("perfil-telefone");
-  const campoEmail = document.getElementById("perfil-email");
-  const campoSenhaAtual = document.getElementById("perfil-senha-atual");
-  const campoNovaSenha = document.getElementById("perfil-senha");
-  const campoConfirmaSenha = document.getElementById("perfil-confirma-senha");
+  const campos = obterCamposPerfil();
+  // Ponte temporária até extrairmos os Passos 3 e 4
+  const {
+    nome: campoNome,
+    cpf: campoCpf,
+    telefone: campoTelefone,
+    email: campoEmail,
+    senhaAtual: campoSenhaAtual,
+    novaSenha: campoNovaSenha,
+    confirmaSenha: campoConfirmaSenha,
+  } = campos;
 
   const avisoPerfil = document.createElement("p");
   avisoPerfil.className = "mensagem-erro-campo";
@@ -736,30 +782,7 @@ export function inicializarPerfil() {
     .querySelector(".acoes-form")
     ?.insertAdjacentElement("beforebegin", avisoPerfil);
 
-  function carregarDadosNosCampos() {
-    const cliente = obterClientes().find((c) => c.id === sessao.usuarioId);
-
-    if (!cliente) return;
-
-    campoId.value = cliente.id;
-    campoNome.value = cliente.nome;
-    campoCpf.value = ofuscarCPF(cliente.cpf);
-    campoCpf.dataset.ofuscado = "true";
-    campoCpf.dataset.cpfReal = cliente.cpf;
-    campoTelefone.value = cliente.telefone || "";
-    campoEmail.value = cliente.email;
-    campoSenhaAtual.value = "";
-    campoNovaSenha.value = "";
-    campoConfirmaSenha.value = "";
-
-    // Atualiza a tabela de pedidos
-    const captionPedidos = document.querySelector("#tabela-pedidos caption");
-    if (captionPedidos) {
-      captionPedidos.textContent = `Histórico de pedidos do cliente ${cliente.id}`;
-    }
-  }
-
-  carregarDadosNosCampos();
+  preencherCamposPerfil(sessao.usuarioId, campos);
 
   formPerfil.querySelectorAll(".campo-form input").forEach((input) => {
     definirErroCampo(input, "");
@@ -768,7 +791,7 @@ export function inicializarPerfil() {
   // Botão "Desfazer" (reset): restaura os dados reais do cliente logado
   formPerfil.addEventListener("reset", (evento) => {
     evento.preventDefault();
-    carregarDadosNosCampos();
+    preencherCamposPerfil(sessao.usuarioId, campos);
     avisoPerfil.textContent = "";
     formPerfil.querySelectorAll(".campo-form input").forEach((input) => {
       definirErroCampo(input, "");
@@ -887,7 +910,7 @@ export function inicializarPerfil() {
 
     // Sucesso!
     definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
-    carregarDadosNosCampos();
+    preencherCamposPerfil(sessao.usuarioId, campos);
     renderizarMenuDinamico();
     mostrarToast(resultado.mensagem, "sucesso");
   });
