@@ -103,7 +103,7 @@ Não há servidor nem banco de dados: todos os dados ficam no `localStorage` do 
 - [X] - **Servidor local:** módulos ES não funcionam abrindo o arquivo diretamente (`file://`). Usar a extensão Live Server do VS Code ou o comando `python -m http.server` e documentar no `README`.
 - [X] - Mapa de chaves do `localStorage` documentado no `README` (ex.: `loja:clientes`, `loja:compras`, `loja:sessao`, `loja:carrinho`, `loja:contadores`, `loja:mensagens`, `loja:tema`).
 - [X] - **Segurança básica:** nunca inserir dados digitados pelo usuário com `innerHTML` sem escapar (usar `textContent` ou `createElement`), evitando XSS; validar todas as entradas antes de gravar.
-- [ ] - **Qualidade do código:** sem variáveis globais soltas, uso de `const`/`let`, funções pequenas e com nomes claros, comentários JSDoc nas funções públicas, sem código duplicado e sem erros ou avisos no console.
+- [X] - **Qualidade do código:** sem variáveis globais soltas, uso de `const`/`let`, funções pequenas e com nomes claros, comentários JSDoc nas funções públicas, sem código duplicado e sem erros ou avisos no console.
 - [ ] - HTML e CSS continuam válidos no W3C.
 - [ ] - **Roteiro de testes** (arquivo `TESTES.md`) com no mínimo 15 casos de teste manuais (ação, resultado esperado e resultado obtido), cobrindo casos de erro (CPF inválido, e-mail repetido, estoque insuficiente, sessão expirada, acesso sem permissão etc.).
 - [ ] - Repositório Git com `README.md` (como executar, credenciais do administrador, cupons e faixas de CEP, mapa do `localStorage`, decisões técnicas e divisão de tarefas) e commits frequentes e claros de ambos os integrantes. Uso de branches por funcionalidade é recomendado.
