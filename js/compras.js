@@ -485,6 +485,69 @@ function configurarPaineisPagamento(modalCheckout, erroEtapa3) {
   });
 }
 
+const TITULOS_ETAPAS_CHECKOUT = Object.freeze({
+  1: "Etapa 1 de 3: Resumo do Pedido",
+  2: "Etapa 2 de 3: Endereço de Entrega",
+  3: "Etapa 3 de 3: Pagamento",
+});
+
+/**
+ * Alterna a visibilidade das 3 etapas do checkout e atualiza o indicador de progresso.
+ * @param {number} numero - Número da etapa ativa (1, 2 ou 3).
+ * @param {{etapa1: HTMLElement|null, etapa2: HTMLElement|null, etapa3: HTMLElement|null}} etapas
+ * @param {HTMLElement|null} indicadorEtapa - Elemento que exibe o título da etapa atual.
+ */
+function exibirEtapaCheckout(
+  numero,
+  { etapa1, etapa2, etapa3 },
+  indicadorEtapa,
+) {
+  if (etapa1) etapa1.hidden = numero !== 1;
+  if (etapa2) etapa2.hidden = numero !== 2;
+  if (etapa3) etapa3.hidden = numero !== 3;
+  if (indicadorEtapa) {
+    indicadorEtapa.textContent = TITULOS_ETAPAS_CHECKOUT[numero];
+  }
+}
+
+/**
+ * Renderiza o resumo de itens, subtotal, desconto, frete e total na Etapa 1 do checkout.
+ * @param {HTMLElement|null} divResumo - Container do resumo de itens.
+ * @param {HTMLInputElement|null} inputCep - Campo de CEP da Etapa 2 (pré-preenchido se vazio).
+ */
+function preencherResumoCheckout(divResumo, inputCep) {
+  if (!divResumo) return;
+  const itens = obterCarrinho();
+  const catalogo = obterProdutosComEstoque();
+  const resumo = obterResumoCarrinho();
+  divResumo.replaceChildren();
+
+  for (const item of itens) {
+    const produto = catalogo.find((p) => p.id === item.produtoId);
+    if (!produto) continue;
+    adicionarLinhaResumo(
+      divResumo,
+      `${item.quantidade}x ${produto.nome}`,
+      formatarMoeda(produto.preco * item.quantidade),
+    );
+  }
+  adicionarLinhaResumo(divResumo, "Subtotal:", formatarMoeda(resumo.subtotal));
+  adicionarLinhaResumo(
+    divResumo,
+    "Desconto:",
+    `- ${formatarMoeda(resumo.desconto)}`,
+  );
+  adicionarLinhaResumo(divResumo, "Frete:", formatarFrete(resumo.frete));
+  adicionarLinhaResumo(
+    divResumo,
+    "Total a pagar:",
+    formatarMoeda(resumo.total),
+  );
+  if (resumo.cep && inputCep && !inputCep.value) {
+    inputCep.value = aplicarMascaraCEP(resumo.cep);
+  }
+}
+
 /**
  * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisitos 2.4a, 2.4b, 2.4c, 2.4f).
  */
@@ -512,52 +575,9 @@ export function inicializarCheckout() {
   const inputCartaoNome = document.getElementById("chk-cartao-nome");
   const inputCartaoValidade = document.getElementById("chk-cartao-validade");
   const inputCartaoCvv = document.getElementById("chk-cartao-cvv");
-  function mostrarEtapa(numero) {
-    if (etapa1) etapa1.hidden = numero !== 1;
-    if (etapa2) etapa2.hidden = numero !== 2;
-    if (etapa3) etapa3.hidden = numero !== 3;
-    const titulos = {
-      1: "Etapa 1 de 3: Resumo do Pedido",
-      2: "Etapa 2 de 3: Endereço de Entrega",
-      3: "Etapa 3 de 3: Pagamento",
-    };
-    if (indicadorEtapa) indicadorEtapa.textContent = titulos[numero];
-  }
-  function preencherResumoEtapa1() {
-    if (!divResumo) return;
-    const itens = obterCarrinho();
-    const catalogo = obterProdutosComEstoque();
-    const resumo = obterResumoCarrinho();
-    divResumo.replaceChildren();
-    for (const item of itens) {
-      const produto = catalogo.find((p) => p.id === item.produtoId);
-      if (!produto) continue;
-      adicionarLinhaResumo(
-        divResumo,
-        `${item.quantidade}x ${produto.nome}`,
-        formatarMoeda(produto.preco * item.quantidade),
-      );
-    }
-    adicionarLinhaResumo(
-      divResumo,
-      "Subtotal:",
-      formatarMoeda(resumo.subtotal),
-    );
-    adicionarLinhaResumo(
-      divResumo,
-      "Desconto:",
-      `- ${formatarMoeda(resumo.desconto)}`,
-    );
-    adicionarLinhaResumo(divResumo, "Frete:", formatarFrete(resumo.frete));
-    adicionarLinhaResumo(
-      divResumo,
-      "Total a pagar:",
-      formatarMoeda(resumo.total),
-    );
-    if (resumo.cep && inputCep && !inputCep.value) {
-      inputCep.value = aplicarMascaraCEP(resumo.cep);
-    }
-  }
+  const etapas = { etapa1, etapa2, etapa3 };
+  const mostrarEtapa = (numero) =>
+    exibirEtapaCheckout(numero, etapas, indicadorEtapa);
   // Ao clicar em "Finalizar compra"
   btnFinalizar.addEventListener("click", (evento) => {
     evento.preventDefault();
@@ -570,7 +590,7 @@ export function inicializarCheckout() {
         "login.html?motivo=login_necessario&redirect=loja.html%23carrinho";
       return;
     }
-    preencherResumoEtapa1();
+    preencherResumoCheckout(divResumo, inputCep);
     mostrarEtapa(1);
     modalCheckout.showModal();
   });
@@ -592,7 +612,7 @@ export function inicializarCheckout() {
   document
     .getElementById("btn-voltar-etapa-1")
     ?.addEventListener("click", () => {
-      preencherResumoEtapa1();
+      preencherResumoCheckout(divResumo, inputCep);
       mostrarEtapa(1);
     });
   document
