@@ -765,15 +765,10 @@ function inicializarSecaoCompras() {
 }
 
 /**
- * Inicializa os relatórios da área administrativa.
+ * Inicializa o modal de detalhes da compra e a alteração de status (Requisito 2.5d).
+ * @param {{aoAtualizarStatus?: () => void}} [opcoes]
  */
-export function inicializarRelatorios() {
-  const tabelaClientes = document.getElementById("tabela-clientes");
-  if (!tabelaClientes) return;
-  const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
-  const { atualizarCompras, obterComprasFiltradas } =
-    inicializarSecaoCompras();
-
+function inicializarModalCompra({ aoAtualizarStatus } = {}) {
   const modalCompra = document.getElementById("modal-detalhes-compra");
   const btnFecharModalCompra = document.getElementById(
     "btn-fechar-modal-compra",
@@ -783,36 +778,42 @@ export function inicializarRelatorios() {
     "select-status-detalhe-compra",
   );
   const msgStatusCompra = document.getElementById("msg-status-compra");
+
   document
     .getElementById("tbody-compras")
     ?.addEventListener("click", (evento) => {
       const btn = evento.target.closest(".btn-detalhes-compra");
       if (btn) abrirModalDetalhesCompra(btn.dataset.id);
     });
+
   btnFecharModalCompra?.addEventListener("click", () => modalCompra?.close());
+
   btnSalvarStatus?.addEventListener("click", () => {
     const idCompra = modalCompra?.dataset.compraId;
     if (!idCompra || !selectStatusDetalhe) return;
+
     const res = atualizarStatusCompra(idCompra, selectStatusDetalhe.value);
     definirMensagemEstado(
       msgStatusCompra,
       res.mensagem,
       res.sucesso ? "sucesso" : "erro",
     );
+
     if (res.sucesso) {
       if (selectStatusDetalhe.value === "Cancelado") {
         selectStatusDetalhe.disabled = true;
         btnSalvarStatus.disabled = true;
       }
-      atualizarCompras();
-      renderizarIndicadores();
+      aoAtualizarStatus?.();
     }
     mostrarToast(res.mensagem, res.sucesso ? "sucesso" : "erro");
   });
-  document
-    .getElementById("filtro-periodo-grafico")
-    ?.addEventListener("change", renderizarGraficoVendas);
-  renderizarIndicadores();
+}
+
+/**
+ * Inicializa a tabela administrativa de mensagens de contato e o botão de marcar como lida (Requisito 2.5g).
+ */
+function inicializarSecaoMensagens() {
   document
     .getElementById("tbody-mensagens")
     ?.addEventListener("click", (evento) => {
@@ -824,6 +825,30 @@ export function inicializarRelatorios() {
       }
     });
   renderizarTabelaMensagens();
+}
+
+/**
+ * Inicializa os relatórios da área administrativa.
+ */
+export function inicializarRelatorios() {
+  const tabelaClientes = document.getElementById("tabela-clientes");
+  if (!tabelaClientes) return;
+  const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
+  const { atualizarCompras, obterComprasFiltradas } =
+    inicializarSecaoCompras();
+
+  inicializarModalCompra({
+    aoAtualizarStatus: () => {
+      atualizarCompras();
+      renderizarIndicadores();
+    },
+  });
+
+  document
+    .getElementById("filtro-periodo-grafico")
+    ?.addEventListener("change", renderizarGraficoVendas);
+  renderizarIndicadores();
+  inicializarSecaoMensagens();
 
   // Impressão / Salvar em PDF (Requisito 2.5f)
   window.addEventListener("beforeprint", atualizarMetadadosImpressao);
