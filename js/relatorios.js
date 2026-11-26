@@ -828,29 +828,13 @@ function inicializarSecaoMensagens() {
 }
 
 /**
- * Inicializa os relatórios da área administrativa.
+ * Inicializa os botões de impressão/PDF e exportação CSV de clientes e compras filtrados (Requisito 2.5f).
+ * @param {{obterClientesFiltrados: () => Array<Object>, obterComprasFiltradas: () => Array<Object>}} fontes
  */
-export function inicializarRelatorios() {
-  const tabelaClientes = document.getElementById("tabela-clientes");
-  if (!tabelaClientes) return;
-  const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
-  const { atualizarCompras, obterComprasFiltradas } =
-    inicializarSecaoCompras();
-
-  inicializarModalCompra({
-    aoAtualizarStatus: () => {
-      atualizarCompras();
-      renderizarIndicadores();
-    },
-  });
-
-  document
-    .getElementById("filtro-periodo-grafico")
-    ?.addEventListener("change", renderizarGraficoVendas);
-  renderizarIndicadores();
-  inicializarSecaoMensagens();
-
-  // Impressão / Salvar em PDF (Requisito 2.5f)
+function inicializarAcoesExportacao({
+  obterClientesFiltrados,
+  obterComprasFiltradas,
+}) {
   window.addEventListener("beforeprint", atualizarMetadadosImpressao);
   document
     .getElementById("btn-imprimir-relatorio")
@@ -859,7 +843,6 @@ export function inicializarRelatorios() {
       window.print();
     });
 
-  // Exportar Clientes filtrados em CSV (com CPF ofuscado LGPD)
   document.getElementById("btn-csv-clientes")?.addEventListener("click", () => {
     const cabecalhos = ["ID", "Nome", "E-mail", "CPF", "Perfil", "Status"];
     const linhas = obterClientesFiltrados().map((c) => [
@@ -874,7 +857,6 @@ export function inicializarRelatorios() {
     mostrarToast("Arquivo CSV de clientes exportado!", "sucesso");
   });
 
-  // Exportar Compras filtradas em CSV
   document.getElementById("btn-csv-compras")?.addEventListener("click", () => {
     const cabecalhos = [
       "ID",
@@ -902,6 +884,35 @@ export function inicializarRelatorios() {
     ]);
     exportarCSV("relatorio-compras.csv", cabecalhos, linhas);
     mostrarToast("Arquivo CSV de compras exportado!", "sucesso");
+  });
+}
+
+/**
+ * Inicializa os relatórios da área administrativa.
+ */
+export function inicializarRelatorios() {
+  const tabelaClientes = document.getElementById("tabela-clientes");
+  if (!tabelaClientes) return;
+  const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
+  const { atualizarCompras, obterComprasFiltradas } =
+    inicializarSecaoCompras();
+
+  inicializarModalCompra({
+    aoAtualizarStatus: () => {
+      atualizarCompras();
+      renderizarIndicadores();
+    },
+  });
+
+  document
+    .getElementById("filtro-periodo-grafico")
+    ?.addEventListener("change", renderizarGraficoVendas);
+  renderizarIndicadores();
+  inicializarSecaoMensagens();
+
+  inicializarAcoesExportacao({
+    obterClientesFiltrados,
+    obterComprasFiltradas,
   });
 }
 
