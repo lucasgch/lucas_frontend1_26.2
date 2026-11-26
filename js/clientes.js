@@ -748,6 +748,48 @@ function preencherCamposPerfil(usuarioId, campos) {
 }
 
 /**
+ * Configura o comportamento interativo dos campos do perfil:
+ * ofuscação/reofuscação do CPF (LGPD), máscaras e limpeza de erros ao digitar.
+ * @param {Object} campos - Mapa de inputs retornado por obterCamposPerfil().
+ */
+function configurarCamposPerfil(campos) {
+  const { cpf, telefone, nome, email, senhaAtual, novaSenha, confirmaSenha } =
+    campos;
+  // CPF ofuscado (LGPD): limpa ao focar para edição e restaura se sair vazio
+  cpf?.addEventListener("focus", () => {
+    if (cpf.readOnly) return;
+    if (cpf.dataset.ofuscado === "true") {
+      cpf.value = "";
+      cpf.dataset.ofuscado = "false";
+      definirErroCampo(cpf, "");
+    }
+  });
+  cpf?.addEventListener("blur", () => {
+    if (cpf.readOnly) return;
+    if (!cpf.value.trim() && cpf.dataset.cpfReal) {
+      cpf.value = ofuscarCPF(cpf.dataset.cpfReal);
+      cpf.dataset.ofuscado = "true";
+      definirErroCampo(cpf, "");
+    }
+  });
+  // Máscara do CPF ao digitar
+  cpf?.addEventListener("input", () => {
+    cpf.dataset.ofuscado = "false";
+    cpf.value = aplicarMascaraCPF(cpf.value);
+    definirErroCampo(cpf, "");
+  });
+  // Apenas números no Telefone ao digitar
+  telefone?.addEventListener("input", () => {
+    telefone.value = limparNumeros(telefone.value).slice(0, 11);
+    definirErroCampo(telefone, "");
+  });
+  // Limpa erro dos demais campos quando o usuário começa a corrigir
+  [nome, email, senhaAtual, novaSenha, confirmaSenha].forEach((campo) => {
+    campo?.addEventListener("input", () => definirErroCampo(campo, ""));
+  });
+}
+
+/**
  * Inicializa o formulário de edição de perfil e o modal de exclusão de conta em perfil.html.
  */
 export function inicializarPerfil() {
@@ -761,7 +803,6 @@ export function inicializarPerfil() {
 
   if (!sessao) return;
 
-  const campoId = document.getElementById("perfil-id");
   const campos = obterCamposPerfil();
   // Ponte temporária até extrairmos os Passos 3 e 4
   const {
@@ -797,47 +838,7 @@ export function inicializarPerfil() {
       definirErroCampo(input, "");
     });
   });
-
-  // CPF ofuscado (LGPD): limpa ao focar para edição e restaura se sair vazio
-  campoCpf?.addEventListener("focus", () => {
-    if (campoCpf.readOnly) return;
-    if (campoCpf.dataset.ofuscado === "true") {
-      campoCpf.value = "";
-      campoCpf.dataset.ofuscado = "false";
-      definirErroCampo(campoCpf, "");
-    }
-  });
-  campoCpf?.addEventListener("blur", () => {
-    if (campoCpf.readOnly) return;
-    if (!campoCpf.value.trim() && campoCpf.dataset.cpfReal) {
-      campoCpf.value = ofuscarCPF(campoCpf.dataset.cpfReal);
-      campoCpf.dataset.ofuscado = "true";
-      definirErroCampo(campoCpf, "");
-    }
-  });
-  // Máscara do CPF ao digitar
-  campoCpf?.addEventListener("input", () => {
-    campoCpf.dataset.ofuscado = "false";
-    campoCpf.value = aplicarMascaraCPF(campoCpf.value);
-    definirErroCampo(campoCpf, "");
-  });
-
-  // Apenas números no Telefone ao digitar
-  campoTelefone?.addEventListener("input", () => {
-    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
-    definirErroCampo(campoTelefone, "");
-  });
-
-  // Limpa erro dos demais campos quando o usuário começa a corrigir
-  [
-    campoNome,
-    campoEmail,
-    campoSenhaAtual,
-    campoNovaSenha,
-    campoConfirmaSenha,
-  ].forEach((campo) => {
-    campo?.addEventListener("input", () => definirErroCampo(campo, ""));
-  });
+  configurarCamposPerfil(campos);
 
   formPerfil.addEventListener("submit", async (evento) => {
     evento.preventDefault();
