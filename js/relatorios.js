@@ -583,41 +583,47 @@ export function renderizarGraficoVendas() {
 }
 
 /**
- * Inicializa os relatórios da área administrativa.
+ * Atualiza os atributos aria-sort e as setas visuais (▲/▼) nos cabeçalhos da tabela de clientes.
+ * @param {HTMLTableElement} tabelaClientes
+ * @param {{coluna: string, direcao: 'asc'|'desc'}} estadoClientes
  */
-export function inicializarRelatorios() {
-  const tabelaClientes = document.getElementById("tabela-clientes");
-  if (!tabelaClientes) return;
-  let clientesFiltradosAtuais = [];
-  let comprasFiltradasAtuais = [];
+function atualizarIndicadoresOrdenacao(tabelaClientes, estadoClientes) {
+  tabelaClientes.querySelectorAll("thead th[aria-sort]").forEach((th) => {
+    const btn = th.querySelector(".btn-ordenar");
+    const seta = th.querySelector(".seta-ordem");
+    if (btn?.dataset.coluna === estadoClientes.coluna) {
+      th.setAttribute(
+        "aria-sort",
+        estadoClientes.direcao === "asc" ? "ascending" : "descending",
+      );
+      if (seta) seta.textContent = estadoClientes.direcao === "asc" ? "▲" : "▼";
+    } else {
+      th.setAttribute("aria-sort", "none");
+      if (seta) seta.textContent = "";
+    }
+  });
+}
+
+/**
+ * Inicializa busca, ordenação por coluna, paginação e bloqueio na seção de clientes (Requisitos 2.5a, 2.5b, 2.5d).
+ * @param {HTMLTableElement} tabelaClientes
+ * @returns {{obterClientesFiltrados: () => Array<Object>}}
+ */
+function inicializarSecaoClientes(tabelaClientes) {
   const formClientes = document.getElementById("form-filtros-clientes");
   const inputBuscaClientes = document.getElementById("campo-busca-clientes");
   const selectCampoCliente = document.getElementById("filtro-campo-cliente");
   const btnPagAnterior = document.getElementById("btn-pag-clientes-anterior");
   const btnPagProxima = document.getElementById("btn-pag-clientes-proxima");
   const infoPag = document.getElementById("info-pag-clientes");
+
+  let clientesFiltradosAtuais = [];
   const estadoClientes = {
     coluna: "id",
     direcao: "asc",
     paginaAtual: 1,
   };
-  function atualizarIndicadoresOrdenacao() {
-    tabelaClientes.querySelectorAll("thead th[aria-sort]").forEach((th) => {
-      const btn = th.querySelector(".btn-ordenar");
-      const seta = th.querySelector(".seta-ordem");
-      if (btn?.dataset.coluna === estadoClientes.coluna) {
-        th.setAttribute(
-          "aria-sort",
-          estadoClientes.direcao === "asc" ? "ascending" : "descending",
-        );
-        if (seta)
-          seta.textContent = estadoClientes.direcao === "asc" ? "▲" : "▼";
-      } else {
-        th.setAttribute("aria-sort", "none");
-        if (seta) seta.textContent = "";
-      }
-    });
-  }
+
   function atualizarClientes() {
     const termo = inputBuscaClientes?.value || "";
     const campo = selectCampoCliente?.value || "";
@@ -628,6 +634,7 @@ export function inicializarRelatorios() {
       estadoClientes.direcao,
     );
     clientesFiltradosAtuais = ordenados;
+
     const totalPaginas = Math.max(
       1,
       Math.ceil(ordenados.length / ITENS_POR_PAGINA),
@@ -635,22 +642,27 @@ export function inicializarRelatorios() {
     if (estadoClientes.paginaAtual > totalPaginas) {
       estadoClientes.paginaAtual = totalPaginas;
     }
+
     const inicio = (estadoClientes.paginaAtual - 1) * ITENS_POR_PAGINA;
     const pagina = ordenados.slice(inicio, inicio + ITENS_POR_PAGINA);
+
     renderizarTabelaClientes(pagina, termo, campo, ordenados.length);
-    atualizarIndicadoresOrdenacao();
-    if (infoPag)
+    atualizarIndicadoresOrdenacao(tabelaClientes, estadoClientes);
+
+    if (infoPag) {
       infoPag.textContent = `Página ${estadoClientes.paginaAtual} de ${totalPaginas}`;
-    if (btnPagAnterior)
-      btnPagAnterior.disabled = estadoClientes.paginaAtual <= 1;
-    if (btnPagProxima)
+    }
+    if (btnPagAnterior) btnPagAnterior.disabled = estadoClientes.paginaAtual <= 1;
+    if (btnPagProxima) {
       btnPagProxima.disabled = estadoClientes.paginaAtual >= totalPaginas;
+    }
   }
-  // Busca e filtros (sempre voltam para a página 1)
+
   const filtrarDoInicio = () => {
     estadoClientes.paginaAtual = 1;
     atualizarClientes();
   };
+
   formClientes?.addEventListener("submit", (evento) => {
     evento.preventDefault();
     filtrarDoInicio();
@@ -658,7 +670,7 @@ export function inicializarRelatorios() {
   inputBuscaClientes?.addEventListener("input", debounce(filtrarDoInicio, 250));
   selectCampoCliente?.addEventListener("change", filtrarDoInicio);
   formClientes?.addEventListener("reset", () => setTimeout(filtrarDoInicio, 0));
-  // Clique nos cabeçalhos para ordenar
+
   tabelaClientes.querySelector("thead")?.addEventListener("click", (evento) => {
     const btn = evento.target.closest(".btn-ordenar");
     if (!btn) return;
@@ -673,7 +685,7 @@ export function inicializarRelatorios() {
     estadoClientes.paginaAtual = 1;
     atualizarClientes();
   });
-  // Botões de paginação
+
   btnPagAnterior?.addEventListener("click", () => {
     if (estadoClientes.paginaAtual > 1) {
       estadoClientes.paginaAtual--;
@@ -684,7 +696,7 @@ export function inicializarRelatorios() {
     estadoClientes.paginaAtual++;
     atualizarClientes();
   });
-  // Clique no botão Bloquear / Desbloquear cliente
+
   tabelaClientes.querySelector("tbody")?.addEventListener("click", (evento) => {
     const btn = evento.target.closest(".btn-bloquear-cliente");
     if (!btn) return;
@@ -694,7 +706,19 @@ export function inicializarRelatorios() {
       mostrarToast(res.mensagem, "info");
     }
   });
+
   atualizarClientes();
+  return { obterClientesFiltrados: () => clientesFiltradosAtuais };
+}
+
+/**
+ * Inicializa os relatórios da área administrativa.
+ */
+export function inicializarRelatorios() {
+  const tabelaClientes = document.getElementById("tabela-clientes");
+  if (!tabelaClientes) return;
+ const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
+  let comprasFiltradasAtuais = [];
   // --- Filtros de Compras (Requisito 2.5c) ---
   const formCompras = document.getElementById("form-filtros-compras");
   const inputBuscaCompras = document.getElementById("campo-busca-compras");
@@ -796,7 +820,7 @@ export function inicializarRelatorios() {
   // Exportar Clientes filtrados em CSV (com CPF ofuscado LGPD)
   document.getElementById("btn-csv-clientes")?.addEventListener("click", () => {
     const cabecalhos = ["ID", "Nome", "E-mail", "CPF", "Perfil", "Status"];
-    const linhas = clientesFiltradosAtuais.map((c) => [
+    const linhas = obterClientesFiltrados().map((c) => [
       c.id,
       c.nome,
       c.email,
