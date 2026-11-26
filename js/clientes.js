@@ -790,6 +790,77 @@ function configurarCamposPerfil(campos) {
 }
 
 /**
+ * Valida e envia as alterações do formulário de perfil, exibindo feedback de erro ou sucesso.
+ * @param {SubmitEvent} evento - Evento de submit do formulário.
+ * @param {{formPerfil: HTMLFormElement, usuarioId: string, campos: Object, avisoPerfil: HTMLElement}} contexto
+ */
+async function processarSubmitPerfil(
+  evento,
+  { formPerfil, usuarioId, campos, avisoPerfil },
+) {
+  evento.preventDefault();
+  definirMensagemEstado(avisoPerfil, "");
+
+  // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
+  const cpfInformado =
+    campos.cpf?.dataset.ofuscado === "true"
+      ? campos.cpf.dataset.cpfReal
+      : campos.cpf?.value;
+
+  const erros = validarDadosCliente(
+    {
+      nome: campos.nome?.value,
+      cpf: cpfInformado,
+      telefone: campos.telefone?.value,
+      email: campos.email?.value,
+      senhaAtual: campos.senhaAtual?.value,
+      senha: campos.novaSenha?.value,
+      confirmaSenha: campos.confirmaSenha?.value,
+    },
+    { exigirSenha: false, validarConfirmacao: true, exigirSenhaAtual: true },
+  );
+
+  const valido = aplicarErrosFormulario(
+    { ...campos, senha: campos.novaSenha },
+    erros,
+  );
+  if (!valido) return;
+
+  const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
+  alternarCarregamentoBotao(btnSubmitPerfil, true, "Salvando...");
+  let resultado;
+  try {
+    resultado = await atualizarCliente(usuarioId, {
+      nome: campos.nome.value,
+      cpf: cpfInformado,
+      telefone: campos.telefone.value,
+      email: campos.email.value,
+      senhaAtual: campos.senhaAtual.value,
+      novaSenha: campos.novaSenha.value,
+    });
+  } finally {
+    alternarCarregamentoBotao(btnSubmitPerfil, false);
+  }
+
+  if (!resultado.sucesso) {
+    const campoErro = campos[resultado.erroCampo];
+    if (campoErro) {
+      definirErroCampo(campoErro, resultado.mensagem);
+      campoErro.focus();
+    } else {
+      definirMensagemEstado(avisoPerfil, resultado.mensagem, "aviso");
+    }
+    return;
+  }
+
+  // Sucesso!
+  definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
+  preencherCamposPerfil(usuarioId, campos);
+  renderizarMenuDinamico();
+  mostrarToast(resultado.mensagem, "sucesso");
+}
+
+/**
  * Inicializa o formulário de edição de perfil e o modal de exclusão de conta em perfil.html.
  */
 export function inicializarPerfil() {
@@ -804,16 +875,6 @@ export function inicializarPerfil() {
   if (!sessao) return;
 
   const campos = obterCamposPerfil();
-  // Ponte temporária até extrairmos os Passos 3 e 4
-  const {
-    nome: campoNome,
-    cpf: campoCpf,
-    telefone: campoTelefone,
-    email: campoEmail,
-    senhaAtual: campoSenhaAtual,
-    novaSenha: campoNovaSenha,
-    confirmaSenha: campoConfirmaSenha,
-  } = campos;
 
   const avisoPerfil = document.createElement("p");
   avisoPerfil.className = "mensagem-erro-campo";
@@ -839,81 +900,13 @@ export function inicializarPerfil() {
     });
   });
   configurarCamposPerfil(campos);
-
-  formPerfil.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-    avisoPerfil.textContent = "";
-    // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
-    const cpfInformado =
-      campoCpf?.dataset.ofuscado === "true"
-        ? campoCpf.dataset.cpfReal
-        : campoCpf?.value;
-
-    const erros = validarDadosCliente(
-      {
-        nome: campoNome?.value,
-        cpf: cpfInformado,
-        telefone: campoTelefone?.value,
-        email: campoEmail?.value,
-        senhaAtual: campoSenhaAtual?.value,
-        senha: campoNovaSenha?.value,
-        confirmaSenha: campoConfirmaSenha?.value,
-      },
-      { exigirSenha: false, validarConfirmacao: true, exigirSenhaAtual: true },
-    );
-    const valido = aplicarErrosFormulario(
-      {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senhaAtual: campoSenhaAtual,
-        senha: campoNovaSenha,
-        confirmaSenha: campoConfirmaSenha,
-      },
-      erros,
-    );
-    if (!valido) return;
-
-    const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
-    alternarCarregamentoBotao(btnSubmitPerfil, true, "Salvando...");
-    let resultado;
-    try {
-      resultado = await atualizarCliente(sessao.usuarioId, {
-        nome: campoNome.value,
-        cpf: cpfInformado,
-        telefone: campoTelefone.value,
-        email: campoEmail.value,
-        senhaAtual: campoSenhaAtual.value,
-        novaSenha: campoNovaSenha.value,
-      });
-    } finally {
-      alternarCarregamentoBotao(btnSubmitPerfil, false);
-    }
-    if (!resultado.sucesso) {
-      const mapaCamposErro = {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senhaAtual: campoSenhaAtual,
-        novaSenha: campoNovaSenha,
-      };
-      const campoErro = mapaCamposErro[resultado.erroCampo];
-      if (campoErro) {
-        definirErroCampo(campoErro, resultado.mensagem);
-        campoErro.focus();
-      } else {
-        definirMensagemEstado(avisoPerfil, resultado.mensagem, "aviso");
-      }
-      return;
-    }
-
-    // Sucesso!
-    definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
-    preencherCamposPerfil(sessao.usuarioId, campos);
-    renderizarMenuDinamico();
-    mostrarToast(resultado.mensagem, "sucesso");
+  formPerfil.addEventListener("submit", (evento) => {
+    processarSubmitPerfil(evento, {
+      formPerfil,
+      usuarioId: sessao.usuarioId,
+      campos,
+      avisoPerfil,
+    });
   });
 
   inicializarModalExclusaoConta(sessao.usuarioId);
