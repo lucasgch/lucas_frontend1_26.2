@@ -487,7 +487,8 @@ export async function atualizarCliente(
   );
   const primeiroErro = Object.entries(erros)[0];
   if (primeiroErro) {
-    const campoErro = primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
+    const campoErro =
+      primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
     return {
       sucesso: false,
       erroCampo: campoErro,
@@ -601,6 +602,25 @@ export function excluirContaCliente(idCliente) {
 
   // Encerra a sessão
   encerrarSessao();
+}
+
+/**
+ * Conecta os botões de abertura, cancelamento e confirmação do modal de exclusão de conta.
+ * @param {string} usuarioId - ID do cliente autenticado.
+ */
+function inicializarModalExclusaoConta(usuarioId) {
+  const modalExcluir = document.getElementById("modal-excluir-conta");
+  const btnAbrirExcluir = document.getElementById("btn-abrir-excluir-conta");
+  const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
+  const btnConfirmarExclusao = document.getElementById(
+    "btn-confirmar-exclusao",
+  );
+  btnAbrirExcluir?.addEventListener("click", () => modalExcluir?.showModal());
+  btnCancelarExclusao?.addEventListener("click", () => modalExcluir?.close());
+  btnConfirmarExclusao?.addEventListener("click", () => {
+    excluirContaCliente(usuarioId);
+    window.location.href = "index.html";
+  });
 }
 
 /**
@@ -790,18 +810,7 @@ export function inicializarPerfil() {
     mostrarToast(resultado.mensagem, "sucesso");
   });
 
-  const modalExcluir = document.getElementById("modal-excluir-conta");
-  const btnAbrirExcluir = document.getElementById("btn-abrir-excluir-conta");
-  const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
-  const btnConfirmarExclusao = document.getElementById(
-    "btn-confirmar-exclusao",
-  );
-  btnAbrirExcluir?.addEventListener("click", () => modalExcluir?.showModal());
-  btnCancelarExclusao?.addEventListener("click", () => modalExcluir?.close());
-  btnConfirmarExclusao?.addEventListener("click", () => {
-    excluirContaCliente(sessao.usuarioId);
-    window.location.href = "index.html";
-  });
+  inicializarModalExclusaoConta(sessao.usuarioId);
 }
 
 inicializarPerfil();
