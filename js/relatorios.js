@@ -712,14 +712,10 @@ function inicializarSecaoClientes(tabelaClientes) {
 }
 
 /**
- * Inicializa os relatórios da área administrativa.
+ * Inicializa os filtros combináveis de compras e renderiza a tabela inicial (Requisito 2.5c).
+ * @returns {{atualizarCompras: () => void, obterComprasFiltradas: () => Array<Object>}}
  */
-export function inicializarRelatorios() {
-  const tabelaClientes = document.getElementById("tabela-clientes");
-  if (!tabelaClientes) return;
- const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
-  let comprasFiltradasAtuais = [];
-  // --- Filtros de Compras (Requisito 2.5c) ---
+function inicializarSecaoCompras() {
   const formCompras = document.getElementById("form-filtros-compras");
   const inputBuscaCompras = document.getElementById("campo-busca-compras");
   const selectCampoCompra = document.getElementById("filtro-campo-compra");
@@ -728,6 +724,8 @@ export function inicializarRelatorios() {
   const inputValorMin = document.getElementById("filtro-valor-min");
   const inputValorMax = document.getElementById("filtro-valor-max");
   const selectStatusCompra = document.getElementById("filtro-status-compra");
+
+  let comprasFiltradasAtuais = [];
 
   function atualizarCompras() {
     const filtradas = filtrarCompras(obterCompras(), {
@@ -743,18 +741,38 @@ export function inicializarRelatorios() {
     renderizarTabelaCompras(filtradas);
   }
 
+  const atualizarComDebounce = debounce(atualizarCompras, 250);
+
   formCompras?.addEventListener("submit", (evento) => {
     evento.preventDefault();
     atualizarCompras();
   });
-  inputBuscaCompras?.addEventListener("input", debounce(atualizarCompras, 250));
-  inputValorMin?.addEventListener("input", debounce(atualizarCompras, 250));
-  inputValorMax?.addEventListener("input", debounce(atualizarCompras, 250));
-  selectCampoCompra?.addEventListener("change", atualizarCompras);
-  inputDataInicio?.addEventListener("change", atualizarCompras);
-  inputDataFim?.addEventListener("change", atualizarCompras);
-  selectStatusCompra?.addEventListener("change", atualizarCompras);
+  [inputBuscaCompras, inputValorMin, inputValorMax].forEach((campo) => {
+    campo?.addEventListener("input", atualizarComDebounce);
+  });
+  [selectCampoCompra, inputDataInicio, inputDataFim, selectStatusCompra].forEach(
+    (campo) => {
+      campo?.addEventListener("change", atualizarCompras);
+    },
+  );
   formCompras?.addEventListener("reset", () => setTimeout(atualizarCompras, 0));
+
+  atualizarCompras();
+  return {
+    atualizarCompras,
+    obterComprasFiltradas: () => comprasFiltradasAtuais,
+  };
+}
+
+/**
+ * Inicializa os relatórios da área administrativa.
+ */
+export function inicializarRelatorios() {
+  const tabelaClientes = document.getElementById("tabela-clientes");
+  if (!tabelaClientes) return;
+  const { obterClientesFiltrados } = inicializarSecaoClientes(tabelaClientes);
+  const { atualizarCompras, obterComprasFiltradas } =
+    inicializarSecaoCompras();
 
   const modalCompra = document.getElementById("modal-detalhes-compra");
   const btnFecharModalCompra = document.getElementById(
@@ -794,7 +812,6 @@ export function inicializarRelatorios() {
   document
     .getElementById("filtro-periodo-grafico")
     ?.addEventListener("change", renderizarGraficoVendas);
-  atualizarCompras();
   renderizarIndicadores();
   document
     .getElementById("tbody-mensagens")
@@ -846,7 +863,7 @@ export function inicializarRelatorios() {
       "Frete",
       "Total",
     ];
-    const linhas = comprasFiltradasAtuais.map((c) => [
+    const linhas = obterComprasFiltradas().map((c) => [
       c.id,
       formatarDataHora(c.data),
       `${c.clienteNome} (${c.clienteId})`,
