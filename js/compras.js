@@ -463,6 +463,29 @@ function configurarMascarasCheckout({
 }
 
 /**
+ * Alterna a exibição dos painéis de pagamento (Pix, Cartão e Boleto) conforme o método escolhido.
+ * @param {HTMLDialogElement} modalCheckout - Modal do checkout.
+ * @param {HTMLElement|null} erroEtapa3 - Elemento de mensagem de erro da etapa 3.
+ */
+function configurarPaineisPagamento(modalCheckout, erroEtapa3) {
+  const radiosPagamento = modalCheckout.querySelectorAll(
+    'input[name="metodo_pagamento"]',
+  );
+  const painelPix = document.getElementById("painel-pagamento-pix");
+  const painelCartao = document.getElementById("painel-pagamento-cartao");
+  const painelBoleto = document.getElementById("painel-pagamento-boleto");
+
+  radiosPagamento.forEach((radio) => {
+    radio.addEventListener("change", () => {
+      if (painelPix) painelPix.hidden = radio.value !== "pix";
+      if (painelCartao) painelCartao.hidden = radio.value !== "cartao";
+      if (painelBoleto) painelBoleto.hidden = radio.value !== "boleto";
+      if (erroEtapa3) erroEtapa3.textContent = "";
+    });
+  });
+}
+
+/**
  * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisitos 2.4a, 2.4b, 2.4c, 2.4f).
  */
 export function inicializarCheckout() {
@@ -596,12 +619,7 @@ export function inicializarCheckout() {
     mostrarEtapa(3);
   });
   // Alternar painéis Pix / Cartão / Boleto
-  const radiosPagamento = modalCheckout.querySelectorAll(
-    'input[name="metodo_pagamento"]',
-  );
-  const painelPix = document.getElementById("painel-pagamento-pix");
-  const painelCartao = document.getElementById("painel-pagamento-cartao");
-  const painelBoleto = document.getElementById("painel-pagamento-boleto");
+  configurarPaineisPagamento(modalCheckout, erroEtapa3);
   const definirErroEtapa3 = (mensagem) => {
     if (erroEtapa3) erroEtapa3.textContent = mensagem;
   };
