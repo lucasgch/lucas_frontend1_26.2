@@ -623,14 +623,6 @@ export function inicializarCheckout() {
   const definirErroEtapa3 = (mensagem) => {
     if (erroEtapa3) erroEtapa3.textContent = mensagem;
   };
-  radiosPagamento.forEach((radio) => {
-    radio.addEventListener("change", () => {
-      if (painelPix) painelPix.hidden = radio.value !== "pix";
-      if (painelCartao) painelCartao.hidden = radio.value !== "cartao";
-      if (painelBoleto) painelBoleto.hidden = radio.value !== "boleto";
-      definirErroEtapa3("");
-    });
-  });
   // Confirmar Compra (Etapa 3)
   document
     .getElementById("btn-confirmar-compra")
