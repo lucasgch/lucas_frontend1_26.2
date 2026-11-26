@@ -74,6 +74,7 @@ export function renovarSessao() {
   sessao.expiraEm = Date.now() + TEMPO_EXPIRACAO_MS;
   salvarDados(CHAVES_STORAGE.SESSAO, sessao);
 }
+
 /**
  * Encerra a sessão do usuário (Logout), mantendo o carrinho salvo.
  */
@@ -194,54 +195,57 @@ export async function autenticarUsuario(email, senha) {
 }
 
 /**
- * Inicializa o formulário de login (#form-login) e o cronômetro de bloqueio de 60s.
+ * Cria e insere o parágrafo de feedback acessível antes dos botões do formulário de login.
+ * @param {HTMLFormElement} formLogin
+ * @returns {HTMLParagraphElement}
  */
-export function inicializarLogin() {
-  garantirContaAdmin().catch((erro) => {
-    console.error("Erro ao inicializar conta administradora:", erro);
-  });
-
-  const formLogin = document.getElementById("form-login");
-  if (!formLogin) return;
-  formLogin.noValidate = true;
-
-  const campoEmail = document.getElementById("login-email");
-  const campoSenha = document.getElementById("login-password");
-  const btnSubmit = formLogin.querySelector('button[type="submit"]');
-
-  const avisoLogin = document.createElement("p");
-  avisoLogin.className = "mensagem-erro-campo";
-  avisoLogin.setAttribute("role", "alert");
-  avisoLogin.setAttribute("aria-live", "polite");
+function criarAvisoFormularioLogin(formLogin) {
+  const aviso = document.createElement("p");
+  aviso.className = "mensagem-erro-campo";
+  aviso.setAttribute("role", "alert");
+  aviso.setAttribute("aria-live", "polite");
   formLogin
     .querySelector(".acoes-form")
-    ?.insertAdjacentElement("beforebegin", avisoLogin);
+    ?.insertAdjacentElement("beforebegin", aviso);
+  return aviso;
+}
 
-  // via redirecionamento
-  const params = new URLSearchParams(window.location.search);
+/**
+ * Exibe mensagens contextuais vindas por query string (pós-cadastro, página restrita ou sessão expirada).
+ * @param {HTMLElement} avisoLogin
+ * @param {URLSearchParams} params
+ */
+function exibirAvisoRedirecionamento(avisoLogin, params) {
   if (params.get("cadastro") === "sucesso") {
     definirMensagemEstado(
       avisoLogin,
       "Cadastro realizado com sucesso! Faça seu login abaixo.",
       "sucesso",
     );
-  } else if (params.get("motivo") === "login_necessario") {
-    definirMensagemEstado(
-      avisoLogin,
-      "Faça login para acessar a página solicitada.",
-      "aviso",
-    );
-  } else if (params.get("motivo") === "sessao_expirada") {
-    definirMensagemEstado(
-      avisoLogin,
-      "Sua sessão expirou por inatividade. Faça login novamente.",
-      "aviso",
-    );
+    return;
   }
 
+  const avisosPorMotivo = {
+    login_necessario: "Faça login para acessar a página solicitada.",
+    sessao_expirada:
+      "Sua sessão expirou por inatividade. Faça login novamente.",
+  };
+  const mensagemMotivo = avisosPorMotivo[params.get("motivo")];
+  if (mensagemMotivo) {
+    definirMensagemEstado(avisoLogin, mensagemMotivo, "aviso");
+  }
+}
+
+/**
+ * Cria um controlador para o cronômetro regressivo de bloqueio temporário de login (60s).
+ * @param {HTMLElement} avisoLogin
+ * @param {HTMLButtonElement|null} btnSubmit
+ * @returns {() => void} Função que inicia/atualiza a contagem regressiva.
+ */
+function criarMonitorBloqueioLogin(avisoLogin, btnSubmit) {
   let timerBloqueio = null;
 
-  function iniciarContagemBloqueio() {
+  return function iniciarContagem() {
     clearInterval(timerBloqueio);
     const atualizar = () => {
       const seg = obterSegundosRestantesBloqueio();
@@ -264,46 +268,85 @@ export function inicializarLogin() {
     if (obterSegundosRestantesBloqueio() > 0) {
       timerBloqueio = setInterval(atualizar, 1000);
     }
+  };
+}
+
+/**
+ * Processa o envio do formulário de login, validando entradas e redirecionando com segurança.
+ * @param {SubmitEvent} evento
+ * @param {Object} contexto
+ */
+async function processarSubmitLogin(
+  evento,
+  { campoEmail, campoSenha, btnSubmit, avisoLogin, params, iniciarContagem },
+) {
+  evento.preventDefault();
+  definirMensagemEstado(avisoLogin, "", "erro");
+
+  if (!campoEmail?.value.trim() || !campoSenha?.value) {
+    definirMensagemEstado(
+      avisoLogin,
+      "Preencha seu e-mail e a sua senha.",
+      "erro",
+    );
+    (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
+    return;
   }
 
-  // Verificar se há bloqueio ao abrir a página
-  iniciarContagemBloqueio();
+  alternarCarregamentoBotao(btnSubmit, true, "Entrando...");
+  let resultado;
+  try {
+    resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
+  } finally {
+    alternarCarregamentoBotao(btnSubmit, false);
+  }
 
-  formLogin.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-    definirMensagemEstado(avisoLogin, "", "erro");
-    if (!campoEmail?.value.trim() || !campoSenha?.value) {
-      definirMensagemEstado(
-        avisoLogin,
-        "Preencha seu e-mail e a sua senha.",
-        "erro",
-      );
-      (!campoEmail?.value.trim() ? campoEmail : campoSenha)?.focus();
-      return;
-    }
-    alternarCarregamentoBotao(btnSubmit, true, "Entrando...");
-    let resultado;
-    try {
-      resultado = await autenticarUsuario(campoEmail.value, campoSenha.value);
-    } finally {
-      alternarCarregamentoBotao(btnSubmit, false);
-    }
+  if (!resultado.sucesso) {
+    definirMensagemEstado(avisoLogin, resultado.mensagem, "erro");
+    if (resultado.bloqueadoSegundos) iniciarContagem();
+    return;
+  }
 
-    if (!resultado.sucesso) {
-      avisoLogin.textContent = resultado.mensagem;
-      if (resultado.bloqueadoSegundos) {
-        iniciarContagemBloqueio();
-      }
-      return;
-    }
+  const destino = obterDestinoSeguro(
+    params.get("redirect"),
+    resultado.sessao?.perfil,
+  );
+  window.location.replace(destino);
+}
 
-    // Volta para uma página interna permitida (previne XSS, Open Redirect e loop de permissão)
-    const destino = obterDestinoSeguro(
-      params.get("redirect"),
-      resultado.sessao?.perfil,
-    );
-    window.location.replace(destino);
+/**
+ * Inicializa o formulário de login (#form-login) e o cronômetro de bloqueio de 60s.
+ */
+export function inicializarLogin() {
+  garantirContaAdmin().catch((erro) => {
+    console.error("Erro ao inicializar conta administradora:", erro);
   });
+
+  const formLogin = document.getElementById("form-login");
+  if (!formLogin) return;
+  formLogin.noValidate = true;
+
+  const campoEmail = document.getElementById("login-email");
+  const campoSenha = document.getElementById("login-password");
+  const btnSubmit = formLogin.querySelector('button[type="submit"]');
+  const params = new URLSearchParams(window.location.search);
+
+  const avisoLogin = criarAvisoFormularioLogin(formLogin);
+  exibirAvisoRedirecionamento(avisoLogin, params);
+
+  const iniciarContagem = criarMonitorBloqueioLogin(avisoLogin, btnSubmit);
+  iniciarContagem();
+
+  formLogin.addEventListener("submit", (evento) =>
+    processarSubmitLogin(evento, {
+      campoEmail,
+      campoSenha,
+      btnSubmit,
+      avisoLogin,
+      params,
+      iniciarContagem,
+    }),
+  );
 }
 inicializarLogin();
 
@@ -313,7 +356,7 @@ inicializarLogin();
 export function verificarAcessoPagina() {
   const caminho = window.location.pathname;
   const paginaAtual = caminho.split("/").pop() || "index.html";
-  //  Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
+  // Verificar se havia uma sessão salva que acabou de expirar por inatividade (30 min)
   const sessaoBruta = lerDados(CHAVES_STORAGE.SESSAO, null);
   if (sessaoBruta && Date.now() > sessaoBruta.expiraEm) {
     removerDados(CHAVES_STORAGE.SESSAO);

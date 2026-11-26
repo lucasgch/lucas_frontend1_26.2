@@ -19,10 +19,11 @@ const ROTULOS_CATEGORIA = {
 /**
  * Cria o elemento <li> de um produto a partir do <template>
  * @param {Object} produto
- * @returns {HTMLLIElement}
+ * @returns {HTMLLIElement|null}
  */
 export function criarCardProduto(produto) {
   const template = document.getElementById("template-card-produto");
+  if (!template) return null;
   const clone = template.content.cloneNode(true);
   const li = clone.querySelector(".item-produto");
   const card = clone.querySelector(".card-produto");
@@ -58,7 +59,7 @@ export function criarCardProduto(produto) {
   // Botão de adicionar ao carrinho (desabilita se estoque for 0)
   const btnAdicionar = clone.querySelector(".botao-adicionar");
 
-  // Botão de ver detalhes ao carrinho
+  // Botão de ver detalhes do produto
   const btnDetalhes = clone.querySelector(".botao-detalhes");
 
   btnDetalhes.dataset.id = produto.id;
@@ -69,6 +70,7 @@ export function criarCardProduto(produto) {
   }
   return li;
 }
+
 /**
  * Renderiza uma lista de produtos dentro do container UL
  * @param {Array} produtos
@@ -89,7 +91,8 @@ export function renderizarGradeProdutos(produtos, container) {
   // Usa DocumentFragment para inserir todos os livros no DOM de uma só vez
   const fragmento = document.createDocumentFragment();
   produtos.forEach((produto) => {
-    fragmento.appendChild(criarCardProduto(produto));
+    const card = criarCardProduto(produto);
+    if (card) fragmento.appendChild(card); // Verifica se o elemento existe
   });
   container.appendChild(fragmento);
 }
@@ -261,6 +264,7 @@ export function abrirModalProduto(produtoId) {
   const btnMais = document.getElementById("modal-qtd-mais");
   const btnAdicionar = document.getElementById("modal-btn-adicionar");
   const erroQtd = document.getElementById("modal-erro-qtd");
+  if (!inputQtd || !btnAdicionar) return; // Verifica se os elementos existem
   if (erroQtd) {
     erroQtd.textContent = "";
   }
@@ -286,8 +290,82 @@ export function abrirModalProduto(produtoId) {
   modal.showModal();
 }
 
+const TECLAS_BLOQUEADAS_QUANTIDADE = ["-", "+", "e", "E", ".", ","];
+
 /**
- * Configura os cliques para abrir e fechar o modal de detalhes do produto.
+ * Sanitiza o campo de quantidade do modal e atualiza o estado dos botões (-, + e Adicionar) e mensagem de erro.
+ * @param {Object} elementos
+ * @param {HTMLInputElement} elementos.inputQtd
+ * @param {HTMLButtonElement|null} elementos.btnMenos
+ * @param {HTMLButtonElement|null} elementos.btnMais
+ * @param {HTMLButtonElement|null} elementos.btnAdicionar
+ * @param {HTMLElement|null} elementos.erroQtd
+ */
+function atualizarEstadoQuantidadeModal({
+  inputQtd,
+  btnMenos,
+  btnMais,
+  btnAdicionar,
+  erroQtd,
+}) {
+  inputQtd.value = limparNumeros(inputQtd.value);
+  const qtd = Number(inputQtd.value);
+  const maxEstoque = Number(inputQtd.max);
+
+  const excedeuEstoque = qtd > maxEstoque;
+  const quantidadeValida =
+    Number.isInteger(qtd) && qtd > 0 && !excedeuEstoque;
+
+  if (btnMenos) btnMenos.disabled = qtd <= 1;
+  if (btnMais) btnMais.disabled = qtd >= maxEstoque;
+  if (btnAdicionar) btnAdicionar.disabled = !quantidadeValida;
+
+  if (erroQtd) {
+    erroQtd.textContent = excedeuEstoque
+      ? `Máximo disponível: ${maxEstoque} un.`
+      : "";
+    erroQtd.hidden = !excedeuEstoque;
+  }
+}
+
+/**
+ * Inicializa os eventos de digitação e botões (- e +) do seletor de quantidade do modal.
+ */
+function inicializarSeletorQuantidadeModal() {
+  const inputQtd = document.getElementById("modal-quantidade");
+  if (!inputQtd) return;
+
+  const elementos = {
+    inputQtd,
+    btnMenos: document.getElementById("modal-qtd-menos"),
+    btnMais: document.getElementById("modal-qtd-mais"),
+    btnAdicionar: document.getElementById("modal-btn-adicionar"),
+    erroQtd: document.getElementById("modal-erro-qtd"),
+  };
+
+  const validar = () => atualizarEstadoQuantidadeModal(elementos);
+
+  const ajustarQuantidade = (delta) => {
+    const maxEstoque = Number(inputQtd.max);
+    if (maxEstoque < 1) return;
+    const atual = Number(inputQtd.value) || 0;
+    const novaQtd = Math.min(maxEstoque, Math.max(1, atual + delta));
+    inputQtd.value = String(novaQtd);
+    validar();
+  };
+
+  inputQtd.addEventListener("input", validar);
+  inputQtd.addEventListener("keydown", (evento) => {
+    if (TECLAS_BLOQUEADAS_QUANTIDADE.includes(evento.key)) {
+      evento.preventDefault();
+    }
+  });
+  elementos.btnMenos?.addEventListener("click", () => ajustarQuantidade(-1));
+  elementos.btnMais?.addEventListener("click", () => ajustarQuantidade(1));
+}
+
+/**
+ * Configura os cliques para abrir e fechar o modal de detalhes do produto e inicializa seu seletor de quantidade.
  */
 export function inicializarModalProduto() {
   const modal = document.getElementById("modal-produto");
@@ -295,7 +373,6 @@ export function inicializarModalProduto() {
   const btnFechar = document.getElementById("btn-fechar-modal");
   if (!modal || !grade) return;
 
-  // Delegação de evento: escuta cliques nos botões "Ver detalhes" dentro da grade
   grade.addEventListener("click", (evento) => {
     const btnDetalhes = evento.target.closest(".botao-detalhes");
     if (btnDetalhes) {
@@ -303,68 +380,11 @@ export function inicializarModalProduto() {
     }
   });
 
-  // Fecha ao clicar no botão X
   btnFechar?.addEventListener("click", () => {
     modal.close();
   });
 
-  const inputQtd = document.getElementById("modal-quantidade");
-  const btnMenos = document.getElementById("modal-qtd-menos");
-  const btnMais = document.getElementById("modal-qtd-mais");
-  const btnAdicionar = document.getElementById("modal-btn-adicionar");
-  const erroQtd = document.getElementById("modal-erro-qtd");
-
-  // Função que valida o valor atual e atualiza os botões (-, + e Adicionar)
-  function validarQuantidadeModal() {
-    // Remove qualquer sinal de '-' ou caractere que não seja número (0-9)
-    inputQtd.value = limparNumeros(inputQtd.value);
-    const qtd = Number(inputQtd.value);
-    const maxEstoque = Number(inputQtd.max);
-
-    // Trava o botão '-' se já estiver em 1 (ou menos) e o '+' se já estiver no estoque máximo
-    if (btnMenos) btnMenos.disabled = qtd <= 1;
-    if (btnMais) btnMais.disabled = qtd >= maxEstoque;
-
-    if (qtd > maxEstoque) {
-      btnAdicionar.disabled = true;
-      erroQtd.textContent = `Máximo disponível: ${maxEstoque} un.`;
-      erroQtd.hidden = false;
-    } else if (!Number.isInteger(qtd) || qtd <= 0) {
-      btnAdicionar.disabled = true;
-      erroQtd.textContent = "";
-    } else {
-      btnAdicionar.disabled = false;
-      erroQtd.textContent = "";
-    }
-  }
-
-  // 1. Chama a validação toda vez que o valor do campo mudar (digitação ou Ctrl+V)
-  inputQtd?.addEventListener("input", validarQuantidadeModal);
-  // 2. Impede digitar sinal negativo (-), ponto, vírgula ou 'e' no teclado
-  inputQtd?.addEventListener("keydown", (evento) => {
-    if (["-", "+", "e", "E", ".", ","].includes(evento.key)) {
-      evento.preventDefault();
-    }
-  });
-
-  // Diminui 1 ao clicar no botão '-'
-  btnMenos?.addEventListener("click", () => {
-    const atual = Number(inputQtd.value) || 1;
-    if (atual > 1) {
-      inputQtd.value = atual - 1;
-      validarQuantidadeModal();
-    }
-  });
-
-  // Aumenta 1 ao clicar no botão '+'
-  btnMais?.addEventListener("click", () => {
-    const atual = Number(inputQtd.value) || 0;
-    const maxEstoque = Number(inputQtd.max);
-    if (atual < maxEstoque) {
-      inputQtd.value = atual + 1;
-      validarQuantidadeModal();
-    }
-  });
+  inicializarSeletorQuantidadeModal();
 }
 
 // Executa automaticamente ao carregar o módulo na página

@@ -78,6 +78,7 @@ function validarDadosCliente(
   }
   return erros;
 }
+
 /**
  * Aplica os erros de validação aos inputs do formulário, limpa os válidos e foca o primeiro inválido.
  * @param {Record<string, HTMLInputElement|null>} mapaCampos
@@ -193,21 +194,12 @@ export async function cadastrarCliente({
   inicializarStorage();
   const clientes = obterClientes();
   const cpfLimpo = limparNumeros(cpf);
-  // Verifica se CPF existe
-  if (clientes.some((c) => limparNumeros(c.cpf) === cpfLimpo)) {
-    return {
-      sucesso: false,
-      erroCampo: "cpf",
-      mensagem: "Este CPF já está cadastrado.",
-    };
-  }
-  // Verifica se E-mail existe
-  if (clientes.some((c) => c.email.toLowerCase() === emailNormalizado)) {
-    return {
-      sucesso: false,
-      erroCampo: "email",
-      mensagem: "Este e-mail já está cadastrado.",
-    };
+  const conflito = verificarConflitoUnicidade(clientes, {
+    cpfNumeros: cpfLimpo,
+    emailNormalizado,
+  });
+  if (conflito) {
+    return { sucesso: false, ...conflito };
   }
   // Gera salt + hash SHA-256 da senha e ID sequencial (C001, C002...)
   const salt = gerarSalt();
@@ -234,38 +226,54 @@ export async function cadastrarCliente({
 }
 
 /**
- * Inicializa as máscaras e validações do formulário de cadastro.
+ * Coleta as referências dos inputs do formulário de cadastro.
+ * @returns {{nome: HTMLInputElement|null, cpf: HTMLInputElement|null, telefone: HTMLInputElement|null, email: HTMLInputElement|null, senha: HTMLInputElement|null, confirmaSenha: HTMLInputElement|null}}
  */
-export function inicializarCadastro() {
-  const formCadastro = document.getElementById("form-cadastro");
-  if (!formCadastro) return;
-  formCadastro.noValidate = true;
+function obterCamposCadastro() {
+  return {
+    nome: document.getElementById("cad-nome"),
+    cpf: document.getElementById("cad-cpf"),
+    telefone: document.getElementById("cad-telefone"),
+    email: document.getElementById("cad-email"),
+    senha: document.getElementById("cad-senha"),
+    confirmaSenha: document.getElementById("cad-confirma-senha"),
+  };
+}
 
-  // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
-  formCadastro.querySelectorAll(".campo-form input").forEach((input) => {
-    definirErroCampo(input, "");
+/**
+ * Vincula validação não intrusiva (valida no blur, limpa no input) e formatação opcional a um input.
+ * @param {HTMLInputElement|null} campo
+ * @param {{validar: (valor: string) => boolean, mensagemErro: string, formatar?: (valor: string) => string}} config
+ */
+function vincularValidacaoCampo(campo, { validar, mensagemErro, formatar }) {
+  if (!campo) return;
+
+  campo.addEventListener("input", () => {
+    if (formatar) {
+      campo.value = formatar(campo.value);
+    }
+    if (validar(campo.value)) {
+      definirErroCampo(campo, "");
+    }
   });
 
-  // Validação do Nome Completo (#cad-nome)
-  const campoNome = document.getElementById("cad-nome");
-  campoNome?.addEventListener("blur", () => {
-    if (campoNome.value && !validarNomeCompleto(campoNome.value)) {
-      definirErroCampo(
-        campoNome,
-        "Informe seu nome e sobrenome (mínimo de 3 caracteres).",
-      );
+  campo.addEventListener("blur", () => {
+    if (campo.value && !validar(campo.value)) {
+      definirErroCampo(campo, mensagemErro);
     } else {
-      definirErroCampo(campoNome, "");
+      definirErroCampo(campo, "");
     }
   });
-  campoNome?.addEventListener("input", () => {
-    if (validarNomeCompleto(campoNome.value)) {
-      definirErroCampo(campoNome, "");
-    }
-  });
-  // Máscara e Validação do CPF (#cad-cpf)
-  const campoCpf = document.getElementById("cad-cpf");
-  campoCpf?.addEventListener("input", () => {
+}
+
+/**
+ * Configura máscara e validação do campo de CPF no cadastro.
+ * @param {HTMLInputElement|null} campoCpf
+ */
+function configurarCampoCpfCadastro(campoCpf) {
+  if (!campoCpf) return;
+
+  campoCpf.addEventListener("input", () => {
     campoCpf.value = aplicarMascaraCPF(campoCpf.value);
     if (campoCpf.value.length === 14 && !validarCPF(campoCpf.value)) {
       definirErroCampo(
@@ -276,108 +284,137 @@ export function inicializarCadastro() {
       definirErroCampo(campoCpf, "");
     }
   });
-  campoCpf?.addEventListener("blur", () => {
+
+  campoCpf.addEventListener("blur", () => {
     if (campoCpf.value && !validarCPF(campoCpf.value)) {
-      definirErroCampo(
-        campoCpf,
-        "CPF inválido. Digite os 11 números corretamente.",
-      );
+      definirErroCampo(campoCpf, MENSAGENS_ERRO_CLIENTE.cpf);
     }
   });
+}
 
-  // Validação do Telefone (#cad-telefone — somente números, 10 ou 11 dígitos)
-  const campoTelefone = document.getElementById("cad-telefone");
-  campoTelefone?.addEventListener("input", () => {
-    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
-    if (validarTelefone(campoTelefone.value)) {
-      definirErroCampo(campoTelefone, "");
-    }
-  });
-  campoTelefone?.addEventListener("blur", () => {
-    if (campoTelefone.value && !validarTelefone(campoTelefone.value)) {
-      definirErroCampo(
-        campoTelefone,
-        "Informe um telefone válido com DDD (10 ou 11 números).",
-      );
-    } else {
-      definirErroCampo(campoTelefone, "");
-    }
+/**
+ * Configura máscaras e validações em tempo real dos campos básicos do cadastro.
+ * @param {ReturnType<typeof obterCamposCadastro>} campos
+ */
+function configurarCamposDadosCadastro(campos) {
+  vincularValidacaoCampo(campos.nome, {
+    validar: validarNomeCompleto,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.nome,
   });
 
-  // Validação do E-mail (#cad-email)
-  const campoEmail = document.getElementById("cad-email");
-  campoEmail?.addEventListener("blur", () => {
-    if (campoEmail.value && !validarEmail(campoEmail.value)) {
-      definirErroCampo(
-        campoEmail,
-        "Informe um endereço de e-mail válido (ex: nome@dominio.com).",
-      );
-    } else {
-      definirErroCampo(campoEmail, "");
-    }
-  });
-  campoEmail?.addEventListener("input", () => {
-    if (validarEmail(campoEmail.value)) {
-      definirErroCampo(campoEmail, "");
-    }
+  configurarCampoCpfCadastro(campos.cpf);
+
+  vincularValidacaoCampo(campos.telefone, {
+    validar: validarTelefone,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.telefone,
+    formatar: (valor) => limparNumeros(valor).slice(0, 11),
   });
 
-  // Validação da senha
-  const campoSenha = document.getElementById("cad-senha");
-  const campoConfirmaSenha = document.getElementById("cad-confirma-senha");
+  vincularValidacaoCampo(campos.email, {
+    validar: validarEmail,
+    mensagemErro: MENSAGENS_ERRO_CLIENTE.email,
+  });
+}
 
-  if (campoSenha) {
-    const containerForca = document.createElement("div");
-    containerForca.className = "indicador-forca";
-    const barraForca = document.createElement("div");
-    barraForca.className = "barra-forca-preenchimento";
-    containerForca.appendChild(barraForca);
-    campoSenha.insertAdjacentElement("afterend", containerForca);
+/**
+ * Cria e insere a barra visual de força de senha logo após o input.
+ * @param {HTMLInputElement} campoSenha
+ * @returns {HTMLDivElement} Elemento interno preenchido conforme o nível da senha.
+ */
+function criarIndicadorForcaSenha(campoSenha) {
+  const containerForca = document.createElement("div");
+  containerForca.className = "indicador-forca";
+  const barraForca = document.createElement("div");
+  barraForca.className = "barra-forca-preenchimento";
+  containerForca.appendChild(barraForca);
+  campoSenha.insertAdjacentElement("afterend", containerForca);
+  return barraForca;
+}
 
-    campoSenha.addEventListener("input", () => {
-      const avaliacao = avaliarForcaSenha(campoSenha.value);
-      barraForca.dataset.nivel = avaliacao.nivel;
-      const msgErro = campoSenha.parentElement.querySelector(
-        ".mensagem-erro-campo",
-      );
-      if (msgErro) {
-        msgErro.textContent = avaliacao.texto;
-        msgErro.dataset.nivel = avaliacao.nivel;
-      }
-      campoSenha.setCustomValidity(
-        avaliacao.valida || !campoSenha.value
-          ? ""
-          : "A senha deve ter no mínimo 8 caracteres, com letras e números.",
-      );
-      // Se o usuário já preencheu a confirmação, revalida se continuam iguais
-      if (campoConfirmaSenha?.value) {
-        validarConfirmacao();
-      }
-    });
-    campoSenha.addEventListener("blur", () => {
-      const avaliacao = avaliarForcaSenha(campoSenha.value);
-      if (campoSenha.value && !avaliacao.valida) {
-        definirErroCampo(
-          campoSenha,
-          "A senha deve ter no mínimo 8 caracteres, com letras e números.",
-        );
-      }
-    });
-  } // <-- Fecha o if (campoSenha)
-  // 6. Validação da Confirmação de Senha (#cad-confirma-senha)
+/**
+ * Configura indicador de força em tempo real, validação de senha e confirmação de senha.
+ * @param {HTMLInputElement|null} campoSenha
+ * @param {HTMLInputElement|null} campoConfirmaSenha
+ */
+function configurarCamposSenhaCadastro(campoSenha, campoConfirmaSenha) {
   function validarConfirmacao() {
     if (!campoConfirmaSenha || !campoSenha) return;
     if (
       campoConfirmaSenha.value &&
       campoConfirmaSenha.value !== campoSenha.value
     ) {
-      definirErroCampo(campoConfirmaSenha, "As senhas não coincidem.");
+      definirErroCampo(
+        campoConfirmaSenha,
+        MENSAGENS_ERRO_CLIENTE.confirmaSenha,
+      );
     } else {
       definirErroCampo(campoConfirmaSenha, "");
     }
   }
+
+  if (campoSenha) {
+    const barraForca = criarIndicadorForcaSenha(campoSenha);
+
+    campoSenha.addEventListener("input", () => {
+      const avaliacao = avaliarForcaSenha(campoSenha.value);
+      barraForca.dataset.nivel = avaliacao.nivel;
+
+      const msgErro = campoSenha.parentElement?.querySelector(
+        ".mensagem-erro-campo",
+      );
+      if (msgErro) {
+        msgErro.textContent = avaliacao.texto;
+        msgErro.dataset.nivel = avaliacao.nivel;
+      }
+
+      campoSenha.setCustomValidity(
+        avaliacao.valida || !campoSenha.value
+          ? ""
+          : MENSAGENS_ERRO_CLIENTE.senha,
+      );
+
+      // Se o usuário já preencheu a confirmação, revalida se continuam iguais
+      if (campoConfirmaSenha?.value) {
+        validarConfirmacao();
+      }
+    });
+
+    campoSenha.addEventListener("blur", () => {
+      const avaliacao = avaliarForcaSenha(campoSenha.value);
+      if (campoSenha.value && !avaliacao.valida) {
+        definirErroCampo(campoSenha, MENSAGENS_ERRO_CLIENTE.senha);
+      }
+    });
+  }
+
   campoConfirmaSenha?.addEventListener("input", validarConfirmacao);
   campoConfirmaSenha?.addEventListener("blur", validarConfirmacao);
+}
+
+/**
+ * Inicializa as máscaras e validações do formulário de cadastro.
+ */
+export function inicializarCadastro() {
+  const formCadastro = document.getElementById("form-cadastro");
+  if (!formCadastro) return;
+  formCadastro.noValidate = true;
+  // Cria o espaço reservado de erro em todos os campos ao abrir a página (evita "pulo" no layout)
+  formCadastro.querySelectorAll(".campo-form input").forEach((input) => {
+    definirErroCampo(input, "");
+  });
+
+  const campos = obterCamposCadastro();
+  const {
+    nome: campoNome,
+    cpf: campoCpf,
+    telefone: campoTelefone,
+    email: campoEmail,
+    senha: campoSenha,
+    confirmaSenha: campoConfirmaSenha,
+  } = campos;
+
+  configurarCamposDadosCadastro(campos);
+  configurarCamposSenhaCadastro(campos.senha, campos.confirmaSenha);
 
   // Envia o formulário ao clicar em "Criar conta"
   formCadastro.addEventListener("submit", async (evento) => {
@@ -394,17 +431,7 @@ export function inicializarCadastro() {
       },
       { exigirSenha: true, validarConfirmacao: true },
     );
-    const valido = aplicarErrosFormulario(
-      {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senha: campoSenha,
-        confirmaSenha: campoConfirmaSenha,
-      },
-      erros,
-    );
+    const valido = aplicarErrosFormulario(campos, erros);
     if (!valido) return;
     // Salva o cliente no localStorage com senha protegida por SHA-256
     const btnSubmit = formCadastro.querySelector('button[type="submit"]');
@@ -439,6 +466,100 @@ export function inicializarCadastro() {
 inicializarCadastro();
 
 /**
+ * Verifica se algum dado cadastral ou senha foi efetivamente modificado pelo cliente.
+ * @param {Object} clienteAtual
+ * @param {{nomeLimpo: string, cpfNumeros: string, telefoneLimpo: string, emailNormalizado: string, novaSenhaTexto: string}} novosDados
+ * @returns {boolean}
+ */
+function houveAlteracaoCliente(
+  clienteAtual,
+  { nomeLimpo, cpfNumeros, telefoneLimpo, emailNormalizado, novaSenhaTexto },
+) {
+  return (
+    nomeLimpo !== clienteAtual.nome ||
+    limparNumeros(clienteAtual.cpf) !== cpfNumeros ||
+    telefoneLimpo !== clienteAtual.telefone ||
+    emailNormalizado !== clienteAtual.email.toLowerCase() ||
+    Boolean(novaSenhaTexto)
+  );
+}
+
+/**
+ * Verifica se já existe outro cliente com o mesmo CPF ou e-mail cadastrado.
+ * @param {Array<Object>} clientes
+ * @param {{cpfNumeros: string, emailNormalizado: string, ignorarId?: string}} criterio
+ * @returns {{erroCampo: string, mensagem: string}|null}
+ */
+function verificarConflitoUnicidade(
+  clientes,
+  { cpfNumeros, emailNormalizado, ignorarId = "" },
+) {
+  const sufixo = ignorarId ? " em outra conta." : ".";
+  for (const c of clientes) {
+    if (c.id === ignorarId) continue;
+    if (limparNumeros(c.cpf) === cpfNumeros) {
+      return {
+        erroCampo: "cpf",
+        mensagem: `Este CPF já está cadastrado${sufixo}`,
+      };
+    }
+    if (c.email.toLowerCase() === emailNormalizado) {
+      return {
+        erroCampo: "email",
+        mensagem: `Este e-mail já está cadastrado${sufixo}`,
+      };
+    }
+  }
+  return null;
+}
+
+/**
+ * Valida a senha atual do cliente e gera um novo par { salt, senhaHash } para a nova senha.
+ * @param {Object} clienteAtual
+ * @param {string} senhaAtualTexto
+ * @param {string} novaSenhaTexto
+ * @returns {Promise<{sucesso: boolean, erroCampo?: string, mensagem?: string, salt?: string, senhaHash?: string}>}
+ */
+async function processarTrocaSenha(
+  clienteAtual,
+  senhaAtualTexto,
+  novaSenhaTexto,
+) {
+  if (!senhaAtualTexto) {
+    return {
+      sucesso: false,
+      erroCampo: "senhaAtual",
+      mensagem: MENSAGENS_ERRO_CLIENTE.senhaAtual,
+    };
+  }
+  const hashDigitado = await gerarHashSenha(senhaAtualTexto, clienteAtual.salt);
+  if (hashDigitado !== clienteAtual.senhaHash) {
+    return {
+      sucesso: false,
+      erroCampo: "senhaAtual",
+      mensagem: "A senha atual está incorreta.",
+    };
+  }
+  const novoSalt = gerarSalt();
+  const novaSenhaHash = await gerarHashSenha(novaSenhaTexto, novoSalt);
+  return { sucesso: true, salt: novoSalt, senhaHash: novaSenhaHash };
+}
+
+/**
+ * Sincroniza nome e e-mail na sessão ativa caso pertença ao cliente atualizado.
+ * @param {string} idCliente
+ * @param {{nome: string, email: string}} dadosSessao
+ */
+function sincronizarSessaoCliente(idCliente, { nome, email }) {
+  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
+  if (sessao && sessao.usuarioId === idCliente) {
+    sessao.nome = nome;
+    sessao.email = email;
+    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
+  }
+}
+
+/**
  * Atualiza os dados cadastrais e/ou a senha de um cliente, validando todos os campos,
  * unicidade de CPF/e-mail e senha atual (Requisito 2.1e).
  * @param {string} idCliente - ID do cliente logado.
@@ -457,24 +578,22 @@ export async function atualizarCliente(
   } = {},
 ) {
   const clientes = obterClientes();
-  const indice = clientes.findIndex((c) => c.id === idCliente);
-  if (indice === -1) {
+  const clienteAtual = clientes.find((c) => c.id === idCliente);
+  if (!clienteAtual) {
     return { sucesso: false, mensagem: "Cliente não encontrado." };
   }
-  const clienteAtual = clientes[indice];
-  // Padroniza campos recebidos (sempre com const!)
+
   const nomeLimpo = String(nome ?? "").trim();
   const cpfTexto = String(cpf ?? "").trim();
-  const cpfMascarado = aplicarMascaraCPF(cpfTexto);
   const cpfNumeros = limparNumeros(cpfTexto);
   const telefoneTexto = String(telefone ?? "").trim();
+  const telefoneLimpo = limparNumeros(telefoneTexto);
   const emailNormalizado = String(email ?? "")
     .trim()
     .toLowerCase();
   const senhaAtualTexto = String(senhaAtual ?? "");
   const novaSenhaTexto = String(novaSenha ?? "");
 
-  // Valida formato de todas as entradas antes de qualquer gravação
   const erros = validarDadosCliente(
     {
       nome: nomeLimpo,
@@ -489,22 +608,17 @@ export async function atualizarCliente(
   if (primeiroErro) {
     const campoErro =
       primeiroErro[0] === "senha" ? "novaSenha" : primeiroErro[0];
-    return {
-      sucesso: false,
-      erroCampo: campoErro,
-      mensagem: primeiroErro[1],
-    };
+    return { sucesso: false, erroCampo: campoErro, mensagem: primeiroErro[1] };
   }
 
-  const telefoneLimpo = limparNumeros(telefoneTexto);
-
-  // atualizar apenas se houver alteração
   if (
-    nomeLimpo === clienteAtual.nome &&
-    limparNumeros(clienteAtual.cpf) === cpfNumeros &&
-    telefoneLimpo === clienteAtual.telefone &&
-    emailNormalizado === clienteAtual.email.toLowerCase() &&
-    !novaSenhaTexto
+    !houveAlteracaoCliente(clienteAtual, {
+      nomeLimpo,
+      cpfNumeros,
+      telefoneLimpo,
+      emailNormalizado,
+      novaSenhaTexto,
+    })
   ) {
     return {
       sucesso: false,
@@ -513,67 +627,35 @@ export async function atualizarCliente(
     };
   }
 
-  // Percorre a lista de clientes
-  for (const c of clientes) {
-    // Verifica cadastro com o mesmo CPF
-    if (c.id !== idCliente && limparNumeros(c.cpf) === cpfNumeros) {
-      return {
-        sucesso: false,
-        erroCampo: "cpf",
-        mensagem: "Este CPF já está cadastrado em outra conta.",
-      };
-    }
-
-    // Verifica cadastro com o mesmo E-mail
-    if (c.id !== idCliente && c.email.toLowerCase() === emailNormalizado) {
-      return {
-        sucesso: false,
-        erroCampo: "email",
-        mensagem: "Este e-mail já está cadastrado em outra conta.",
-      };
-    }
+  const conflito = verificarConflitoUnicidade(clientes, {
+    cpfNumeros,
+    emailNormalizado,
+    ignorarId: idCliente,
+  });
+  if (conflito) {
+    return { sucesso: false, ...conflito };
   }
 
-  // Se o usuário preencheu uma nova senha, exige e confere a senha atual
   if (novaSenhaTexto) {
-    if (!senhaAtualTexto) {
-      return {
-        sucesso: false,
-        erroCampo: "senhaAtual",
-        mensagem: "Informe sua senha atual para alterar a senha.",
-      };
-    }
-    const hashDigitado = await gerarHashSenha(
+    const resSenha = await processarTrocaSenha(
+      clienteAtual,
       senhaAtualTexto,
-      clienteAtual.salt,
+      novaSenhaTexto,
     );
-    if (hashDigitado !== clienteAtual.senhaHash) {
-      return {
-        sucesso: false,
-        erroCampo: "senhaAtual",
-        mensagem: "A senha atual está incorreta.",
-      };
-    }
-    // Senha atual confere! Gera novo salt e novo hash para a nova senha
-    const novoSalt = gerarSalt();
-    clienteAtual.salt = novoSalt;
-    clienteAtual.senhaHash = await gerarHashSenha(novaSenhaTexto, novoSalt);
+    if (!resSenha.sucesso) return resSenha;
+    clienteAtual.salt = resSenha.salt;
+    clienteAtual.senhaHash = resSenha.senhaHash;
   }
 
-  // Atualiza os campos cadastrais no objeto do cliente
   clienteAtual.nome = nomeLimpo;
-  clienteAtual.cpf = cpfMascarado;
+  clienteAtual.cpf = aplicarMascaraCPF(cpfTexto);
   clienteAtual.telefone = telefoneLimpo;
   clienteAtual.email = emailNormalizado;
   salvarDados(CHAVES_STORAGE.CLIENTES, clientes);
-
-  // Atualiza também o nome e e-mail na sessão ativa (para refletir no header "Olá, ...")
-  const sessao = lerDados(CHAVES_STORAGE.SESSAO, null);
-  if (sessao && sessao.usuarioId === idCliente) {
-    sessao.nome = nomeLimpo;
-    sessao.email = emailNormalizado;
-    salvarDados(CHAVES_STORAGE.SESSAO, sessao);
-  }
+  sincronizarSessaoCliente(idCliente, {
+    nome: nomeLimpo,
+    email: emailNormalizado,
+  });
 
   return {
     sucesso: true,

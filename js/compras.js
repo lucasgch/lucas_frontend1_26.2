@@ -104,6 +104,7 @@ export function devolverEstoqueItens(itensComprados) {
 
 const STATUS_COMPRA_VALIDOS = ["Pago", "Enviado", "Entregue", "Cancelado"];
 const METODOS_PAGAMENTO_VALIDOS = ["pix", "cartao", "boleto"];
+
 /**
  * Altera o status de uma compra e devolve os itens ao estoque quando cancelada (Requisito 2.5d).
  * Pedidos já cancelados são tratados como estado final para evitar devolução duplicada de estoque.
@@ -150,6 +151,136 @@ export function atualizarStatusCompra(idCompra, novoStatus) {
 }
 
 /**
+ * Sanitiza e valida os campos obrigatórios do endereço de entrega.
+ * @param {Object|null} enderecoEntrega
+ * @returns {{valido: boolean, mensagem?: string, endereco?: Object}}
+ */
+function validarEnderecoCheckout(enderecoEntrega) {
+  const cepLimpo = limparNumeros(enderecoEntrega?.cep);
+  const logradouro = String(enderecoEntrega?.logradouro ?? "").trim();
+  const numero = String(enderecoEntrega?.numero ?? "").trim();
+  const complemento = String(enderecoEntrega?.complemento ?? "").trim();
+  const bairro = String(enderecoEntrega?.bairro ?? "").trim();
+  const cidade = String(enderecoEntrega?.cidade ?? "").trim();
+  const uf = String(enderecoEntrega?.uf ?? "").trim().toUpperCase();
+  if (
+    cepLimpo.length !== 8 ||
+    !logradouro ||
+    !numero ||
+    !bairro ||
+    !cidade ||
+    !validarUF(uf)
+  ) {
+    return {
+      valido: false,
+      mensagem:
+        "Endereço de entrega inválido. Verifique CEP, campos obrigatórios e UF.",
+    };
+  }
+  return {
+    valido: true,
+    endereco: {
+      cep: aplicarMascaraCEP(cepLimpo),
+      logradouro,
+      numero,
+      complemento,
+      bairro,
+      cidade,
+      uf,
+    },
+  };
+}
+
+/**
+ * Sanitiza e valida os dados da forma de pagamento escolhida (Pix, Cartão ou Boleto),
+ * garantindo que apenas os 4 últimos dígitos do cartão sejam armazenados (Requisito 2.4c).
+ * @param {Object|null} pagamento
+ * @returns {{valido: boolean, mensagem?: string, pagamento?: Object}}
+ */
+function validarPagamentoCheckout(pagamento) {
+  const metodo = String(pagamento?.metodo ?? "").trim();
+  if (!METODOS_PAGAMENTO_VALIDOS.includes(metodo)) {
+    return { valido: false, mensagem: "Forma de pagamento inválida." };
+  }
+
+  if (metodo === "cartao") {
+    const ultimos4Digitos = String(pagamento?.ultimos4Digitos ?? "").trim();
+    const titular = String(pagamento?.titular ?? "").trim();
+    if (!/^\d{4}$/.test(ultimos4Digitos) || titular.length < 3) {
+      return { valido: false, mensagem: "Dados do cartão inválidos." };
+    }
+    return {
+      valido: true,
+      pagamento: { metodo: "cartao", ultimos4Digitos, titular },
+    };
+  }
+
+  if (metodo === "pix") {
+    return {
+      valido: true,
+      pagamento: {
+        metodo: "pix",
+        codigo: String(pagamento?.codigo ?? "").trim(),
+      },
+    };
+  }
+
+  return {
+    valido: true,
+    pagamento: {
+      metodo: "boleto",
+      linhaDigitavel: String(pagamento?.linhaDigitavel ?? "").trim(),
+    },
+  };
+}
+
+/**
+ * Revalida os itens do carrinho contra o catálogo e o estoque atual e monta o snapshot dos itens do pedido (Requisitos 2.4d e 2.4e).
+ * @param {string} usuarioId - ID do cliente autenticado.
+ * @returns {{valido: boolean, mensagem?: string, itens?: Array<Object>}}
+ */
+function montarItensPedidoValidados(usuarioId) {
+  const itensCarrinho = obterCarrinho(usuarioId);
+  if (itensCarrinho.length === 0) {
+    return { valido: false, mensagem: "Seu carrinho está vazio." };
+  }
+
+  const catalogo = obterProdutosComEstoque();
+  const itensPedido = [];
+
+  for (const item of itensCarrinho) {
+    const produto = catalogo.find((p) => p.id === item?.produtoId);
+    if (!produto) {
+      return {
+        valido: false,
+        mensagem: `Produto ${item?.produtoId} não encontrado.`,
+      };
+    }
+    if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
+      return {
+        valido: false,
+        mensagem: `Quantidade inválida para "${produto.nome}".`,
+      };
+    }
+    if (item.quantidade > produto.estoque) {
+      return {
+        valido: false,
+        mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`,
+      };
+    }
+    itensPedido.push({
+      produtoId: produto.id,
+      nome: produto.nome,
+      precoUnitario: produto.preco,
+      quantidade: item.quantidade,
+      subtotal: produto.preco * item.quantidade,
+    });
+  }
+
+  return { valido: true, itens: itensPedido };
+}
+
+/**
  * Registra uma nova compra, validando endereço, pagamento, quantidades e estoque,
  * gerando ID sequencial (CP001...), dando baixa no estoque e esvaziando o carrinho (Requisitos 2.4c, 2.4d, 2.4e, 2.4f).
  * @param {{enderecoEntrega: Object, pagamento: Object}} dadosCheckout
@@ -171,105 +302,25 @@ export function registrarCompra({
   }
 
   // Valida endereço de entrega antes de gravar
-  const cepLimpo = limparNumeros(enderecoEntrega?.cep);
-  const logradouro = String(enderecoEntrega?.logradouro ?? "").trim();
-  const numero = String(enderecoEntrega?.numero ?? "").trim();
-  const complemento = String(enderecoEntrega?.complemento ?? "").trim();
-  const bairro = String(enderecoEntrega?.bairro ?? "").trim();
-  const cidade = String(enderecoEntrega?.cidade ?? "").trim();
-  const uf = String(enderecoEntrega?.uf ?? "")
-    .trim()
-    .toUpperCase();
-
-  if (
-    cepLimpo.length !== 8 ||
-    !logradouro ||
-    !numero ||
-    !bairro ||
-    !cidade ||
-    !validarUF(uf)
-  ) {
-    return {
-      sucesso: false,
-      mensagem:
-        "Endereço de entrega inválido. Verifique CEP, campos obrigatórios e UF.",
-    };
+  const resEndereco = validarEnderecoCheckout(enderecoEntrega);
+  if (!resEndereco.valido) {
+    return { sucesso: false, mensagem: resEndereco.mensagem };
   }
-
-  const enderecoValidado = {
-    cep: aplicarMascaraCEP(cepLimpo),
-    logradouro,
-    numero,
-    complemento,
-    bairro,
-    cidade,
-    uf,
-  };
+  const enderecoValidado = resEndereco.endereco;
 
   // Valida dados de pagamento antes de gravar (garantindo que nunca salva número completo/CVV do cartão)
-  const metodo = String(pagamento?.metodo ?? "").trim();
-  if (!METODOS_PAGAMENTO_VALIDOS.includes(metodo)) {
-    return { sucesso: false, mensagem: "Forma de pagamento inválida." };
+  const resPagamento = validarPagamentoCheckout(pagamento);
+  if (!resPagamento.valido) {
+    return { sucesso: false, mensagem: resPagamento.mensagem };
   }
-
-  let pagamentoValidado;
-  if (metodo === "cartao") {
-    const ultimos4Digitos = String(pagamento?.ultimos4Digitos ?? "").trim();
-    const titular = String(pagamento?.titular ?? "").trim();
-    if (!/^\d{4}$/.test(ultimos4Digitos) || titular.length < 3) {
-      return { sucesso: false, mensagem: "Dados do cartão inválidos." };
-    }
-    pagamentoValidado = { metodo: "cartao", ultimos4Digitos, titular };
-  } else if (metodo === "pix") {
-    pagamentoValidado = {
-      metodo: "pix",
-      codigo: String(pagamento?.codigo ?? "").trim(),
-    };
-  } else {
-    pagamentoValidado = {
-      metodo: "boleto",
-      linhaDigitavel: String(pagamento?.linhaDigitavel ?? "").trim(),
-    };
-  }
+  const pagamentoValidado = resPagamento.pagamento;
 
   // Verifica itens do carrinho e revalida quantidades e estoque antes de concluir (Requisito 2.4e)
-  const itensCarrinho = obterCarrinho(sessao.usuarioId);
-  if (itensCarrinho.length === 0) {
-    return { sucesso: false, mensagem: "Seu carrinho está vazio." };
+  const resItens = montarItensPedidoValidados(sessao.usuarioId);
+  if (!resItens.valido) {
+    return { sucesso: false, mensagem: resItens.mensagem };
   }
-
-  const catalogo = obterProdutosComEstoque();
-  const itensPedido = [];
-
-  for (const item of itensCarrinho) {
-    const produto = catalogo.find((p) => p.id === item?.produtoId);
-    if (!produto) {
-      return {
-        sucesso: false,
-        mensagem: `Produto ${item?.produtoId} não encontrado.`,
-      };
-    }
-    if (!Number.isInteger(item.quantidade) || item.quantidade <= 0) {
-      return {
-        sucesso: false,
-        mensagem: `Quantidade inválida para "${produto.nome}".`,
-      };
-    }
-    if (item.quantidade > produto.estoque) {
-      return {
-        sucesso: false,
-        mensagem: `Estoque insuficiente para "${produto.nome}" (disponível: ${produto.estoque}).`,
-      };
-    }
-    // Registra valor unitário praticado no momento da compra (Requisito 2.4d)
-    itensPedido.push({
-      produtoId: produto.id,
-      nome: produto.nome,
-      precoUnitario: produto.preco,
-      quantidade: item.quantidade,
-      subtotal: produto.preco * item.quantidade,
-    });
-  }
+  const itensPedido = resItens.itens;
 
   // Obtém valores consolidados (subtotal, desconto, frete, total)
   const resumo = obterResumoCarrinho(enderecoValidado.cep);
@@ -405,9 +456,9 @@ export function inicializarCheckout() {
   const inputCartaoValidade = document.getElementById("chk-cartao-validade");
   const inputCartaoCvv = document.getElementById("chk-cartao-cvv");
   function mostrarEtapa(numero) {
-    etapa1.hidden = numero !== 1;
-    etapa2.hidden = numero !== 2;
-    etapa3.hidden = numero !== 3;
+    if (etapa1) etapa1.hidden = numero !== 1;
+    if (etapa2) etapa2.hidden = numero !== 2;
+    if (etapa3) etapa3.hidden = numero !== 3;
     const titulos = {
       1: "Etapa 1 de 3: Resumo do Pedido",
       2: "Etapa 2 de 3: Endereço de Entrega",
@@ -416,6 +467,7 @@ export function inicializarCheckout() {
     if (indicadorEtapa) indicadorEtapa.textContent = titulos[numero];
   }
   function preencherResumoEtapa1() {
+    if (!divResumo) return;
     const itens = obterCarrinho();
     const catalogo = obterProdutosComEstoque();
     const resumo = obterResumoCarrinho();
@@ -505,7 +557,7 @@ export function inicializarCheckout() {
     .getElementById("btn-voltar-etapa-2")
     ?.addEventListener("click", () => mostrarEtapa(2));
   document.getElementById("btn-ir-etapa-3")?.addEventListener("click", () => {
-    erroEtapa2.textContent = "";
+    if (erroEtapa2) erroEtapa2.textContent = "";
     if (
       limparNumeros(inputCep?.value).length !== 8 ||
       !inputLogradouro?.value.trim() ||
@@ -514,11 +566,13 @@ export function inicializarCheckout() {
       !inputCidade?.value.trim() ||
       !validarUF(inputUf?.value)
     ) {
-      erroEtapa2.textContent =
-        "Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF válida, ex: SC).";
+      if (erroEtapa2) {
+        erroEtapa2.textContent =
+          "Preencha todos os campos obrigatórios do endereço (CEP com 8 dígitos e UF válida, ex: SC).";
+      }
       return;
     }
-    salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep.value) });
+    salvarExtrasCarrinho({ cep: aplicarMascaraCEP(inputCep?.value) });
     renderizarCarrinho();
     mostrarEtapa(3);
   });
@@ -529,19 +583,22 @@ export function inicializarCheckout() {
   const painelPix = document.getElementById("painel-pagamento-pix");
   const painelCartao = document.getElementById("painel-pagamento-cartao");
   const painelBoleto = document.getElementById("painel-pagamento-boleto");
+  const definirErroEtapa3 = (mensagem) => {
+    if (erroEtapa3) erroEtapa3.textContent = mensagem;
+  };
   radiosPagamento.forEach((radio) => {
     radio.addEventListener("change", () => {
-      painelPix.hidden = radio.value !== "pix";
-      painelCartao.hidden = radio.value !== "cartao";
-      painelBoleto.hidden = radio.value !== "boleto";
-      erroEtapa3.textContent = "";
+      if (painelPix) painelPix.hidden = radio.value !== "pix";
+      if (painelCartao) painelCartao.hidden = radio.value !== "cartao";
+      if (painelBoleto) painelBoleto.hidden = radio.value !== "boleto";
+      definirErroEtapa3("");
     });
   });
   // Confirmar Compra (Etapa 3)
   document
     .getElementById("btn-confirmar-compra")
     ?.addEventListener("click", () => {
-      erroEtapa3.textContent = "";
+      definirErroEtapa3("");
       const metodo =
         modalCheckout.querySelector('input[name="metodo_pagamento"]:checked')
           ?.value || "pix";
@@ -552,21 +609,23 @@ export function inicializarCheckout() {
         const validade = inputCartaoValidade?.value.trim() || "";
         const cvv = limparNumeros(inputCartaoCvv?.value);
         if (!validarCartaoLuhn(numCartao)) {
-          erroEtapa3.textContent =
-            "Número de cartão inválido (falhou na verificação de Luhn).";
+          definirErroEtapa3(
+            "Número de cartão inválido (falhou na verificação de Luhn).",
+          );
           return;
         }
         if (nomeCartao.length < 3) {
-          erroEtapa3.textContent = "Informe o nome impresso no cartão.";
+          definirErroEtapa3("Informe o nome impresso no cartão.");
           return;
         }
         if (!validarValidadeCartao(validade)) {
-          erroEtapa3.textContent =
-            "Validade inválida ou cartão vencido (use MM/AA).";
+          definirErroEtapa3(
+            "Validade inválida ou cartão vencido (use MM/AA).",
+          );
           return;
         }
         if (cvv.length < 3 || cvv.length > 4) {
-          erroEtapa3.textContent = "Informe um CVV válido de 3 ou 4 dígitos.";
+          definirErroEtapa3("Informe um CVV válido de 3 ou 4 dígitos.");
           return;
         }
         // Requisito 2.4c: armazena apenas os 4 últimos dígitos do cartão!
@@ -590,20 +649,20 @@ export function inicializarCheckout() {
         };
       }
       const enderecoEntrega = {
-        cep: aplicarMascaraCEP(inputCep.value),
-        logradouro: inputLogradouro.value.trim(),
-        numero: inputNumero.value.trim(),
+        cep: aplicarMascaraCEP(inputCep?.value),
+        logradouro: inputLogradouro?.value.trim() || "",
+        numero: inputNumero?.value.trim() || "",
         complemento: inputComplemento?.value.trim() || "",
-        bairro: inputBairro.value.trim(),
-        cidade: inputCidade.value.trim(),
-        uf: inputUf.value.trim().toUpperCase(),
+        bairro: inputBairro?.value.trim() || "",
+        cidade: inputCidade?.value.trim() || "",
+        uf: inputUf?.value.trim().toUpperCase() || "",
       };
       const resultado = registrarCompra({
         enderecoEntrega,
         pagamento: dadosPagamento,
       });
       if (!resultado.sucesso) {
-        erroEtapa3.textContent = resultado.mensagem;
+        definirErroEtapa3(resultado.mensagem);
         return;
       }
       modalCheckout.close();
