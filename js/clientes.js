@@ -343,7 +343,10 @@ function configurarCamposSenhaCadastro(campoSenha, campoConfirmaSenha) {
       campoConfirmaSenha.value &&
       campoConfirmaSenha.value !== campoSenha.value
     ) {
-      definirErroCampo(campoConfirmaSenha, MENSAGENS_ERRO_CLIENTE.confirmaSenha);
+      definirErroCampo(
+        campoConfirmaSenha,
+        MENSAGENS_ERRO_CLIENTE.confirmaSenha,
+      );
     } else {
       definirErroCampo(campoConfirmaSenha, "");
     }
@@ -581,7 +584,9 @@ export async function atualizarCliente(
   const cpfNumeros = limparNumeros(cpfTexto);
   const telefoneTexto = String(telefone ?? "").trim();
   const telefoneLimpo = limparNumeros(telefoneTexto);
-  const emailNormalizado = String(email ?? "").trim().toLowerCase();
+  const emailNormalizado = String(email ?? "")
+    .trim()
+    .toLowerCase();
   const senhaAtualTexto = String(senhaAtual ?? "");
   const novaSenhaTexto = String(novaSenha ?? "");
 
@@ -678,6 +683,180 @@ export function excluirContaCliente(idCliente) {
 }
 
 /**
+ * Conecta os botões de abertura, cancelamento e confirmação do modal de exclusão de conta.
+ * @param {string} usuarioId - ID do cliente autenticado.
+ */
+function inicializarModalExclusaoConta(usuarioId) {
+  const modalExcluir = document.getElementById("modal-excluir-conta");
+  const btnAbrirExcluir = document.getElementById("btn-abrir-excluir-conta");
+  const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
+  const btnConfirmarExclusao = document.getElementById(
+    "btn-confirmar-exclusao",
+  );
+  btnAbrirExcluir?.addEventListener("click", () => modalExcluir?.showModal());
+  btnCancelarExclusao?.addEventListener("click", () => modalExcluir?.close());
+  btnConfirmarExclusao?.addEventListener("click", () => {
+    excluirContaCliente(usuarioId);
+    window.location.href = "index.html";
+  });
+}
+
+/**
+ * Coleta as referências aos campos do formulário de perfil.
+ * @returns {Object} Mapa de elementos <input> do formulário.
+ */
+function obterCamposPerfil() {
+  return {
+    id: document.getElementById("perfil-id"),
+    nome: document.getElementById("perfil-nome"),
+    cpf: document.getElementById("perfil-cpf"),
+    telefone: document.getElementById("perfil-telefone"),
+    email: document.getElementById("perfil-email"),
+    senhaAtual: document.getElementById("perfil-senha-atual"),
+    novaSenha: document.getElementById("perfil-senha"),
+    confirmaSenha: document.getElementById("perfil-confirma-senha"),
+  };
+}
+
+/**
+ * Preenche o formulário de perfil com os dados atuais do cliente (CPF ofuscado)
+ * e atualiza o título da tabela de pedidos.
+ * @param {string} usuarioId - ID do cliente autenticado.
+ * @param {Object} campos - Mapa de inputs retornado por obterCamposPerfil().
+ */
+function preencherCamposPerfil(usuarioId, campos) {
+  const cliente = obterClientes().find((c) => c.id === usuarioId);
+  if (!cliente) return;
+  campos.id.value = cliente.id;
+  campos.nome.value = cliente.nome;
+  campos.cpf.value = ofuscarCPF(cliente.cpf);
+  campos.cpf.dataset.ofuscado = "true";
+  campos.cpf.dataset.cpfReal = cliente.cpf;
+  campos.telefone.value = cliente.telefone || "";
+  campos.email.value = cliente.email;
+  campos.senhaAtual.value = "";
+  campos.novaSenha.value = "";
+  campos.confirmaSenha.value = "";
+  const captionPedidos = document.querySelector("#tabela-pedidos caption");
+  if (captionPedidos) {
+    captionPedidos.textContent = `Histórico de pedidos do cliente ${cliente.id}`;
+  }
+}
+
+/**
+ * Configura o comportamento interativo dos campos do perfil:
+ * ofuscação/reofuscação do CPF (LGPD), máscaras e limpeza de erros ao digitar.
+ * @param {Object} campos - Mapa de inputs retornado por obterCamposPerfil().
+ */
+function configurarCamposPerfil(campos) {
+  const { cpf, telefone, nome, email, senhaAtual, novaSenha, confirmaSenha } =
+    campos;
+  // CPF ofuscado (LGPD): limpa ao focar para edição e restaura se sair vazio
+  cpf?.addEventListener("focus", () => {
+    if (cpf.readOnly) return;
+    if (cpf.dataset.ofuscado === "true") {
+      cpf.value = "";
+      cpf.dataset.ofuscado = "false";
+      definirErroCampo(cpf, "");
+    }
+  });
+  cpf?.addEventListener("blur", () => {
+    if (cpf.readOnly) return;
+    if (!cpf.value.trim() && cpf.dataset.cpfReal) {
+      cpf.value = ofuscarCPF(cpf.dataset.cpfReal);
+      cpf.dataset.ofuscado = "true";
+      definirErroCampo(cpf, "");
+    }
+  });
+  // Máscara do CPF ao digitar
+  cpf?.addEventListener("input", () => {
+    cpf.dataset.ofuscado = "false";
+    cpf.value = aplicarMascaraCPF(cpf.value);
+    definirErroCampo(cpf, "");
+  });
+  // Apenas números no Telefone ao digitar
+  telefone?.addEventListener("input", () => {
+    telefone.value = limparNumeros(telefone.value).slice(0, 11);
+    definirErroCampo(telefone, "");
+  });
+  // Limpa erro dos demais campos quando o usuário começa a corrigir
+  [nome, email, senhaAtual, novaSenha, confirmaSenha].forEach((campo) => {
+    campo?.addEventListener("input", () => definirErroCampo(campo, ""));
+  });
+}
+
+/**
+ * Valida e envia as alterações do formulário de perfil, exibindo feedback de erro ou sucesso.
+ * @param {SubmitEvent} evento - Evento de submit do formulário.
+ * @param {{formPerfil: HTMLFormElement, usuarioId: string, campos: Object, avisoPerfil: HTMLElement}} contexto
+ */
+async function processarSubmitPerfil(
+  evento,
+  { formPerfil, usuarioId, campos, avisoPerfil },
+) {
+  evento.preventDefault();
+  definirMensagemEstado(avisoPerfil, "");
+
+  // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
+  const cpfInformado =
+    campos.cpf?.dataset.ofuscado === "true"
+      ? campos.cpf.dataset.cpfReal
+      : campos.cpf?.value;
+
+  const erros = validarDadosCliente(
+    {
+      nome: campos.nome?.value,
+      cpf: cpfInformado,
+      telefone: campos.telefone?.value,
+      email: campos.email?.value,
+      senhaAtual: campos.senhaAtual?.value,
+      senha: campos.novaSenha?.value,
+      confirmaSenha: campos.confirmaSenha?.value,
+    },
+    { exigirSenha: false, validarConfirmacao: true, exigirSenhaAtual: true },
+  );
+
+  const valido = aplicarErrosFormulario(
+    { ...campos, senha: campos.novaSenha },
+    erros,
+  );
+  if (!valido) return;
+
+  const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
+  alternarCarregamentoBotao(btnSubmitPerfil, true, "Salvando...");
+  let resultado;
+  try {
+    resultado = await atualizarCliente(usuarioId, {
+      nome: campos.nome.value,
+      cpf: cpfInformado,
+      telefone: campos.telefone.value,
+      email: campos.email.value,
+      senhaAtual: campos.senhaAtual.value,
+      novaSenha: campos.novaSenha.value,
+    });
+  } finally {
+    alternarCarregamentoBotao(btnSubmitPerfil, false);
+  }
+
+  if (!resultado.sucesso) {
+    const campoErro = campos[resultado.erroCampo];
+    if (campoErro) {
+      definirErroCampo(campoErro, resultado.mensagem);
+      campoErro.focus();
+    } else {
+      definirMensagemEstado(avisoPerfil, resultado.mensagem, "aviso");
+    }
+    return;
+  }
+
+  // Sucesso!
+  definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
+  preencherCamposPerfil(usuarioId, campos);
+  renderizarMenuDinamico();
+  mostrarToast(resultado.mensagem, "sucesso");
+}
+
+/**
  * Inicializa o formulário de edição de perfil e o modal de exclusão de conta em perfil.html.
  */
 export function inicializarPerfil() {
@@ -691,14 +870,7 @@ export function inicializarPerfil() {
 
   if (!sessao) return;
 
-  const campoId = document.getElementById("perfil-id");
-  const campoNome = document.getElementById("perfil-nome");
-  const campoCpf = document.getElementById("perfil-cpf");
-  const campoTelefone = document.getElementById("perfil-telefone");
-  const campoEmail = document.getElementById("perfil-email");
-  const campoSenhaAtual = document.getElementById("perfil-senha-atual");
-  const campoNovaSenha = document.getElementById("perfil-senha");
-  const campoConfirmaSenha = document.getElementById("perfil-confirma-senha");
+  const campos = obterCamposPerfil();
 
   const avisoPerfil = document.createElement("p");
   avisoPerfil.className = "mensagem-erro-campo";
@@ -708,30 +880,7 @@ export function inicializarPerfil() {
     .querySelector(".acoes-form")
     ?.insertAdjacentElement("beforebegin", avisoPerfil);
 
-  function carregarDadosNosCampos() {
-    const cliente = obterClientes().find((c) => c.id === sessao.usuarioId);
-
-    if (!cliente) return;
-
-    campoId.value = cliente.id;
-    campoNome.value = cliente.nome;
-    campoCpf.value = ofuscarCPF(cliente.cpf);
-    campoCpf.dataset.ofuscado = "true";
-    campoCpf.dataset.cpfReal = cliente.cpf;
-    campoTelefone.value = cliente.telefone || "";
-    campoEmail.value = cliente.email;
-    campoSenhaAtual.value = "";
-    campoNovaSenha.value = "";
-    campoConfirmaSenha.value = "";
-
-    // Atualiza a tabela de pedidos
-    const captionPedidos = document.querySelector("#tabela-pedidos caption");
-    if (captionPedidos) {
-      captionPedidos.textContent = `Histórico de pedidos do cliente ${cliente.id}`;
-    }
-  }
-
-  carregarDadosNosCampos();
+  preencherCamposPerfil(sessao.usuarioId, campos);
 
   formPerfil.querySelectorAll(".campo-form input").forEach((input) => {
     definirErroCampo(input, "");
@@ -740,142 +889,23 @@ export function inicializarPerfil() {
   // Botão "Desfazer" (reset): restaura os dados reais do cliente logado
   formPerfil.addEventListener("reset", (evento) => {
     evento.preventDefault();
-    carregarDadosNosCampos();
+    preencherCamposPerfil(sessao.usuarioId, campos);
     avisoPerfil.textContent = "";
     formPerfil.querySelectorAll(".campo-form input").forEach((input) => {
       definirErroCampo(input, "");
     });
   });
-
-  // CPF ofuscado (LGPD): limpa ao focar para edição e restaura se sair vazio
-  campoCpf?.addEventListener("focus", () => {
-    if (campoCpf.readOnly) return;
-    if (campoCpf.dataset.ofuscado === "true") {
-      campoCpf.value = "";
-      campoCpf.dataset.ofuscado = "false";
-      definirErroCampo(campoCpf, "");
-    }
-  });
-  campoCpf?.addEventListener("blur", () => {
-    if (campoCpf.readOnly) return;
-    if (!campoCpf.value.trim() && campoCpf.dataset.cpfReal) {
-      campoCpf.value = ofuscarCPF(campoCpf.dataset.cpfReal);
-      campoCpf.dataset.ofuscado = "true";
-      definirErroCampo(campoCpf, "");
-    }
-  });
-  // Máscara do CPF ao digitar
-  campoCpf?.addEventListener("input", () => {
-    campoCpf.dataset.ofuscado = "false";
-    campoCpf.value = aplicarMascaraCPF(campoCpf.value);
-    definirErroCampo(campoCpf, "");
+  configurarCamposPerfil(campos);
+  formPerfil.addEventListener("submit", (evento) => {
+    processarSubmitPerfil(evento, {
+      formPerfil,
+      usuarioId: sessao.usuarioId,
+      campos,
+      avisoPerfil,
+    });
   });
 
-  // Apenas números no Telefone ao digitar
-  campoTelefone?.addEventListener("input", () => {
-    campoTelefone.value = limparNumeros(campoTelefone.value).slice(0, 11);
-    definirErroCampo(campoTelefone, "");
-  });
-
-  // Limpa erro dos demais campos quando o usuário começa a corrigir
-  [
-    campoNome,
-    campoEmail,
-    campoSenhaAtual,
-    campoNovaSenha,
-    campoConfirmaSenha,
-  ].forEach((campo) => {
-    campo?.addEventListener("input", () => definirErroCampo(campo, ""));
-  });
-
-  formPerfil.addEventListener("submit", async (evento) => {
-    evento.preventDefault();
-    avisoPerfil.textContent = "";
-    // Se o CPF continuou ofuscado (não foi editado), usa o CPF real salvo
-    const cpfInformado =
-      campoCpf?.dataset.ofuscado === "true"
-        ? campoCpf.dataset.cpfReal
-        : campoCpf?.value;
-
-    const erros = validarDadosCliente(
-      {
-        nome: campoNome?.value,
-        cpf: cpfInformado,
-        telefone: campoTelefone?.value,
-        email: campoEmail?.value,
-        senhaAtual: campoSenhaAtual?.value,
-        senha: campoNovaSenha?.value,
-        confirmaSenha: campoConfirmaSenha?.value,
-      },
-      { exigirSenha: false, validarConfirmacao: true, exigirSenhaAtual: true },
-    );
-    const valido = aplicarErrosFormulario(
-      {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senhaAtual: campoSenhaAtual,
-        senha: campoNovaSenha,
-        confirmaSenha: campoConfirmaSenha,
-      },
-      erros,
-    );
-    if (!valido) return;
-
-    const btnSubmitPerfil = formPerfil.querySelector('button[type="submit"]');
-    alternarCarregamentoBotao(btnSubmitPerfil, true, "Salvando...");
-    let resultado;
-    try {
-      resultado = await atualizarCliente(sessao.usuarioId, {
-        nome: campoNome.value,
-        cpf: cpfInformado,
-        telefone: campoTelefone.value,
-        email: campoEmail.value,
-        senhaAtual: campoSenhaAtual.value,
-        novaSenha: campoNovaSenha.value,
-      });
-    } finally {
-      alternarCarregamentoBotao(btnSubmitPerfil, false);
-    }
-    if (!resultado.sucesso) {
-      const mapaCamposErro = {
-        nome: campoNome,
-        cpf: campoCpf,
-        telefone: campoTelefone,
-        email: campoEmail,
-        senhaAtual: campoSenhaAtual,
-        novaSenha: campoNovaSenha,
-      };
-      const campoErro = mapaCamposErro[resultado.erroCampo];
-      if (campoErro) {
-        definirErroCampo(campoErro, resultado.mensagem);
-        campoErro.focus();
-      } else {
-        definirMensagemEstado(avisoPerfil, resultado.mensagem, "aviso");
-      }
-      return;
-    }
-
-    // Sucesso!
-    definirMensagemEstado(avisoPerfil, resultado.mensagem, "sucesso");
-    carregarDadosNosCampos();
-    renderizarMenuDinamico();
-    mostrarToast(resultado.mensagem, "sucesso");
-  });
-
-  const modalExcluir = document.getElementById("modal-excluir-conta");
-  const btnAbrirExcluir = document.getElementById("btn-abrir-excluir-conta");
-  const btnCancelarExclusao = document.getElementById("btn-cancelar-exclusao");
-  const btnConfirmarExclusao = document.getElementById(
-    "btn-confirmar-exclusao",
-  );
-  btnAbrirExcluir?.addEventListener("click", () => modalExcluir?.showModal());
-  btnCancelarExclusao?.addEventListener("click", () => modalExcluir?.close());
-  btnConfirmarExclusao?.addEventListener("click", () => {
-    excluirContaCliente(sessao.usuarioId);
-    window.location.href = "index.html";
-  });
+  inicializarModalExclusaoConta(sessao.usuarioId);
 }
 
 inicializarPerfil();
