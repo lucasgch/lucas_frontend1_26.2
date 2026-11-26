@@ -162,7 +162,9 @@ function validarEnderecoCheckout(enderecoEntrega) {
   const complemento = String(enderecoEntrega?.complemento ?? "").trim();
   const bairro = String(enderecoEntrega?.bairro ?? "").trim();
   const cidade = String(enderecoEntrega?.cidade ?? "").trim();
-  const uf = String(enderecoEntrega?.uf ?? "").trim().toUpperCase();
+  const uf = String(enderecoEntrega?.uf ?? "")
+    .trim()
+    .toUpperCase();
   if (
     cepLimpo.length !== 8 ||
     !logradouro ||
@@ -429,6 +431,38 @@ function renderizarConfirmacaoCompra(pedido) {
 }
 
 /**
+ * Configura as máscaras de formatação nos campos de endereço e cartão do checkout.
+ * @param {{cep?: HTMLInputElement, uf?: HTMLInputElement, cartaoNumero?: HTMLInputElement, cartaoValidade?: HTMLInputElement, cartaoCvv?: HTMLInputElement}} campos
+ */
+function configurarMascarasCheckout({
+  cep,
+  uf,
+  cartaoNumero,
+  cartaoValidade,
+  cartaoCvv,
+}) {
+  cep?.addEventListener("input", () => {
+    cep.value = aplicarMascaraCEP(cep.value);
+  });
+  uf?.addEventListener("input", () => {
+    uf.value = uf.value
+      .replace(/[^A-Za-z]/g, "")
+      .toUpperCase()
+      .slice(0, 2);
+  });
+  cartaoNumero?.addEventListener("input", () => {
+    cartaoNumero.value = limparNumeros(cartaoNumero.value).slice(0, 19);
+  });
+  cartaoValidade?.addEventListener("input", () => {
+    const d = limparNumeros(cartaoValidade.value).slice(0, 4);
+    cartaoValidade.value = d.replace(/^(\d{2})(\d)/, "$1/$2");
+  });
+  cartaoCvv?.addEventListener("input", () => {
+    cartaoCvv.value = limparNumeros(cartaoCvv.value).slice(0, 4);
+  });
+}
+
+/**
  * Inicializa o fluxo de checkout em 3 etapas na página da loja (Requisitos 2.4a, 2.4b, 2.4c, 2.4f).
  */
 export function inicializarCheckout() {
@@ -518,27 +552,12 @@ export function inicializarCheckout() {
     modalCheckout.showModal();
   });
   // Máscaras rápidas na Etapa 2 e 3
-  inputCep?.addEventListener("input", () => {
-    inputCep.value = aplicarMascaraCEP(inputCep.value);
-  });
-  inputUf?.addEventListener("input", () => {
-    inputUf.value = inputUf.value
-      .replace(/[^A-Za-z]/g, "")
-      .toUpperCase()
-      .slice(0, 2);
-  });
-  inputCartaoNumero?.addEventListener("input", () => {
-    inputCartaoNumero.value = limparNumeros(inputCartaoNumero.value).slice(
-      0,
-      19,
-    );
-  });
-  inputCartaoValidade?.addEventListener("input", () => {
-    const d = limparNumeros(inputCartaoValidade.value).slice(0, 4);
-    inputCartaoValidade.value = d.replace(/^(\d{2})(\d)/, "$1/$2");
-  });
-  inputCartaoCvv?.addEventListener("input", () => {
-    inputCartaoCvv.value = limparNumeros(inputCartaoCvv.value).slice(0, 4);
+  configurarMascarasCheckout({
+    cep: inputCep,
+    uf: inputUf,
+    cartaoNumero: inputCartaoNumero,
+    cartaoValidade: inputCartaoValidade,
+    cartaoCvv: inputCartaoCvv,
   });
   // Navegação entre etapas
   document
@@ -619,9 +638,7 @@ export function inicializarCheckout() {
           return;
         }
         if (!validarValidadeCartao(validade)) {
-          definirErroEtapa3(
-            "Validade inválida ou cartão vencido (use MM/AA).",
-          );
+          definirErroEtapa3("Validade inválida ou cartão vencido (use MM/AA).");
           return;
         }
         if (cvv.length < 3 || cvv.length > 4) {
